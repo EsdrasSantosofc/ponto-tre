@@ -3,385 +3,592 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>T.R.E. Montagens | Sistema de Ponto</title>
-  <!-- Supabase JS CDN -->
+  <title>T.R.E. - Gestão de Obras e Equipe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --bg-dark: #0f172a;
-      --card-bg: rgba(255, 255, 255, 0.94);
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      color: var(--text-main);
-      background-color: #0b1120;
-      /* Fundo Design com conceito de Baffles Acústicos no Teto */
-      background-image: 
-        linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(11, 17, 32, 0.95) 100%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'%3E%3Cdefs%3E%3ClinearGradient id='baffle' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6' stop-opacity='0.25'/%3E%3Cstop offset='100%25' stop-color='%231e3a8a' stop-opacity='0.05'/%3E%3C/linearGradient%3E%3ClinearGradient id='cable' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2394a3b8' stop-opacity='0.4'/%3E%3Cstop offset='100%25' stop-color='%23475569' stop-opacity='0.1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg%3E%3C!-- Linhas de Suspensão por Cabo de Aço --%3E%3Cline x1='100' y1='0' x2='100' y2='160' stroke='url(%23cable)' stroke-width='1.5'/%3E%3Cline x1='280' y1='0' x2='280' y2='220' stroke='url(%23cable)' stroke-width='1.5'/%3E%3Cline x1='460' y1='0' x2='460' y2='120' stroke='url(%23cable)' stroke-width='1.5'/%3E%3Cline x1='640' y1='0' x2='640' y2='200' stroke='url(%23cable)' stroke-width='1.5'/%3E%3Cline x1='820' y1='0' x2='820' y2='140' stroke='url(%23cable)' stroke-width='1.5'/%3E%3Cline x1='1000' y1='0' x2='1000' y2='240' stroke='url(%23cable)' stroke-width='1.5'/%3E%3C!-- Baffles Acusticos Verticais Suspensos --%3E%3Crect x='60' y='160' width='80' height='400' rx='8' fill='url(%23baffle)' stroke='rgba(59,130,246,0.2)' stroke-width='1'/%3E%3Crect x='240' y='220' width='80' height='450' rx='8' fill='url(%23baffle)' stroke='rgba(59,130,246,0.2)' stroke-width='1'/%3E%3Crect x='420' y='120' width='80' height='500' rx='8' fill='url(%23baffle)' stroke='rgba(59,130,246,0.2)' stroke-width='1'/%3E%3Crect x='600' y='200' width='80' height='420' rx='8' fill='url(%23baffle)' stroke='rgba(59,130,246,0.2)' stroke-width='1'/%3E%3Crect x='780' y='140' width='80' height='480' rx='8' fill='url(%23baffle)' stroke='rgba(59,130,246,0.2)' stroke-width='1'/%3E%3Crect x='960' y='240' width='80' height='380' rx='8' fill='url(%23baffle)' stroke='rgba(59,130,246,0.2)' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
-      background-size: cover;
-      background-position: center top;
-      background-attachment: fixed;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 420px;
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 28px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .header h1 {
-      font-size: 24px;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.5px;
-    }
-
-    .header p {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-dark {
-      background: #1e293b;
-      color: white;
-    }
-
-    .btn-dark:hover {
-      background: #0f172a;
-    }
-
-    .btn-secondary {
-      background: #e2e8f0;
-      color: #334155;
-    }
-
-    .input-group {
-      margin-bottom: 16px;
-      text-align: left;
-    }
-
-    .input-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: #475569;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-
-    .input-group input, .input-group select {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 14px;
-      outline: none;
-      background: #f8fafc;
-    }
-
-    .input-group input:focus {
-      border-color: var(--primary);
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .back-link {
-      display: inline-block;
-      margin-top: 10px;
-      color: var(--text-muted);
-      font-size: 13px;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .back-link:hover {
-      color: var(--primary);
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
-      background: #dbeafe;
-      color: #1e40af;
-      font-size: 11px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-  </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
 
-  <div class="container">
-    <!-- TELA 1: SELEÇÃO DE ACESSO -->
-    <div id="screen-home">
-      <div class="header">
-        <span class="badge">T.R.E. ACOUSTICS</span>
-        <h1>T.R.E. Montagens</h1>
-        <p>Gestão de Equipe e Obras</p>
+  <!-- TELA DE SELEÇÃO DE ACESSO (INICIAL) -->
+  <div id="pantalla-login" class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
+      <h1 class="text-3xl font-extrabold text-blue-900 mb-2">T.R.E. Montagens</h1>
+      <p class="text-gray-500 mb-8">Gestão de Equipe e Obras</p>
+
+      <div class="space-y-4">
+        <button onclick="mostrarVisao('funcionario')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition cursor-pointer">
+          👷 Acesso Funcionário (Ponto / Vales)
+        </button>
+
+        <button onclick="solicitarSenhaAdmin()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition cursor-pointer">
+          👑 Acesso Administrador (Patrão)
+        </button>
       </div>
-      <button class="btn btn-primary" onclick="showScreen('screen-func-login')">
-        👷 Acesso Funcionário (Ponto / Vales)
+    </div>
+  </div>
+
+  <!-- VISÃO DO FUNCIONÁRIO (MARCAR PONTO E ENVIAR VALES/COMPROVANTES) -->
+  <div id="visao-funcionario" class="hidden p-4 max-w-lg mx-auto min-h-screen pb-12">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-blue-900">👷 Área do Colaborador</h2>
+      <button onclick="sair()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-semibold">Sair</button>
+    </div>
+
+    <!-- CARD 1: MARCAR PONTO -->
+    <div class="bg-white p-6 rounded-2xl shadow-md space-y-4">
+      <h3 class="text-lg font-bold text-blue-900 border-b pb-2">📍 Registro de Ponto Diário</h3>
+      
+      <div>
+        <label class="block text-sm font-semibold mb-1">Selecione o seu Nome:</label>
+        <select id="ponto-funcionario" class="w-full p-3 border rounded-xl bg-gray-50"></select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">Selecione a Obra:</label>
+        <select id="ponto-obra" class="w-full p-3 border rounded-xl bg-gray-50"></select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">Data:</label>
+        <input type="date" id="ponto-data" class="w-full p-3 border rounded-xl bg-gray-50">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">PIN / Senha do Colaborador:</label>
+        <input type="password" id="ponto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50">
+      </div>
+
+      <button onclick="registrarPonto()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-md text-lg transition">
+        📍 BATER PONTO HOJE
       </button>
-      <button class="btn btn-dark" onclick="showScreen('screen-patrao-login')">
-        👑 Acesso Administrador (Patrão)
+    </div>
+
+    <!-- CARD 2: ENVIAR VALE / NOTA COMPROVANTE -->
+    <div class="bg-white p-6 rounded-2xl shadow-md space-y-4 mt-6">
+      <h3 class="text-lg font-bold text-blue-900 border-b pb-2">🧾 Enviar Vale ou Nota Comprovante</h3>
+      
+      <div>
+        <label class="block text-sm font-semibold mb-1">Selecione o seu Nome:</label>
+        <select id="vale-funcionario" class="w-full p-3 border rounded-xl bg-gray-50"></select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">Selecione a Obra:</label>
+        <select id="vale-obra" class="w-full p-3 border rounded-xl bg-gray-50"></select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-semibold mb-1">Valor (R$):</label>
+          <input type="number" step="0.01" id="vale-valor" placeholder="0,00" class="w-full p-3 border rounded-xl bg-gray-50">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-1">Data:</label>
+          <input type="date" id="vale-data" class="w-full p-3 border rounded-xl bg-gray-50">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">Descrição / Motivo:</label>
+        <input type="text" id="vale-descricao" placeholder="Ex: Almoço, Passagem, Vale semanal, Compra de material" class="w-full p-3 border rounded-xl bg-gray-50">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">Link da Foto / Comprovante (URL):</label>
+        <input type="url" id="vale-comprovante-url" placeholder="https://..." class="w-full p-3 border rounded-xl bg-gray-50">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">PIN / Senha do Colaborador:</label>
+        <input type="password" id="vale-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50">
+      </div>
+
+      <button onclick="registrarVale()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl shadow-md text-base transition">
+        💸 ENVIAR VALE / COMPROVANTE
       </button>
     </div>
 
-    <!-- TELA 2: LOGIN FUNCIONÁRIO (PIN/CPF) -->
-    <div id="screen-func-login" class="hidden">
-      <div class="header">
-        <h1>Área do Funcionário</h1>
-        <p>Informe seus dados para entrar</p>
-      </div>
-      <div class="input-group">
-        <label>Selecione seu Nome</label>
-        <select id="func-select">
-          <option value="">Carregando lista...</option>
-        </select>
-      </div>
-      <div class="input-group">
-        <label>PIN de Acesso / Senha</label>
-        <input type="password" id="func-pin" placeholder="Digite seu PIN ou CPF" />
-      </div>
-      <button class="btn btn-primary" onclick="loginFuncionario()">Entrar no Sistema</button>
-      <div style="text-align: center;">
-        <span class="back-link" onclick="showScreen('screen-home')">← Voltar para o início</span>
+    <!-- Histórico Pessoal Recente -->
+    <div class="mt-8 bg-white p-6 rounded-2xl shadow-md">
+      <h3 class="font-bold text-gray-700 mb-3">Seus Pontos Registrados Recentes:</h3>
+      <div id="lista-ponto-recentes" class="space-y-2 text-sm text-gray-600">
+        Carregando...
       </div>
     </div>
+  </div>
 
-    <!-- TELA 3: LOGIN PATRÃO -->
-    <div id="screen-patrao-login" class="hidden">
-      <div class="header">
-        <h1>Acesso Gestão</h1>
-        <p>Digite a senha do Administrador</p>
-      </div>
-      <div class="input-group">
-        <label>Senha do Patrão</label>
-        <input type="password" id="patrao-pass" placeholder="Senha master" />
-      </div>
-      <button class="btn btn-dark" onclick="loginPatrao()">Acessar Painel</button>
-      <div style="text-align: center;">
-        <span class="back-link" onclick="showScreen('screen-home')">← Voltar para o início</span>
-      </div>
+  <!-- VISÃO DO ADMINISTRADOR (PATRÃO) -->
+  <div id="visao-admin" class="hidden min-h-screen flex flex-col">
+    <nav class="bg-blue-900 text-white p-4 flex flex-wrap justify-between items-center gap-2">
+      <h1 class="text-xl font-bold">T.R.E. | Painel do Patrão</h1>
+      <button onclick="sair()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-semibold">Sair</button>
+    </nav>
+
+    <div class="bg-blue-800 text-white flex overflow-x-auto text-sm font-semibold border-t border-blue-700">
+      <button onclick="mudarAbaAdmin('obras')" class="px-4 py-3 hover:bg-blue-700 border-b-2 border-white">🏗️ Obras</button>
+      <button onclick="mudarAbaAdmin('equipe')" class="px-4 py-3 hover:bg-blue-700">👥 Equipe</button>
+      <button onclick="mudarAbaAdmin('presencas')" class="px-4 py-3 hover:bg-blue-700">📅 Presenças</button>
+      <button onclick="mudarAbaAdmin('comprovantes')" class="px-4 py-3 hover:bg-blue-700">📑 Comprovantes</button>
+      <button onclick="mudarAbaAdmin('fechamento')" class="px-4 py-3 hover:bg-blue-700">📊 Fechamento</button>
     </div>
 
-    <!-- TELA 4: PAINEL FUNCIONÁRIO -->
-    <div id="screen-func-panel" class="hidden">
-      <div class="header">
-        <h1 id="welcome-func">Bem-vindo</h1>
-        <p>Marque seu ponto diário</p>
-      </div>
-      <button class="btn btn-primary" onclick="registrarPonto()">📍 Registrar Presença Hoje</button>
-      <button class="btn btn-secondary" onclick="logout()">Sair</button>
-    </div>
+    <div class="p-4 max-w-5xl mx-auto w-full flex-grow">
 
-    <!-- TELA 5: PAINEL PATRÃO -->
-    <div id="screen-patrao-panel" class="hidden">
-      <div class="header">
-        <h1>Painel do Patrão</h1>
-        <p>Cadastre ou edite sua equipe</p>
+      <!-- ABA OBRAS -->
+      <div id="aba-obras" class="aba-content space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h3 class="text-lg font-bold mb-4">Cadastrar Nova Obra</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" id="obra-nome" placeholder="Nome da Obra (ex: Avanço RJ)" class="p-3 border rounded-xl">
+            <input type="text" id="obra-local" placeholder="Localização / Endereço" class="p-3 border rounded-xl">
+          </div>
+          <button onclick="cadastrarObra()" class="mt-4 bg-blue-600 text-white font-bold px-6 py-2 rounded-xl hover:bg-blue-700">Cadastrar Obra</button>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h3 class="text-lg font-bold mb-4">Obras Cadastradas</h3>
+          <ul id="lista-obras" class="divide-y"></ul>
+        </div>
       </div>
-      <div class="input-group">
-        <label>Nome do Funcionário</label>
-        <input type="text" id="cad-nome" placeholder="Ex: João Silva" />
+
+      <!-- ABA EQUIPE -->
+      <div id="aba-equipe" class="aba-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h3 class="text-lg font-bold mb-4">Cadastrar / Editar Funcionário</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="text" id="func-nome" placeholder="Nome Completo" class="p-3 border rounded-xl">
+            <input type="number" step="0.01" id="func-diaria" placeholder="Valor da Diária (R$)" class="p-3 border rounded-xl">
+            <input type="text" id="func-pin" placeholder="PIN/Senha Pessoal (Ex: 9876)" class="p-3 border rounded-xl">
+          </div>
+          <button onclick="cadastrarFuncionario()" class="mt-4 bg-blue-600 text-white font-bold px-6 py-2 rounded-xl hover:bg-blue-700">Salvar Funcionário</button>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h3 class="text-lg font-bold mb-4">Lista de Funcionários (Apenas Visível pelo Patrão)</h3>
+          <ul id="lista-funcionarios" class="divide-y"></ul>
+        </div>
       </div>
-      <div class="input-group">
-        <label>Valor da Diária (R$)</label>
-        <input type="number" id="cad-diaria" placeholder="Ex: 180.00" />
+
+      <!-- ABA PRESENÇAS -->
+      <div id="aba-presencas" class="aba-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h3 class="text-lg font-bold mb-4">Histórico Geral de Ponto</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b bg-gray-50">
+                  <th class="p-2">Data</th>
+                  <th class="p-2">Funcionário</th>
+                  <th class="p-2">Obra</th>
+                  <th class="p-2">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-presencas"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="input-group">
-        <label>PIN / Senha de Acesso</label>
-        <input type="text" id="cad-pin" placeholder="Defina o PIN de acesso" />
+
+      <!-- ABA COMPROVANTES -->
+      <div id="aba-comprovantes" class="aba-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h3 class="text-lg font-bold mb-4">📑 Galeria de Comprovantes Registrados</h3>
+          <div id="grid-comprovantes" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        </div>
       </div>
-      <button class="btn btn-primary" onclick="cadastrarFuncionario()">Salvar Funcionário</button>
-      <button class="btn btn-secondary" onclick="logout()">Sair do Painel</button>
+
+      <!-- ABA FECHAMENTO -->
+      <div id="aba-fechamento" class="aba-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow">
+          <h3 class="text-lg font-bold mb-4">📊 Fechamento e Saldo a Pagar</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b bg-gray-50">
+                  <th class="p-2">Funcionário</th>
+                  <th class="p-2">Dias Trabalhados</th>
+                  <th class="p-2">Total Diárias</th>
+                  <th class="p-2">Total Vales</th>
+                  <th class="p-2">Saldo Final</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-fechamento"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script>
-    // === CONFIGURAÇÃO SUPABASE ===
-    const SUPABASE_URL = 'https://SUA-URL-AQUI.supabase.co'; // <--- INSIRA SUA URL
-    const SUPABASE_KEY = 'SUA-KEY-ANON-AQUI';               // <--- INSIRA SUA KEY ANON
-    
-    let supabase = null;
-    if (typeof supabase === 'undefined' || !supabase) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
+    // CONFIGURAÇÃO DO SUPABASE
+    const SUPABASE_URL = "https://vjlppbetuqxxfgusqmxf.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_1fJ58_NZXTgATaISERowTQ_vH7ueeex";
+    let supabaseClient = null;
 
-    let funcionariosList = [];
-    let funcionarioLogado = null;
+    // DEFINA A SUA SENHA DE PATRÃO/ADMINISTRADOR AQUI
+    const SENHA_ADMIN_MESTRE = "2026@TRE"; 
 
-    // Navegação entre Telas de Forma Segura
-    function showScreen(screenId) {
-      const screens = ['screen-home', 'screen-func-login', 'screen-patrao-login', 'screen-func-panel', 'screen-patrao-panel'];
-      screens.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-      });
-      const activeEl = document.getElementById(screenId);
-      if (activeEl) activeEl.classList.remove('hidden');
-
-      if (screenId === 'screen-func-login') {
-        carregarFuncionariosSelect();
+    try {
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
+    } catch (e) {
+      console.error("Erro ao inicializar Supabase:", e);
     }
 
-    // Carregar Lista no Select sem travar por erro de PIN nulo
-    async function carregarFuncionariosSelect() {
-      const select = document.getElementById('func-select');
-      select.innerHTML = '<option value="">Selecione seu nome...</option>';
+    document.addEventListener("DOMContentLoaded", () => {
+      const dataHoje = new Date().toISOString().split('T')[0];
+      if(document.getElementById('ponto-data')) document.getElementById('ponto-data').value = dataHoje;
+      if(document.getElementById('vale-data')) document.getElementById('vale-data').value = dataHoje;
       
-      try {
-        const { data, error } = await supabase.from('funcionarios').select('*');
-        if (error) throw error;
+      if(supabaseClient) {
+        carregarListasIniciais();
+      }
+    });
 
-        funcionariosList = data || [];
-        funcionariosList.forEach(f => {
-          const opt = document.createElement('option');
-          opt.value = f.id;
-          opt.textContent = f.nome;
-          select.appendChild(opt);
-        });
-      } catch (err) {
-        alert('Erro ao carregar lista de funcionários: ' + err.message);
+    function mostrarVisao(tipo) {
+      document.getElementById('pantalla-login').classList.add('hidden');
+      if(tipo === 'funcionario') {
+        document.getElementById('visao-funcionario').classList.remove('hidden');
+        if(supabaseClient) carregarHistoricoPonto();
+      } else if(tipo === 'admin') {
+        document.getElementById('visao-admin').classList.remove('hidden');
+        if(supabaseClient) carregarDadosAdmin();
       }
     }
 
-    // Login do Funcionário
-    function loginFuncionario() {
-      const id = document.getElementById('func-select').value;
-      const pin = document.getElementById('func-pin').value.trim();
-
-      if (!id) {
-        alert('Por favor, selecione o seu nome.');
-        return;
+    function solicitarSenhaAdmin() {
+      const senha = prompt("Digite a senha do Administrador (Patrão):");
+      if (senha === SENHA_ADMIN_MESTRE) {
+        mostrarVisao('admin');
+      } else if (senha !== null) {
+        alert("Senha incorreta! Acesso negado.");
       }
-
-      const f = funcionariosList.find(item => item.id == id);
-      if (!f) {
-        alert('Funcionário não localizado.');
-        return;
-      }
-
-      // Tratamento para evitar erro se 'pin' for null na tabela
-      const pinCadastrado = f.pin ? String(f.pin).trim() : '';
-
-      if (pinCadastrado !== '' && pinCadastrado !== pin) {
-        alert('PIN/Senha incorreto!');
-        return;
-      }
-
-      funcionarioLogado = f;
-      document.getElementById('welcome-func').textContent = 'Olá, ' + f.nome;
-      showScreen('screen-func-panel');
     }
 
-    // Login Patrão
-    function loginPatrao() {
-      const pass = document.getElementById('patrao-pass').value;
-      // Defina sua senha master aqui (Padrão: 1234)
-      if (pass === '1234' || pass === 'admin') {
-        showScreen('screen-patrao-panel');
+    function sair() {
+      document.getElementById('visao-funcionario').classList.add('hidden');
+      document.getElementById('visao-admin').classList.add('hidden');
+      document.getElementById('pantalla-login').classList.remove('hidden');
+      if(document.getElementById('ponto-pin')) document.getElementById('ponto-pin').value = '';
+      if(document.getElementById('vale-pin')) document.getElementById('vale-pin').value = '';
+    }
+
+    function mudarAbaAdmin(aba) {
+      document.querySelectorAll('.aba-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`aba-${aba}`).classList.remove('hidden');
+      if(aba === 'comprovantes' && supabaseClient) carregarComprovantes();
+      if(aba === 'fechamento' && supabaseClient) carregarFechamento();
+      if(aba === 'presencas' && supabaseClient) carregarPresencas();
+    }
+
+    async function carregarListasIniciais() {
+      if(!supabaseClient) return;
+      const { data: funcs } = await supabaseClient.from('funcionarios').select('*');
+      const { data: obras } = await supabaseClient.from('obras').select('*').eq('ativa', true);
+
+      const selectFuncPonto = document.getElementById('ponto-funcionario');
+      const selectObraPonto = document.getElementById('ponto-obra');
+      const selectFuncVale = document.getElementById('vale-funcionario');
+      const selectObraVale = document.getElementById('vale-obra');
+
+      const optionsFuncs = funcs?.map(f => `<option value="${f.id}">${f.nome}</option>`).join('') || '<option value="">Nenhum cadastrado</option>';
+      const optionsObras = obras?.map(o => `<option value="${o.id}">${o.nome}</option>`).join('') || '<option value="">Nenhuma cadastrada</option>';
+
+      if(selectFuncPonto) selectFuncPonto.innerHTML = optionsFuncs;
+      if(selectObraPonto) selectObraPonto.innerHTML = optionsObras;
+      if(selectFuncVale) selectFuncVale.innerHTML = optionsFuncs;
+      if(selectObraVale) selectObraVale.innerHTML = optionsObras;
+    }
+
+    async function validarPinFuncionario(funcId, pinDigitado) {
+      if(!pinDigitado) return false;
+      const { data, error } = await supabaseClient.from('funcionarios').select('pin').eq('id', funcId).single();
+      if(error || !data) return true; // Se a coluna ainda não existir no banco, permite
+      if(!data.pin) return true; // Se não tiver PIN cadastrado, permite
+      return data.pin.toString().trim() === pinDigitado.toString().trim();
+    }
+
+    async function registrarPonto() {
+      if(!supabaseClient) return alert("Erro na conexão!");
+      const funcId = document.getElementById('ponto-funcionario').value;
+      const obraId = document.getElementById('ponto-obra').value;
+      const data = document.getElementById('ponto-data').value;
+      const pin = document.getElementById('ponto-pin').value;
+
+      if(!funcId || !obraId) return alert("Selecione o seu nome e a obra!");
+      
+      const pinValido = await validarPinFuncionario(funcId, pin);
+      if(!pinValido) return alert("PIN / Senha incorreta! Digite sua senha pessoal para bater o ponto.");
+
+      const { error } = await supabaseClient.from('presencas').insert([{
+        funcionario_id: funcId,
+        obra_id: obraId,
+        data: data
+      }]);
+
+      if(error) {
+        alert("Erro ao bater ponto: " + error.message);
       } else {
-        alert('Senha do Administrador incorreta!');
+        alert("Ponto marcado com sucesso!");
+        document.getElementById('ponto-pin').value = '';
+        await carregarHistoricoPonto();
       }
     }
 
-    // Cadastro de Funcionário pelo Patrão
-    async function cadastrarFuncionario() {
-      const nome = document.getElementById('cad-nome').value.trim();
-      const diaria = document.getElementById('cad-diaria').value;
-      const pin = document.getElementById('cad-pin').value.trim();
+    async function registrarVale() {
+      if(!supabaseClient) return alert("Erro na conexão!");
+      const funcId = document.getElementById('vale-funcionario').value;
+      const obraId = document.getElementById('vale-obra').value;
+      const valorInput = document.getElementById('vale-valor').value;
+      const data = document.getElementById('vale-data').value;
+      const descricao = document.getElementById('vale-descricao').value.trim();
+      const comprovanteUrl = document.getElementById('vale-comprovante-url').value.trim();
+      const pin = document.getElementById('vale-pin').value;
 
-      if (!nome) {
-        alert('Preencha o nome do funcionário!');
+      if(!funcId || !obraId) return alert("Selecione o seu nome e a obra!");
+      if(!valorInput || parseFloat(valorInput) <= 0) return alert("Informe um valor válido!");
+
+      const pinValido = await validarPinFuncionario(funcId, pin);
+      if(!pinValido) return alert("PIN / Senha incorreta!");
+
+      const { error } = await supabaseClient.from('vales').insert([{
+        funcionario_id: funcId,
+        obra_id: obraId,
+        valor: parseFloat(valorInput),
+        data: data,
+        descricao: descricao,
+        comprovante_url: comprovanteUrl
+      }]);
+
+      if(error) {
+        alert("Erro ao enviar vale: " + error.message);
+      } else {
+        alert("Vale/Comprovante enviado com sucesso!");
+        document.getElementById('vale-valor').value = '';
+        document.getElementById('vale-descricao').value = '';
+        document.getElementById('vale-comprovante-url').value = '';
+        document.getElementById('vale-pin').value = '';
+      }
+    }
+
+    async function carregarHistoricoPonto() {
+      if(!supabaseClient) return;
+      const { data } = await supabaseClient.from('presencas')
+        .select('*, funcionarios(nome), obras(nome)')
+        .order('data', { ascending: false }).limit(5);
+
+      const lista = document.getElementById('lista-ponto-recentes');
+      if(!data || data.length === 0) {
+        lista.innerHTML = "<p class='text-gray-400'>Nenhum ponto registrado recentemente.</p>";
         return;
       }
 
-      try {
-        const { data, error } = await supabase.from('funcionarios').insert([
-          { nome: nome, diaria: diaria || 0, pin: pin }
-        ]);
+      lista.innerHTML = data.map(p => `
+        <div class="flex justify-between border-b py-2">
+          <span><strong>${p.funcionarios?.nome || 'Funcionário'}</strong> - ${p.obras?.nome || 'Obra'}</span>
+          <span class="text-gray-500">${p.data}</span>
+        </div>
+      `).join('');
+    }
 
-        if (error) throw error;
+    async function carregarDadosAdmin() {
+      await carregarListasIniciais();
+      await carregarObras();
+      await carregarFuncionarios();
+      await carregarPresencas();
+    }
 
-        alert('Funcionário cadastrado com sucesso!');
-        document.getElementById('cad-nome').value = '';
-        document.getElementById('cad-diaria').value = '';
-        document.getElementById('cad-pin').value = '';
-      } catch (err) {
-        alert('Erro ao cadastrar funcionário: ' + err.message);
+    async function cadastrarObra() {
+      if(!supabaseClient) return;
+      const nome = document.getElementById('obra-nome').value.trim();
+      const local = document.getElementById('obra-local').value.trim();
+      
+      if(!nome) return alert("Preencha o nome da obra!");
+
+      const { error } = await supabaseClient.from('obras').insert([{ nome, local, ativa: true }]);
+      
+      if(error) {
+        alert("Erro ao cadastrar obra: " + error.message);
+      } else {
+        alert("Obra cadastrada!");
+        document.getElementById('obra-nome').value = '';
+        document.getElementById('obra-local').value = '';
+        await carregarObras();
+        await carregarListasIniciais();
       }
     }
 
-    // Registro de Ponto
-    function registrarPonto() {
-      alert('Ponto registrado com sucesso para hoje!');
+    async function carregarObras() {
+      if(!supabaseClient) return;
+      const { data } = await supabaseClient.from('obras').select('*');
+      const lista = document.getElementById('lista-obras');
+      
+      if(!data || data.length === 0) {
+        lista.innerHTML = '<li class="py-3 text-gray-500">Nenhuma obra cadastrada.</li>';
+        return;
+      }
+
+      lista.innerHTML = data.map(o => `
+        <li class="py-3 flex justify-between items-center">
+          <div>
+            <strong class="text-blue-900">${o.nome}</strong> (${o.local || 'Sem local'})
+            <span class="text-xs px-2 py-1 ml-2 ${o.ativa ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded">
+              ${o.ativa ? 'Ativa' : 'Inativa'}
+            </span>
+          </div>
+          <button onclick="excluirObra(${o.id})" class="text-red-600 text-sm font-semibold hover:underline">Excluir</button>
+        </li>
+      `).join('');
     }
 
-    function logout() {
-      funcionarioLogado = null;
-      document.getElementById('func-pin').value = '';
-      document.getElementById('patrao-pass').value = '';
-      showScreen('screen-home');
+    async function excluirObra(id) {
+      if(!supabaseClient) return;
+      if(confirm("Tem certeza que deseja excluir esta obra?")) {
+        const { error } = await supabaseClient.from('obras').delete().eq('id', id);
+        if(error) {
+          alert("Erro ao excluir obra: " + error.message);
+        } else {
+          await carregarObras();
+          await carregarListasIniciais();
+        }
+      }
+    }
+
+    async function cadastrarFuncionario() {
+      if(!supabaseClient) return;
+      const nomeInput = document.getElementById('func-nome').value.trim();
+      const diariaInput = document.getElementById('func-diaria').value;
+      const pinInput = document.getElementById('func-pin').value.trim();
+
+      if(!nomeInput || !diariaInput) return alert("Preencha o nome e o valor da diária!");
+
+      const { error } = await supabaseClient.from('funcionarios').insert([{ 
+        nome: nomeInput, 
+        valor_diaria: parseFloat(diariaInput),
+        pin: pinInput || "1234"
+      }]);
+
+      if(error) {
+        alert("Erro ao cadastrar funcionário: " + error.message);
+      } else {
+        alert("Funcionário cadastrado!");
+        document.getElementById('func-nome').value = '';
+        document.getElementById('func-diaria').value = '';
+        document.getElementById('func-pin').value = '';
+        await carregarFuncionarios();
+        await carregarListasIniciais();
+      }
+    }
+
+    async function carregarFuncionarios() {
+      if(!supabaseClient) return;
+      const { data } = await supabaseClient.from('funcionarios').select('*');
+      const lista = document.getElementById('lista-funcionarios');
+
+      if(!data || data.length === 0) {
+        lista.innerHTML = '<li class="py-3 text-gray-500">Nenhum funcionário cadastrado.</li>';
+        return;
+      }
+
+      lista.innerHTML = data.map(f => `
+        <li class="py-3 flex justify-between items-center">
+          <div>
+            <strong class="text-blue-900">${f.nome}</strong> - Diária: R$ ${f.valor_diaria} | PIN: ${f.pin || 'Sem PIN'}
+          </div>
+          <button onclick="excluirFuncionario(${f.id})" class="text-red-600 text-sm font-semibold hover:underline">Excluir</button>
+        </li>
+      `).join('');
+    }
+
+    async function excluirFuncionario(id) {
+      if(!supabaseClient) return;
+      if(confirm("Tem certeza que deseja excluir este funcionário?")) {
+        const { error } = await supabaseClient.from('funcionarios').delete().eq('id', id);
+        if(error) {
+          alert("Erro ao excluir: " + error.message);
+        } else {
+          await carregarFuncionarios();
+          await carregarListasIniciais();
+        }
+      }
+    }
+
+    async function carregarPresencas() {
+      if(!supabaseClient) return;
+      const { data } = await supabaseClient.from('presencas').select('*, funcionarios(nome), obras(nome)').order('data', { ascending: false });
+      const tbody = document.getElementById('tabela-presencas');
+      if(!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Nenhum registro de ponto encontrado.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(p => `
+        <tr class="border-b">
+          <td class="p-2">${p.data}</td>
+          <td class="p-2 font-semibold">${p.funcionarios?.nome || '-'}</td>
+          <td class="p-2">${p.obras?.nome || '-'}</td>
+          <td class="p-2"><button onclick="deletarPresenca(${p.id})" class="text-red-600 hover:underline text-xs">Excluir</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function deletarPresenca(id) {
+      if(!supabaseClient) return;
+      if(confirm("Excluir este registro de ponto?")) {
+        await supabaseClient.from('presencas').delete().eq('id', id);
+        await carregarPresencas();
+      }
+    }
+
+    async function carregarComprovantes() {
+      if(!supabaseClient) return;
+      const { data } = await supabaseClient.from('vales').select('*, funcionarios(nome), obras(nome)').order('data', { ascending: false });
+      const grid = document.getElementById('grid-comprovantes');
+      if(!data || data.length === 0) {
+        grid.innerHTML = '<p class="text-gray-500 col-span-3">Nenhum comprovante enviado.</p>';
+        return;
+      }
+      grid.innerHTML = data.map(v => `
+        <div class="border rounded-xl p-4 bg-gray-50 shadow-sm">
+          <p class="font-bold text-blue-900">${v.funcionarios?.nome || 'Funcionário'}</p>
+          <p class="text-xs text-gray-500">${v.data} | Obra: ${v.obras?.nome || '-'}</p>
+          <p class="text-lg font-extrabold text-green-700 my-1">R$ ${v.valor}</p>
+          <p class="text-sm text-gray-600 mb-2">${v.descricao || 'Sem descrição'}</p>
+          ${v.comprovante_url ? `<a href="${v.comprovante_url}" target="_blank" class="text-xs text-blue-600 font-bold underline">Ver Foto/Comprovante 🔗</a>` : '<span class="text-xs text-gray-400">Sem imagem anexada</span>'}
+        </div>
+      `).join('');
+    }
+
+    async function carregarFechamento() {
+      if(!supabaseClient) return;
+      const { data: funcs } = await supabaseClient.from('funcionarios').select('*');
+      const { data: presencas } = await supabaseClient.from('presencas').select('*');
+      const { data: vales } = await supabaseClient.from('vales').select('*');
+
+      const tbody = document.getElementById('tabela-fechamento');
+      if(!funcs || funcs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Nenhum funcionário cadastrado.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = funcs.map(f => {
+        const dias = presencas ? presencas.filter(p => p.funcionario_id === f.id).length : 0;
+        const totalDiarias = dias * (f.valor_diaria || 0);
+        const totalVales = vales ? vales.filter(v => v.funcionario_id === f.id).reduce((acc, v) => acc + (v.valor || 0), 0) : 0;
+        const saldoFinal = totalDiarias - totalVales;
+
+        return `
+          <tr class="border-b">
+            <td class="p-2 font-bold text-blue-900">${f.nome}</td>
+            <td class="p-2">${dias} dias</td>
+            <td class="p-2 text-green-700 font-semibold">R$ ${totalDiarias.toFixed(2)}</td>
+            <td class="p-2 text-red-600 font-semibold">R$ ${totalVales.toFixed(2)}</td>
+            <td class="p-2 text-lg font-bold ${saldoFinal >= 0 ? 'text-green-800' : 'text-red-800'}">R$ ${saldoFinal.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
     }
   </script>
 </body>
