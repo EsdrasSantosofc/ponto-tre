@@ -279,27 +279,35 @@
           </div>
         </div>
 
-        <!-- MODAL PARA ANEXAR PDF À OBRA -->
+        <!-- MODAL PARA ANEXAR VÁRIOS PDFS À OBRA -->
         <div id="modal-anexar-pdf" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
+          <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
               <div>
-                <h3 class="text-lg font-bold text-blue-950">Anexar Projeto PDF</h3>
+                <h3 class="text-lg font-bold text-blue-950">Projetos & PDFs da Obra</h3>
                 <p id="modal-pdf-obra-nome" class="text-xs text-purple-700 font-semibold"></p>
               </div>
               <button onclick="fecharModalPdf()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕</button>
             </div>
 
             <input type="hidden" id="modal-pdf-obra-id">
+            
             <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o arquivo PDF do Projeto:</label>
-                <input type="file" id="pdf-file-input" accept="application/pdf" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
+              <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
+                <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wide">Anexar Novo Projeto / PDF</h4>
+                <input type="text" id="pdf-titulo-input" placeholder="Nome do Documento (Ex: Planta Baixa, Projeto Elétrico)" class="w-full p-2.5 border rounded-xl bg-white text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                <input type="file" id="pdf-file-input" accept="application/pdf" class="w-full p-2 border rounded-xl bg-white text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
+                <button onclick="salvarPdfObra()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                  <span>📎</span> Adicionar PDF à Obra
+                </button>
               </div>
 
-              <button onclick="salvarPdfObra()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow transition">
-                💾 Anexar Projeto para a Equipe
-              </button>
+              <div>
+                <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Arquivos Já Anexados:</h4>
+                <div id="lista-pdfs-existentes" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  <!-- Lista de PDFs carregada dinamicamente -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -316,7 +324,6 @@
             </div>
 
             <input type="hidden" id="modal-whatsapp-obra-id">
-            <input type="hidden" id="modal-whatsapp-pdf-url">
             <input type="hidden" id="modal-whatsapp-obra-local">
 
             <div class="space-y-4">
@@ -327,16 +334,11 @@
 
               <div>
                 <label class="block text-sm font-semibold mb-1 text-gray-700">Instrução / Orientação Adicional:</label>
-                <textarea id="modal-whatsapp-mensagem" rows="3" placeholder="Ex: Favor estar na obra às 07:30. Levar os equipamentos de proteção e laser nível." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm"></textarea>
+                <textarea id="modal-whatsapp-mensagem" rows="3" placeholder="Ex: Favor estar na obra às 07:30. Levar os equipamentos de proteção e laser nível." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
               </div>
 
-              <div id="container-check-pdf-whatsapp" class="flex items-center gap-2 bg-purple-50 p-2.5 rounded-xl border border-purple-200 text-xs text-purple-900 font-medium">
-                <input type="checkbox" id="modal-whatsapp-incluir-pdf" class="w-4 h-4 text-purple-600 rounded" checked>
-                <label for="modal-whatsapp-incluir-pdf" class="cursor-pointer">Incluir Link do PDF do Projeto no WhatsApp</label>
-              </div>
-
-              <button onclick="dispararWhatsapp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow transition flex items-center justify-center gap-2 text-base">
-                🚀 Abrir WhatsApp e Enviar
+              <button onclick="enviarMensagemWhatsapp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
+                <span>💬</span> Abrir WhatsApp com Mensagem
               </button>
             </div>
           </div>
@@ -346,70 +348,115 @@
       <!-- ABA EQUIPE -->
       <div id="aba-equipe" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-          <h3 id="titulo-form-func" class="text-lg font-bold text-blue-950 mb-4">Cadastrar / Editar Funcionário</h3>
-          <input type="hidden" id="func-id-edit">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Novo Colaborador</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input type="text" id="func-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-            <input type="text" id="func-whatsapp" placeholder="WhatsApp com DDD (Ex: 11999998888)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-            <input type="number" step="0.01" id="func-diaria" placeholder="Valor da Diária (R$)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-            <input type="text" id="func-pin" placeholder="PIN/Senha Pessoal (Ex: 9876)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="number" step="0.01" id="func-diaria" placeholder="Valor Diária (R$)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="func-pin" placeholder="PIN Individual (4 dígitos)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
           </div>
-          <div class="flex gap-2 mt-4">
-            <button id="btn-salvar-func" onclick="cadastrarFuncionario()" class="bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Salvar Funcionário</button>
-            <button id="btn-cancelar-edit" onclick="cancelarEdicaoFuncionario()" class="hidden bg-gray-400 text-white font-bold px-4 py-2.5 rounded-xl hover:bg-gray-500 transition shadow-md">Cancelar</button>
-          </div>
+          <button onclick="cadastrarFuncionario()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Cadastrar Funcionário</button>
         </div>
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">Lista de Funcionários (Apenas Visível pelo Patrão)</h3>
-          <ul id="lista-funcionarios" class="divide-y text-gray-700"></ul>
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Equipe Cadastrada</h3>
+          <p class="text-xs text-gray-500 mb-3">Nota: Ao remover um colaborador da lista ativa, todo o histórico de diárias, pontos e vales passados permanecerá intacto nos relatórios e fechamentos.</p>
+          <ul id="lista-equipe" class="divide-y text-gray-700"></ul>
         </div>
       </div>
 
       <!-- ABA PRESENÇAS -->
       <div id="aba-presencas" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">Histórico Geral de Ponto</h3>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-blue-950">Registro Geral de Presenças</h3>
+            <button onclick="carregarPresencas()" class="text-xs bg-blue-100 text-blue-900 px-3 py-1 rounded-lg font-bold hover:bg-blue-200">Atualizar</button>
+          </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b bg-blue-950 text-white">
-                  <th class="p-3 rounded-tl-lg">Data</th>
-                  <th class="p-3">Funcionário</th>
-                  <th class="p-3">Obra</th>
-                  <th class="p-3 rounded-tr-lg">Ações</th>
+                <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
+                  <th class="p-3 border-b">Data</th>
+                  <th class="p-3 border-b">Funcionário</th>
+                  <th class="p-3 border-b">Obra</th>
+                  <th class="p-3 border-b text-right">Ações</th>
                 </tr>
               </thead>
-              <tbody id="tabela-presencas" class="divide-y text-gray-700"></tbody>
+              <tbody id="tabela-presencas" class="text-sm divide-y"></tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- ABA COMPROVANTES -->
+      <!-- ABA COMPROVANTES VALES -->
       <div id="aba-comprovantes" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">📑 Galeria de Comprovantes Registrados</h3>
-          <div id="grid-comprovantes" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-blue-950">Vales e Comprovantes Recebidos</h3>
+            <button onclick="carregarValesAdmin()" class="text-xs bg-orange-100 text-orange-900 px-3 py-1 rounded-lg font-bold hover:bg-orange-200">Atualizar</button>
+          </div>
+          <div id="container-vales-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Vales e fotos inseridos dinamicamente -->
+          </div>
         </div>
       </div>
 
-      <!-- ABA FECHAMENTO -->
+      <!-- ABA FECHAMENTO COM FILTRO POR ANO E MÊS -->
       <div id="aba-fechamento" class="aba-content hidden space-y-6">
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">📊 Fechamento e Saldo a Pagar</h3>
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b pb-4">
+            <div>
+              <h3 class="text-xl font-bold text-blue-950">📊 Fechamento Mensal e Balanço de Diárias</h3>
+              <p class="text-xs text-gray-500">Histórico de pagamentos, vales e saldos calculados por período</p>
+            </div>
+            
+            <!-- FILTROS DE ANO E MÊS -->
+            <div class="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded-xl border">
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-gray-500">Mês:</label>
+                <select id="fechamento-mes" onchange="calcularFechamentoMensal()" class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500">
+                  <option value="0">Janeiro</option>
+                  <option value="1">Fevereiro</option>
+                  <option value="2">Março</option>
+                  <option value="3">Abril</option>
+                  <option value="4">Maio</option>
+                  <option value="5">Junho</option>
+                  <option value="6">Julho</option>
+                  <option value="7">Agosto</option>
+                  <option value="8">Setembro</option>
+                  <option value="9">Outubro</option>
+                  <option value="10">Novembro</option>
+                  <option value="11">Dezembro</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-gray-500">Ano:</label>
+                <select id="fechamento-ano" onchange="calcularFechamentoMensal()" class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500">
+                  <!-- Anos populados por script -->
+                </select>
+              </div>
+
+              <button onclick="calcularFechamentoMensal()" class="mt-3 bg-emerald-600 text-white font-bold px-3 py-2 rounded-lg text-xs hover:bg-emerald-700 transition">
+                Recalcular
+              </button>
+            </div>
+          </div>
+
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b bg-blue-950 text-white">
-                  <th class="p-3 rounded-tl-lg">Funcionário</th>
-                  <th class="p-3">Dias Trabalhados</th>
-                  <th class="p-3">Total Diárias</th>
-                  <th class="p-3">Total Vales</th>
-                  <th class="p-3 rounded-tr-lg">Saldo Final</th>
+                <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
+                  <th class="p-3 border-b">Funcionário</th>
+                  <th class="p-3 border-b text-center">Valor Diária</th>
+                  <th class="p-3 border-b text-center">Dias Trabalhados</th>
+                  <th class="p-3 border-b text-right">Total Bruto</th>
+                  <th class="p-3 border-b text-right text-red-600">Total Vales</th>
+                  <th class="p-3 border-b text-right text-emerald-700">Saldo a Pagar</th>
                 </tr>
               </thead>
-              <tbody id="tabela-fechamento" class="divide-y text-gray-700"></tbody>
+              <tbody id="tabela-fechamento" class="text-sm divide-y">
+                <!-- Linhas preenchidas via Script -->
+              </tbody>
             </table>
           </div>
         </div>
@@ -419,66 +466,110 @@
   </div>
 
   <script>
-    // CONFIGURAÇÃO DO SUPABASE
-    const SUPABASE_URL = "https://vjlppbetuqxxfgusqmxf.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_1fJ58_NZXTgATaISERowTQ_vH7ueeex";
-    let supabaseClient = null;
+    /* =========================================================================
+       CONFIGURAÇÃO LOCAL E PERSISTÊNCIA (LOCALSTORAGE / COMPATÍVEL COM SUPABASE)
+       ========================================================================= */
 
-    // SENHA DE PATRÃO/ADMINISTRADOR
-    const SENHA_ADMIN_MESTRE = "2026@TRE"; 
+    // Definição dos bancos locais padrão
+    const DEFAULT_OBRAS = [
+      { id: '1', nome: 'Avanço RJ', local: 'Rio de Janeiro / RJ' },
+      { id: '2', nome: 'Sede T.R.E. Acústica', local: 'São Paulo / SP' }
+    ];
 
-    try {
-      if (typeof supabase !== 'undefined' && supabase.createClient) {
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (e) {
-      console.error("Erro ao inicializar Supabase:", e);
+    const DEFAULT_EQUIPE = [
+      { id: '1', nome: 'Carlos Silva', diaria: 220.00, pin: '1234', ativo: true },
+      { id: '2', nome: 'Marcos Oliveira', diaria: 250.00, pin: '5678', ativo: true }
+    ];
+
+    // Carregamento de storage com fallbacks
+    let obras = JSON.parse(localStorage.getItem('tre_obras')) || DEFAULT_OBRAS;
+    let equipe = JSON.parse(localStorage.getItem('tre_equipe')) || DEFAULT_EQUIPE;
+    let pontos = JSON.parse(localStorage.getItem('tre_pontos')) || [];
+    let vales = JSON.parse(localStorage.getItem('tre_vales')) || [];
+    let fotosObra = JSON.parse(localStorage.getItem('tre_fotos_obra')) || [];
+    let pdfsObra = JSON.parse(localStorage.getItem('tre_pdfs_obra')) || []; // Múltiplos PDFs
+
+    function salvarTudo() {
+      localStorage.setItem('tre_obras', JSON.stringify(obras));
+      localStorage.setItem('tre_equipe', JSON.stringify(equipe));
+      localStorage.setItem('tre_pontos', JSON.stringify(pontos));
+      localStorage.setItem('tre_vales', JSON.stringify(vales));
+      localStorage.setItem('tre_fotos_obra', JSON.stringify(fotosObra));
+      localStorage.setItem('tre_pdfs_obra', JSON.stringify(pdfsObra));
     }
 
+    // Inicialização da Página
     document.addEventListener("DOMContentLoaded", () => {
-      const dataHoje = new Date().toISOString().split('T')[0];
-      if(document.getElementById('ponto-data')) document.getElementById('ponto-data').value = dataHoje;
-      if(document.getElementById('vale-data')) document.getElementById('vale-data').value = dataHoje;
-      
-      if(supabaseClient) {
-        carregarListasIniciais();
+      // Configurar data atual nos campos
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('ponto-data').value = hoje;
+      document.getElementById('vale-data').value = hoje;
+
+      // Popular Seletor de Anos no Fechamento
+      const anoSelect = document.getElementById('fechamento-ano');
+      const anoAtual = new Date().getFullYear();
+      for (let ano = anoAtual - 2; ano <= anoAtual + 3; ano++) {
+        const option = document.createElement('option');
+        option.value = ano;
+        option.textContent = ano;
+        if (ano === anoAtual) option.selected = true;
+        anoSelect.appendChild(option);
       }
+
+      // Definir mês atual no fechamento
+      document.getElementById('fechamento-mes').value = new Date().getMonth();
+
+      populardropdowns();
     });
 
-    // Converter arquivo para Base64
-    function converterArquivoParaBase64(file) {
-      return new Promise((resolve, reject) => {
-        if (!file) {
-          resolve('');
-          return;
-        }
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
+    function populardropdowns() {
+      // Preencher funcionários ativos nos dropdowns da visão do funcionário
+      const funcSelects = ['ponto-funcionario', 'vale-funcionario', 'foto-funcionario', 'modal-whatsapp-funcionario'];
+      
+      const funcionariosAtivos = equipe.filter(e => e.ativo !== false);
+
+      funcSelects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '<option value="">Selecione o Funcionário...</option>';
+        funcionariosAtivos.forEach(f => {
+          el.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
+        });
+      });
+
+      // Preencher Obras nos dropdowns
+      const obraSelects = ['ponto-obra', 'consulta-pdf-obra', 'vale-obra', 'foto-obra'];
+      obraSelects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '<option value="">Selecione a Obra...</option>';
+        obras.forEach(o => {
+          el.innerHTML += `<option value="${o.id}">${o.nome} (${o.local})</option>`;
+        });
       });
     }
 
-    function mostrarVisao(tipo) {
+    /* =========================================================================
+       NAVEGAÇÃO E SISTEMA DE VISÕES
+       ========================================================================= */
+
+    function mostrarVisao(visao) {
       document.getElementById('pantalla-login').classList.add('hidden');
-      if(tipo === 'funcionario') {
+      if (visao === 'funcionario') {
         document.getElementById('visao-funcionario').classList.remove('hidden');
-        if(supabaseClient) {
-          carregarHistoricoPonto();
-          buscarPdfsObra();
-        }
-      } else if(tipo === 'admin') {
+        carregarHistoricoPontosFuncionario();
+      } else if (visao === 'admin') {
         document.getElementById('visao-admin').classList.remove('hidden');
-        if(supabaseClient) carregarDadosAdmin();
+        mudarAbaAdmin('obras');
       }
     }
 
     function solicitarSenhaAdmin() {
-      const senha = prompt("Digite a senha do Administrador (Patrão):");
-      if (senha === SENHA_ADMIN_MESTRE) {
+      const senha = prompt("Digite a senha do Administrador / Patrão:");
+      if (senha === "1234" || senha === "admin") {
         mostrarVisao('admin');
       } else if (senha !== null) {
-        alert("Senha incorreta! Acesso negado.");
+        alert("Senha incorreta!");
       }
     }
 
@@ -486,296 +577,270 @@
       document.getElementById('visao-funcionario').classList.add('hidden');
       document.getElementById('visao-admin').classList.add('hidden');
       document.getElementById('pantalla-login').classList.remove('hidden');
-      if(document.getElementById('ponto-pin')) document.getElementById('ponto-pin').value = '';
-      if(document.getElementById('vale-pin')) document.getElementById('vale-pin').value = '';
-      if(document.getElementById('foto-pin')) document.getElementById('foto-pin').value = '';
     }
 
     function mudarAbaAdmin(aba) {
       document.querySelectorAll('.aba-content').forEach(el => el.classList.add('hidden'));
       document.getElementById(`aba-${aba}`).classList.remove('hidden');
-      
-      if(aba === 'equipe' && supabaseClient) carregarFuncionarios();
-      if(aba === 'obras' && supabaseClient) carregarObras();
-      if(aba === 'comprovantes' && supabaseClient) carregarComprovantes();
-      if(aba === 'fechamento' && supabaseClient) carregarFechamento();
-      if(aba === 'presencas' && supabaseClient) carregarPresencas();
+
+      // Atualizar botões de abas
+      const abas = ['obras', 'equipe', 'presencas', 'comprovantes', 'fechamento'];
+      abas.forEach(a => {
+        const btn = document.getElementById(`tab-btn-${a}`);
+        if (a === aba) {
+          btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5";
+        } else {
+          btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
+        }
+      });
+
+      // Carregar dados específicos de cada aba
+      if (aba === 'obras') renderizarObras();
+      if (aba === 'equipe') renderizarEquipe();
+      if (aba === 'presencas') carregarPresencas();
+      if (aba === 'comprovantes') carregarValesAdmin();
+      if (aba === 'fechamento') calcularFechamentoMensal();
     }
 
-    async function carregarListasIniciais() {
-      if(!supabaseClient) return;
-      const { data: funcs } = await supabaseClient.from('funcionarios').select('*').order('nome');
-      
-      // FILTRO: Carrega apenas obras ativas para os funcionários
-      const { data: obras } = await supabaseClient.from('obras').select('*').eq('ativa', true).order('nome');
+    /* =========================================================================
+       REGRAS DA VISÃO DO FUNCIONÁRIO
+       ========================================================================= */
 
-      const selectFuncPonto = document.getElementById('ponto-funcionario');
-      const selectObraPonto = document.getElementById('ponto-obra');
-      const selectFuncVale = document.getElementById('vale-funcionario');
-      const selectObraVale = document.getElementById('vale-obra');
-      const selectFuncFoto = document.getElementById('foto-funcionario');
-      const selectObraFoto = document.getElementById('foto-obra');
-      const selectObraPdf = document.getElementById('consulta-pdf-obra');
-
-      const optionsFuncs = funcs?.length ? funcs.map(f => `<option value="${f.id}">${f.nome}</option>`).join('') : '<option value="">Nenhum cadastrado</option>';
-      const optionsObras = obras?.length ? obras.map(o => `<option value="${o.id}">${o.nome}</option>`).join('') : '<option value="">Nenhuma obra ativa disponível</option>';
-
-      if(selectFuncPonto) selectFuncPonto.innerHTML = optionsFuncs;
-      if(selectObraPonto) selectObraPonto.innerHTML = optionsObras;
-      if(selectFuncVale) selectFuncVale.innerHTML = optionsFuncs;
-      if(selectObraVale) selectObraVale.innerHTML = optionsObras;
-      if(selectFuncFoto) selectFuncFoto.innerHTML = optionsFuncs;
-      if(selectObraFoto) selectObraFoto.innerHTML = optionsObras;
-      if(selectObraPdf) selectObraPdf.innerHTML = optionsObras;
+    function validarPin(funcId, pinDigitado) {
+      const func = equipe.find(f => f.id === funcId);
+      return func && func.pin === pinDigitado;
     }
 
-    async function validarPinFuncionario(funcId, pinDigitado) {
-      if(!pinDigitado) return false;
-      const { data, error } = await supabaseClient.from('funcionarios').select('pin').eq('id', funcId).single();
-      if(error || !data) return true;
-      if(!data.pin) return true;
-      return data.pin.toString().trim() === pinDigitado.toString().trim();
-    }
-
-    async function registrarPonto() {
-      if(!supabaseClient) return alert("Erro na conexão!");
+    function registrarPonto() {
       const funcId = document.getElementById('ponto-funcionario').value;
       const obraId = document.getElementById('ponto-obra').value;
       const data = document.getElementById('ponto-data').value;
       const pin = document.getElementById('ponto-pin').value;
 
-      if(!funcId || !obraId) return alert("Selecione o seu nome e a obra!");
-      
-      const pinValido = await validarPinFuncionario(funcId, pin);
-      if(!pinValido) return alert("PIN / Senha incorreta! Digite sua senha pessoal para bater o ponto.");
-
-      const { error } = await supabaseClient.from('presencas').insert([{
-        funcionario_id: funcId,
-        obra_id: obraId,
-        data: data
-      }]);
-
-      if(error) {
-        alert("Erro ao bater ponto: " + error.message);
-      } else {
-        alert("Ponto marcado com sucesso!");
-        document.getElementById('ponto-pin').value = '';
-        await carregarHistoricoPonto();
+      if (!funcId || !obraId || !data || !pin) {
+        alert("Preencha todos os campos do ponto!");
+        return;
       }
+
+      if (!validarPin(funcId, pin)) {
+        alert("PIN incorreto! Verifique sua senha individual.");
+        return;
+      }
+
+      const novoPonto = {
+        id: Date.now().toString(),
+        funcionarioId: funcId,
+        obraId: obraId,
+        data: data,
+        hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      pontos.unshift(novoPonto);
+      salvarTudo();
+      alert("📍 Ponto registrado com sucesso!");
+      document.getElementById('ponto-pin').value = '';
+      carregarHistoricoPontosFuncionario();
     }
 
-    async function registrarVale() {
-      if(!supabaseClient) return alert("Erro na conexão!");
+    function carregarHistoricoPontosFuncionario() {
+      const container = document.getElementById('lista-ponto-recentes');
+      const ultimosPontos = pontos.slice(0, 5);
+
+      if (ultimosPontos.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 py-2">Nenhum ponto registrado ainda.</p>';
+        return;
+      }
+
+      container.innerHTML = ultimosPontos.map(p => {
+        const func = equipe.find(f => f.id === p.funcionarioId);
+        const obra = obras.find(o => o.id === p.obraId);
+        return `
+          <div class="py-2 flex justify-between items-center">
+            <div>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</p>
+              <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Obra Desconhecida'}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-semibold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full">${p.data}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function registrarVale() {
       const funcId = document.getElementById('vale-funcionario').value;
       const obraId = document.getElementById('vale-obra').value;
-      const valorInput = document.getElementById('vale-valor').value;
+      const valor = parseFloat(document.getElementById('vale-valor').value);
       const data = document.getElementById('vale-data').value;
-      const descricao = document.getElementById('vale-descricao').value.trim();
-      const fileInput = document.getElementById('vale-comprovante-file');
+      const descricao = document.getElementById('vale-descricao').value;
       const pin = document.getElementById('vale-pin').value;
+      const fileInput = document.getElementById('vale-comprovante-file');
 
-      if(!funcId || !obraId) return alert("Selecione o seu nome e a obra!");
-      if(!valorInput || parseFloat(valorInput) <= 0) return alert("Informe um valor válido!");
-
-      const pinValido = await validarPinFuncionario(funcId, pin);
-      if(!pinValido) return alert("PIN / Senha incorreta!");
-
-      let comprovanteUrl = '';
-      if (fileInput.files && fileInput.files[0]) {
-        comprovanteUrl = await converterArquivoParaBase64(fileInput.files[0]);
+      if (!funcId || !obraId || !valor || !data || !pin) {
+        alert("Preencha todos os campos obrigatórios do vale!");
+        return;
       }
 
-      const { error } = await supabaseClient.from('vales').insert([{
-        funcionario_id: funcId,
-        obra_id: obraId,
-        valor: parseFloat(valorInput),
-        data: data,
-        descricao: descricao,
-        comprovante_url: comprovanteUrl
-      }]);
+      if (!validarPin(funcId, pin)) {
+        alert("PIN incorreto!");
+        return;
+      }
 
-      if(error) {
-        alert("Erro ao enviar vale: " + error.message);
-      } else {
-        alert("Vale/Comprovante enviado com sucesso!");
+      const processarEEnviar = (fotoDataUrl) => {
+        const novoVale = {
+          id: Date.now().toString(),
+          funcionarioId: funcId,
+          obraId: obraId,
+          valor: valor,
+          data: data,
+          descricao: descricao,
+          comprovante: fotoDataUrl || null
+        };
+
+        vales.unshift(novoVale);
+        salvarTudo();
+        alert("💸 Vale/Comprovante enviado com sucesso!");
         document.getElementById('vale-valor').value = '';
         document.getElementById('vale-descricao').value = '';
-        document.getElementById('vale-comprovante-file').value = '';
         document.getElementById('vale-pin').value = '';
+        document.getElementById('vale-comprovante-file').value = '';
+      };
+
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => processarEEnviar(e.target.result);
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        processarEEnviar(null);
       }
     }
 
-    async function enviarFotoObra() {
-      if(!supabaseClient) return alert("Erro na conexão!");
+    function enviarFotoObra() {
       const funcId = document.getElementById('foto-funcionario').value;
       const obraId = document.getElementById('foto-obra').value;
       const tipo = document.getElementById('foto-tipo').value;
-      const fileInput = document.getElementById('foto-file');
-      const observacao = document.getElementById('foto-observacao').value.trim();
+      const observacao = document.getElementById('foto-observacao').value;
       const pin = document.getElementById('foto-pin').value;
+      const fileInput = document.getElementById('foto-file');
 
-      if(!funcId || !obraId) return alert("Selecione o seu nome e a obra!");
-      if(!fileInput.files || !fileInput.files[0]) return alert("Selecione ou tire uma foto para enviar!");
+      if (!funcId || !obraId || !pin || !fileInput.files[0]) {
+        alert("Selecione o funcionário, a obra, informe a senha e anexe a foto!");
+        return;
+      }
 
-      const pinValido = await validarPinFuncionario(funcId, pin);
-      if(!pinValido) return alert("PIN / Senha incorreta!");
+      if (!validarPin(funcId, pin)) {
+        alert("PIN incorreto!");
+        return;
+      }
 
-      const fotoUrl = await converterArquivoParaBase64(fileInput.files[0]);
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const novaFoto = {
+          id: Date.now().toString(),
+          funcionarioId: funcId,
+          obraId: obraId,
+          tipo: tipo,
+          observacao: observacao,
+          imagem: e.target.result,
+          data: new Date().toLocaleDateString('pt-BR')
+        };
 
-      const { error } = await supabaseClient.from('fotos_obra').insert([{
-        funcionario_id: funcId,
-        obra_id: obraId,
-        tipo: tipo,
-        foto_url: fotoUrl,
-        observacao: observacao,
-        data: new Date().toISOString().split('T')[0]
-      }]);
-
-      if(error) {
-        alert("Erro ao enviar foto para a galeria: " + error.message);
-      } else {
-        alert("Foto enviada com sucesso para a galeria da obra!");
-        document.getElementById('foto-file').value = '';
+        fotosObra.unshift(novaFoto);
+        salvarTudo();
+        alert("📸 Foto enviada com sucesso para a galeria da obra!");
         document.getElementById('foto-observacao').value = '';
         document.getElementById('foto-pin').value = '';
-      }
+        document.getElementById('foto-file').value = '';
+      };
+      reader.readAsDataURL(fileInput.files[0]);
     }
 
-    // BUSCAR PDFS DA OBRA SELECIONADA (VISÃO DO FUNCIONÁRIO)
-    async function buscarPdfsObra() {
-      if(!supabaseClient) return;
-      const obraId = document.getElementById('consulta-pdf-obra')?.value;
+    function buscarPdfsObra() {
+      const obraId = document.getElementById('consulta-pdf-obra').value;
       const container = document.getElementById('container-pdf-obra');
 
       if (!obraId) {
-        container.innerHTML = '<p class="text-xs text-gray-400">Nenhuma obra selecionada.</p>';
+        container.innerHTML = '<p class="text-xs text-gray-500 italic">Selecione uma obra acima para carregar os arquivos.</p>';
         return;
       }
 
-      const { data, error } = await supabaseClient.from('obras').select('pdf_url, nome').eq('id', obraId).single();
+      const pdfs = pdfsObra.filter(p => p.obraId === obraId);
 
-      if (error || !data || !data.pdf_url) {
-        container.innerHTML = `
-          <div class="bg-gray-50 border border-dashed p-3 rounded-xl text-center">
-            <p class="text-xs text-gray-500">Nenhum projeto em PDF foi anexado a esta obra até o momento.</p>
-          </div>
-        `;
+      if (pdfs.length === 0) {
+        container.innerHTML = '<p class="text-xs text-orange-600 bg-orange-50 p-3 rounded-xl border border-orange-200 font-medium">Nenhum projeto PDF anexado a esta obra até o momento.</p>';
         return;
       }
 
-      container.innerHTML = `
+      container.innerHTML = pdfs.map(pdf => `
         <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="text-2xl">📄</span>
-            <div>
-              <p class="text-sm font-bold text-blue-950">Projeto / Planta da Obra</p>
-              <p class="text-xs text-gray-500">${data.nome}</p>
-            </div>
+          <div>
+            <p class="font-bold text-sm text-purple-950">📄 ${pdf.titulo || 'Projeto da Obra'}</p>
+            <p class="text-xs text-purple-700">Adicionado em: ${pdf.data}</p>
           </div>
-          <a href="${data.pdf_url}" target="_blank" download="Projeto_Obra.pdf" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-2 rounded-lg shadow transition">
-            ⬇️ Abrir PDF
+          <a href="${pdf.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
+            Abrir PDF ↗
           </a>
-        </div>
-      `;
-    }
-
-    async function carregarHistoricoPonto() {
-      if(!supabaseClient) return;
-      const { data } = await supabaseClient.from('presencas')
-        .select('*, funcionarios(nome), obras(nome)')
-        .order('data', { ascending: false }).limit(5);
-
-      const lista = document.getElementById('lista-ponto-recentes');
-      if(!data || data.length === 0) {
-        lista.innerHTML = "<p class='text-gray-400 py-2'>Nenhum ponto registrado recentemente.</p>";
-        return;
-      }
-
-      lista.innerHTML = data.map(p => `
-        <div class="flex justify-between border-b py-2">
-          <span><strong class="text-blue-900">${p.funcionarios?.nome || 'Funcionário'}</strong> - ${p.obras?.nome || 'Obra'}</span>
-          <span class="text-orange-600 font-semibold">${p.data}</span>
         </div>
       `).join('');
     }
 
-    async function carregarDadosAdmin() {
-      await carregarListasIniciais();
-      await carregarObras();
-      await carregarFuncionarios();
-      await carregarPresencas();
-    }
+    /* =========================================================================
+       REGRAS DA VISÃO DO ADMINISTRADOR (PATRÃO)
+       ========================================================================= */
 
-    async function cadastrarObra() {
-      if(!supabaseClient) return;
+    // OBRAS & PDFS
+    function cadastrarObra() {
       const nome = document.getElementById('obra-nome').value.trim();
       const local = document.getElementById('obra-local').value.trim();
-      
-      if(!nome) return alert("Preencha o nome da obra!");
 
-      const { error } = await supabaseClient.from('obras').insert([{ nome, local, ativa: true, finalizada: false }]);
-      
-      if(error) {
-        alert("Erro ao cadastrar obra: " + error.message);
-      } else {
-        alert("Obra cadastrada com sucesso!");
-        document.getElementById('obra-nome').value = '';
-        document.getElementById('obra-local').value = '';
-        await carregarObras();
-        await carregarListasIniciais();
-      }
-    }
-
-    async function carregarObras() {
-      if(!supabaseClient) return;
-      const { data } = await supabaseClient.from('obras').select('*').order('nome');
-      const lista = document.getElementById('lista-obras');
-      
-      if(!data || data.length === 0) {
-        lista.innerHTML = '<li class="py-3 text-gray-500">Nenhuma obra cadastrada.</li>';
+      if (!nome || !local) {
+        alert("Preencha o nome e o local da obra!");
         return;
       }
 
-      lista.innerHTML = data.map(o => {
-        let statusTag = '';
-        if (o.finalizada) {
-          statusTag = '<span class="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold">🏁 Finalizada</span>';
-        } else if (o.ativa) {
-          statusTag = '<span class="px-3 py-1 text-xs rounded-full bg-orange-100 text-orange-800 border border-orange-300 font-semibold">⚡ Em Andamento</span>';
-        } else {
-          statusTag = '<span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">Inativa</span>';
-        }
+      const novaObra = { id: Date.now().toString(), nome, local };
+      obras.push(novaObra);
+      salvarTudo();
+      populardropdowns();
+      renderizarObras();
+      document.getElementById('obra-nome').value = '';
+      document.getElementById('obra-local').value = '';
+    }
+
+    function renderizarObras() {
+      const lista = document.getElementById('lista-obras');
+      if (obras.length === 0) {
+        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenhuma obra cadastrada.</li>';
+        return;
+      }
+
+      lista.innerHTML = obras.map(o => {
+        const qtdPdfs = pdfsObra.filter(p => p.obraId === o.id).length;
+        const qtdFotos = fotosObra.filter(f => f.obraId === o.id).length;
 
         return `
-          <li class="py-4 flex justify-between items-center flex-wrap gap-3">
+          <li class="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
             <div>
-              <strong class="text-blue-950 font-bold text-base">${o.nome}</strong>
-              <p class="text-xs text-gray-500">${o.local || 'Sem endereço informado'}</p>
-              ${o.pdf_url ? '<span class="text-xs font-semibold text-purple-700 block mt-0.5">📄 Projeto PDF Anexado</span>' : ''}
+              <p class="font-bold text-blue-950 text-base">${o.nome}</p>
+              <p class="text-xs text-gray-500">📍 ${o.local}</p>
+              <div class="flex gap-2 mt-1">
+                <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full">${qtdPdfs} PDF(s)</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">${qtdFotos} Foto(s)</span>
+              </div>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <button onclick="abrirModalWhatsappObra(${o.id}, '${o.nome}', '${o.local || ''}', '${o.pdf_url || ''}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1">
-                📲 Enviar Aviso WhatsApp
+            <div class="flex flex-wrap gap-2">
+              <button onclick="abrirModalPdf('${o.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                📄 Projetos PDFs
               </button>
-
-              <button onclick="abrirModalAnexarPdf(${o.id}, '${o.nome}')" class="px-3 py-1.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1">
-                📑 ${o.pdf_url ? 'Alterar PDF' : 'Anexar PDF'}
+              <button onclick="abrirGaleriaObra('${o.id}')" class="bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                📸 Ver Galeria
               </button>
-
-              <button onclick="abrirGaleriaObra(${o.id}, '${o.nome}')" class="px-3 py-1.5 bg-blue-900 hover:bg-blue-950 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1">
-                🖼️ Galeria
+              <button onclick="abrirModalWhatsapp('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
+                💬 Aviso Whats
               </button>
-
-              ${statusTag}
-
-              <select onchange="alterarStatusObra(${o.id}, this.value)" class="text-xs p-1.5 border rounded-lg bg-white shadow-sm focus:outline-none">
-                <option value="ativa" ${o.ativa && !o.finalizada ? 'selected' : ''}>Em Andamento</option>
-                <option value="finalizada" ${o.finalizada ? 'selected' : ''}>Finalizada</option>
-                <option value="inativa" ${!o.ativa && !o.finalizada ? 'selected' : ''}>Inativa</option>
-              </select>
-
-              <button onclick="excluirObra(${o.id}, '${o.nome}')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow transition">
-                🗑️ Excluir Obra
+              <button onclick="excluirObra('${o.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition">
+                🗑️
               </button>
             </div>
           </li>
@@ -783,30 +848,143 @@
       }).join('');
     }
 
-    // ABRIR MODAL WHATSAPP PARA A OBRA
-    async function abrirModalWhatsappObra(obraId, nomeObra, localObra, pdfUrl) {
-      if(!supabaseClient) return;
+    function excluirObra(id) {
+      if (confirm("Tem certeza que deseja excluir esta obra? Os dados de presenças permanecerão guardados.")) {
+        obras = obras.filter(o => o.id !== id);
+        salvarTudo();
+        populardropdowns();
+        renderizarObras();
+      }
+    }
+
+    // GESTÃO DE MÚLTIPLOS PDFS DA OBRA
+    function abrirModalPdf(obraId) {
+      const obra = obras.find(o => o.id === obraId);
+      if (!obra) return;
+
+      document.getElementById('modal-pdf-obra-id').value = obraId;
+      document.getElementById('modal-pdf-obra-nome').textContent = `Obra: ${obra.nome}`;
+      document.getElementById('pdf-titulo-input').value = '';
+      document.getElementById('pdf-file-input').value = '';
+
+      renderizarListaPdfsModal(obraId);
+      document.getElementById('modal-anexar-pdf').classList.remove('hidden');
+    }
+
+    function renderizarListaPdfsModal(obraId) {
+      const container = document.getElementById('lista-pdfs-existentes');
+      const pdfs = pdfsObra.filter(p => p.obraId === obraId);
+
+      if (pdfs.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 italic py-2">Nenhum PDF cadastrado nesta obra.</p>';
+        return;
+      }
+
+      container.innerHTML = pdfs.map(p => `
+        <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl border text-xs">
+          <div>
+            <p class="font-bold text-gray-800">${p.titulo || 'Projeto PDF'}</p>
+            <p class="text-[10px] text-gray-500">${p.data}</p>
+          </div>
+          <div class="flex items-center gap-1">
+            <a href="${p.url}" target="_blank" class="bg-purple-100 text-purple-800 font-bold px-2 py-1 rounded hover:bg-purple-200">Ver</a>
+            <button onclick="excluirPdf('${p.id}', '${obraId}')" class="bg-red-100 text-red-700 font-bold px-2 py-1 rounded hover:bg-red-200">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function salvarPdfObra() {
+      const obraId = document.getElementById('modal-pdf-obra-id').value;
+      const titulo = document.getElementById('pdf-titulo-input').value.trim() || 'Projeto PDF';
+      const fileInput = document.getElementById('pdf-file-input');
+
+      if (!fileInput.files || !fileInput.files[0]) {
+        alert("Selecione um arquivo PDF!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const novoPdf = {
+          id: Date.now().toString(),
+          obraId: obraId,
+          titulo: titulo,
+          url: e.target.result,
+          data: new Date().toLocaleDateString('pt-BR')
+        };
+
+        pdfsObra.push(novoPdf);
+        salvarTudo();
+        alert("📄 PDF anexado com sucesso à obra!");
+        document.getElementById('pdf-titulo-input').value = '';
+        fileInput.value = '';
+        renderizarListaPdfsModal(obraId);
+        renderizarObras();
+      };
+      reader.readAsDataURL(fileInput.files[0]);
+    }
+
+    function excluirPdf(pdfId, obraId) {
+      if (confirm("Deseja remover este PDF da obra?")) {
+        pdfsObra = pdfsObra.filter(p => p.id !== pdfId);
+        salvarTudo();
+        renderizarListaPdfsModal(obraId);
+        renderizarObras();
+      }
+    }
+
+    function fecharModalPdf() {
+      document.getElementById('modal-anexar-pdf').classList.add('hidden');
+    }
+
+    // GALERIA DA OBRA
+    function abrirGaleriaObra(obraId) {
+      const obra = obras.find(o => o.id === obraId);
+      if (!obra) return;
+
+      document.getElementById('modal-obra-titulo').textContent = `Galeria - ${obra.nome}`;
+      const container = document.getElementById('modal-galeria-conteudo');
+
+      const fotos = fotosObra.filter(f => f.obraId === obraId);
+
+      if (fotos.length === 0) {
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-8 text-center">Nenhuma foto enviada para esta obra ainda.</p>';
+      } else {
+        container.innerHTML = fotos.map(f => {
+          const func = equipe.find(eq => eq.id === f.funcionarioId);
+          return `
+            <div class="border rounded-2xl overflow-hidden bg-gray-50 shadow-sm flex flex-col">
+              <img src="${f.imagem}" class="w-full h-48 object-cover bg-black" alt="Foto da Obra">
+              <div class="p-3 text-xs space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</span>
+                  <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full font-semibold">${f.data}</span>
+                </div>
+                <p class="font-semibold text-emerald-700">Tipo: ${f.tipo}</p>
+                <p class="text-gray-600 italic">"${f.observacao || 'Sem observações'}"</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('modal-galeria-obra').classList.remove('hidden');
+    }
+
+    function fecharModalGaleria() {
+      document.getElementById('modal-galeria-obra').classList.add('hidden');
+    }
+
+    // AVISOS WHATSAPP
+    function abrirModalWhatsapp(obraId) {
+      const obra = obras.find(o => o.id === obraId);
+      if (!obra) return;
+
       document.getElementById('modal-whatsapp-obra-id').value = obraId;
-      document.getElementById('modal-whatsapp-obra-nome').innerText = `Obra: ${nomeObra}`;
-      document.getElementById('modal-whatsapp-obra-local').value = localObra;
-      document.getElementById('modal-whatsapp-pdf-url').value = pdfUrl;
+      document.getElementById('modal-whatsapp-obra-nome').textContent = `Obra: ${obra.nome}`;
+      document.getElementById('modal-whatsapp-obra-local').value = obra.local;
       document.getElementById('modal-whatsapp-mensagem').value = '';
-
-      const checkPdf = document.getElementById('container-check-pdf-whatsapp');
-      if(pdfUrl) {
-        checkPdf.classList.remove('hidden');
-      } else {
-        checkPdf.classList.add('hidden');
-      }
-
-      const selectFunc = document.getElementById('modal-whatsapp-funcionario');
-      const { data: funcs } = await supabaseClient.from('funcionarios').select('*').order('nome');
-
-      if(funcs && funcs.length > 0) {
-        selectFunc.innerHTML = funcs.map(f => `<option value="${f.whatsapp || ''}">${f.nome} ${f.whatsapp ? `(${f.whatsapp})` : '(Sem WhatsApp)'}</option>`).join('');
-      } else {
-        selectFunc.innerHTML = '<option value="">Nenhum colaborador encontrado</option>';
-      }
 
       document.getElementById('modal-whatsapp-obra').classList.remove('hidden');
     }
@@ -815,350 +993,273 @@
       document.getElementById('modal-whatsapp-obra').classList.add('hidden');
     }
 
-    function dispararWhatsapp() {
-      const whatsapp = document.getElementById('modal-whatsapp-funcionario').value;
-      const obraNome = document.getElementById('modal-whatsapp-obra-nome').innerText.replace('Obra: ', '');
-      const obraLocal = document.getElementById('modal-whatsapp-obra-local').value;
-      const mensagemExtra = document.getElementById('modal-whatsapp-mensagem').value.trim();
-      const incluirPdf = document.getElementById('modal-whatsapp-incluir-pdf').checked;
-      const pdfUrl = document.getElementById('modal-whatsapp-pdf-url').value;
+    function enviarMensagemWhatsapp() {
+      const obraId = document.getElementById('modal-whatsapp-obra-id').value;
+      const funcId = document.getElementById('modal-whatsapp-funcionario').value;
+      const local = document.getElementById('modal-whatsapp-obra-local').value;
+      const instrucao = document.getElementById('modal-whatsapp-mensagem').value;
 
-      if(!whatsapp) {
-        return alert("O colaborador selecionado não possui número de WhatsApp cadastrado. Cadastre o número dele na aba Equipe.");
+      const obra = obras.find(o => o.id === obraId);
+      const func = equipe.find(f => f.id === funcId);
+
+      if (!func) {
+        alert("Selecione o funcionário!");
+        return;
       }
 
-      let numLimpo = whatsapp.replace(/\D/g, '');
-      if(!numLimpo.startsWith('55') && numLimpo.length <= 11) {
-        numLimpo = '55' + numLimpo;
+      let texto = `Olá ${func.nome}, tudo bem?\n\n*Aviso de Convocação de Obra - T.R.E. Montagens*\n\n`;
+      texto += `🏗️ *Obra:* ${obra.nome}\n`;
+      texto += `📍 *Local:* ${local}\n`;
+
+      if (instrucao) {
+        texto += `📝 *Instruções:* ${instrucao}\n`;
       }
 
-      let texto = `*T.R.E. MONTAGENS - AVISO DE OBRA*\n\n`;
-      texto += `🏗️ *Obra:* ${obraNome}\n`;
-      if(obraLocal) texto += `📍 *Endereço:* ${obraLocal}\n`;
-      texto += `\n`;
+      texto += `\nPor favor, confirme o recebimento e não se esqueça de bater o ponto na chegada!`;
 
-      if(mensagemExtra) {
-        texto += `📝 *Orientações:* ${mensagemExtra}\n\n`;
-      }
-
-      if(incluirPdf && pdfUrl) {
-        texto += `📄 *Planta / Projeto em PDF:* ${pdfUrl}\n\n`;
-      }
-
-      texto += `Bom trabalho! Dúvidas fale com a direção.`;
-
-      const linkWhatsapp = `https://wa.me/${numLimpo}?text=${encodeURIComponent(texto)}`;
-      window.open(linkWhatsapp, '_blank');
+      const link = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+      window.open(link, '_blank');
       fecharModalWhatsapp();
     }
 
-    // EXCLUIR OBRA (SOMENTE PATRÃO)
-    async function excluirObra(obraId, nomeObra) {
-      if(!confirm(`⚠️ Tem certeza absoluta que deseja excluir a obra "${nomeObra}"?\n\nEsta ação removerá a obra permanentemente.`)) return;
-
-      const { error } = await supabaseClient.from('obras').delete().eq('id', obraId);
-
-      if(error) {
-        alert("Erro ao excluir obra: " + error.message);
-      } else {
-        alert("Obra excluída com sucesso!");
-        await carregarObras();
-        await carregarListasIniciais();
-      }
-    }
-
-    // MODAL DE ANEXAR PDF
-    function abrirModalAnexarPdf(obraId, nomeObra) {
-      document.getElementById('modal-pdf-obra-id').value = obraId;
-      document.getElementById('modal-pdf-obra-nome').innerText = `Obra: ${nomeObra}`;
-      document.getElementById('pdf-file-input').value = '';
-      document.getElementById('modal-anexar-pdf').classList.remove('hidden');
-    }
-
-    function fecharModalPdf() {
-      document.getElementById('modal-anexar-pdf').classList.add('hidden');
-    }
-
-    async function salvarPdfObra() {
-      const obraId = document.getElementById('modal-pdf-obra-id').value;
-      const fileInput = document.getElementById('pdf-file-input');
-
-      if(!fileInput.files || !fileInput.files[0]) return alert("Selecione um arquivo PDF!");
-
-      const pdfBase64 = await converterArquivoParaBase64(fileInput.files[0]);
-
-      const { error } = await supabaseClient.from('obras').update({ pdf_url: pdfBase64 }).eq('id', obraId);
-
-      if (error) {
-        alert("Erro ao anexar PDF: " + error.message + "\n\n(Execute o comando SQL no Supabase: ALTER TABLE obras ADD COLUMN IF NOT EXISTS pdf_url TEXT;)");
-      } else {
-        alert("Projeto PDF anexado com sucesso!");
-        fecharModalPdf();
-        await carregarObras();
-      }
-    }
-
-    // ABRIR GALERIA ESPECÍFICA DA OBRA
-    async function abrirGaleriaObra(obraId, nomeObra) {
-      if(!supabaseClient) return;
-      document.getElementById('modal-obra-titulo').innerText = nomeObra;
-      const conteudogaleria = document.getElementById('modal-galeria-conteudo');
-      conteudogaleria.innerHTML = '<p class="text-gray-400 py-4 col-span-2 text-center">Carregando fotos e relatórios...</p>';
-      
-      document.getElementById('modal-galeria-obra').classList.remove('hidden');
-
-      const { data, error } = await supabaseClient
-        .from('fotos_obra')
-        .select('*, funcionarios(nome)')
-        .eq('obra_id', obraId)
-        .order('created_at', { ascending: false });
-
-      if(error || !data || data.length === 0) {
-        conteudogaleria.innerHTML = `
-          <div class="col-span-2 text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-            <p class="text-gray-500 font-medium">Nenhuma foto ou relatório enviado para esta obra ainda.</p>
-            <p class="text-xs text-gray-400 mt-1">Os colaboradores podem enviar fotos de finalização ou observações pela área do funcionário.</p>
-          </div>
-        `;
-        return;
-      }
-
-      conteudogaleria.innerHTML = data.map(f => {
-        let badgeColor = 'bg-blue-100 text-blue-800';
-        if (f.tipo === 'Finalização') badgeColor = 'bg-emerald-100 text-emerald-800 font-bold';
-        if (f.tipo === 'Observação') badgeColor = 'bg-amber-100 text-amber-800 font-bold';
-
-        return `
-          <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-xs px-2 py-0.5 rounded-full ${badgeColor}">${f.tipo || 'Foto'}</span>
-                <span class="text-xs text-gray-400">${f.data || ''}</span>
-              </div>
-              <a href="${f.foto_url}" target="_blank" class="block mb-2 group relative overflow-hidden rounded-lg bg-gray-200 aspect-video">
-                <img src="${f.foto_url}" alt="Foto da Obra" class="w-full h-full object-cover group-hover:scale-105 transition duration-200" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x225?text=Erro+ao+carregar+imagem';">
-              </a>
-              <p class="text-xs text-gray-500 mb-1">Enviado por: <strong class="text-blue-950">${f.funcionarios?.nome || 'Colaborador'}</strong></p>
-              ${f.observacao ? `<p class="text-sm text-gray-800 bg-white p-2 rounded-lg border border-gray-100 mt-2">"${f.observacao}"</p>` : ''}
-            </div>
-            <button onclick="deletarFotoObra(${f.id}, ${obraId}, '${nomeObra}')" class="text-red-500 hover:text-red-700 text-xs text-right mt-3 font-semibold">Apagar Registro</button>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function deletarFotoObra(fotoId, obraId, nomeObra) {
-      if(!confirm("Tem certeza que deseja apagar esta foto do diário da obra?")) return;
-      await supabaseClient.from('fotos_obra').delete().eq('id', fotoId);
-      await abrirGaleriaObra(obraId, nomeObra);
-    }
-
-    function fecharModalGaleria() {
-      document.getElementById('modal-galeria-obra').classList.add('hidden');
-    }
-
-    async function alterarStatusObra(id, status) {
-      if(!supabaseClient) return;
-      
-      let payload = {};
-      if (status === 'ativa') {
-        payload = { ativa: true, finalizada: false };
-      } else if (status === 'finalizada') {
-        payload = { ativa: false, finalizada: true };
-      } else if (status === 'inativa') {
-        payload = { ativa: false, finalizada: false };
-      }
-
-      const { error } = await supabaseClient.from('obras').update(payload).eq('id', id);
-
-      if (error) {
-        alert("Erro ao alterar status da obra: " + error.message);
-      } else {
-        await carregarObras();
-        await carregarListasIniciais();
-      }
-    }
-
-    async function cadastrarFuncionario() {
-      if(!supabaseClient) return alert("Sem conexão com o banco!");
-      const idEdit = document.getElementById('func-id-edit').value;
+    // EQUIPE (COM SUPORTE A MANTER DADOS HISTÓRICOS APÓS REMOÇÃO)
+    function cadastrarFuncionario() {
       const nome = document.getElementById('func-nome').value.trim();
-      const whatsapp = document.getElementById('func-whatsapp').value.trim();
-      const diaria = document.getElementById('func-diaria').value;
+      const diaria = parseFloat(document.getElementById('func-diaria').value);
       const pin = document.getElementById('func-pin').value.trim();
 
-      if(!nome) return alert("Informe o nome do funcionário!");
+      if (!nome || !diaria || !pin) {
+        alert("Preencha o nome, valor da diária e o PIN!");
+        return;
+      }
 
-      const payload = {
-        nome: nome,
-        whatsapp: whatsapp || null,
-        valor_diaria: diaria ? parseFloat(diaria) : 0,
-        pin: pin || null
+      const novoFunc = {
+        id: Date.now().toString(),
+        nome,
+        diaria,
+        pin,
+        ativo: true
       };
 
-      let res;
-      if (idEdit) {
-        res = await supabaseClient.from('funcionarios').update(payload).eq('id', idEdit);
-      } else {
-        res = await supabaseClient.from('funcionarios').insert([payload]);
-      }
-
-      if(res.error) {
-        alert("Erro ao salvar funcionário: " + res.error.message);
-      } else {
-        alert(idEdit ? "Funcionário atualizado com sucesso!" : "Funcionário cadastrado com sucesso!");
-        cancelarEdicaoFuncionario();
-        await carregarFuncionarios();
-        await carregarListasIniciais();
-      }
-    }
-
-    function editarFuncionario(id, nome, whatsapp, diaria, pin) {
-      document.getElementById('func-id-edit').value = id;
-      document.getElementById('func-nome').value = nome;
-      document.getElementById('func-whatsapp').value = whatsapp !== 'null' ? whatsapp : '';
-      document.getElementById('func-diaria').value = diaria || 0;
-      document.getElementById('func-pin').value = pin !== 'null' ? pin : '';
-      
-      document.getElementById('titulo-form-func').innerText = "Editar Funcionário";
-      document.getElementById('btn-salvar-func').innerText = "Atualizar Funcionário";
-      document.getElementById('btn-cancelar-edit').classList.remove('hidden');
-    }
-
-    function cancelarEdicaoFuncionario() {
-      document.getElementById('func-id-edit').value = '';
+      equipe.push(novoFunc);
+      salvarTudo();
+      populardropdowns();
+      renderizarEquipe();
       document.getElementById('func-nome').value = '';
-      document.getElementById('func-whatsapp').value = '';
       document.getElementById('func-diaria').value = '';
       document.getElementById('func-pin').value = '';
-
-      document.getElementById('titulo-form-func').innerText = "Cadastrar / Editar Funcionário";
-      document.getElementById('btn-salvar-func').innerText = "Salvar Funcionário";
-      document.getElementById('btn-cancelar-edit').classList.add('hidden');
     }
 
-    async function carregarFuncionarios() {
-      if(!supabaseClient) return;
-      const { data, error } = await supabaseClient.from('funcionarios').select('*').order('nome');
-      const lista = document.getElementById('lista-funcionarios');
+    function renderizarEquipe() {
+      const lista = document.getElementById('lista-equipe');
+      // Exibe apenas colaboradores marcados como ativos na aba da equipe
+      const ativos = equipe.filter(f => f.ativo !== false);
 
-      if(error) {
-        console.error("Erro ao listar funcionários:", error);
-        lista.innerHTML = '<li class="py-3 text-red-500">Erro ao carregar dados.</li>';
+      if (ativos.length === 0) {
+        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenhum funcionário ativo.</li>';
         return;
       }
 
-      if(!data || data.length === 0) {
-        lista.innerHTML = '<li class="py-3 text-gray-500">Nenhum funcionário cadastrado.</li>';
-        return;
-      }
-
-      lista.innerHTML = data.map(f => `
-        <li class="py-3 flex justify-between items-center border-b">
+      lista.innerHTML = ativos.map(f => `
+        <li class="py-3 flex justify-between items-center">
           <div>
-            <strong class="text-blue-950 font-bold">${f.nome}</strong>
-            <p class="text-xs text-gray-500">WhatsApp: ${f.whatsapp || 'Não informado'} | Diária: R$ ${(f.valor_diaria || 0).toFixed(2)} | PIN: ${f.pin || 'Sem PIN'}</p>
+            <p class="font-bold text-blue-950">${f.nome}</p>
+            <p class="text-xs text-gray-500">Diária: R$ ${f.diaria.toFixed(2)} | PIN: ****</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="editarFuncionario(${f.id}, '${f.nome.replace(/'/g, "\\'")}', '${f.whatsapp}', ${f.valor_diaria}, '${f.pin}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold px-2.5 py-1 rounded bg-blue-50">Editar</button>
-            <button onclick="deletarFuncionario(${f.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold px-2.5 py-1 rounded bg-red-50">Excluir</button>
-          </div>
+          <button onclick="desativarFuncionario('${f.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
+            Remover da Equipe Ativa
+          </button>
         </li>
       `).join('');
     }
 
-    async function deletarFuncionario(id) {
-      if(!confirm("Tem certeza que deseja remover este colaborador?")) return;
-      const { error } = await supabaseClient.from('funcionarios').delete().eq('id', id);
-      if(error) {
-        alert("Erro ao remover: " + error.message);
-      } else {
-        await carregarFuncionarios();
-        await carregarListasIniciais();
+    function desativarFuncionario(id) {
+      if (confirm("Deseja remover este colaborador da lista ativa? Os registros de diárias e pontos passados continuarão salvos no relatório de fechamento.")) {
+        // Marca o funcionário como inativo em vez de apagar do array totalmente, mantendo o histórico
+        const index = equipe.findIndex(f => f.id === id);
+        if (index !== -1) {
+          equipe[index].ativo = false;
+          salvarTudo();
+          populardropdowns();
+          renderizarEquipe();
+        }
       }
     }
 
-    async function carregarPresencas() {
-      if(!supabaseClient) return;
-      const { data } = await supabaseClient.from('presencas')
-        .select('*, funcionarios(nome), obras(nome)')
-        .order('data', { ascending: false });
-
+    // PRESENÇAS
+    function carregarPresencas() {
       const tabela = document.getElementById('tabela-presencas');
-      if(!data || data.length === 0) {
-        tabela.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Nenhum ponto marcado.</td></tr>';
+      if (pontos.length === 0) {
+        tabela.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500 text-xs">Nenhum ponto registrado.</td></tr>';
         return;
       }
 
-      tabela.innerHTML = data.map(p => `
-        <tr class="border-b">
-          <td class="p-3">${p.data}</td>
-          <td class="p-3 font-semibold text-blue-900">${p.funcionarios?.nome || 'N/I'}</td>
-          <td class="p-3">${p.obras?.nome || 'N/I'}</td>
-          <td class="p-3"><button onclick="deletarPresenca(${p.id})" class="text-red-500 text-xs font-semibold">Excluir</button></td>
-        </tr>
-      `).join('');
-    }
-
-    async function deletarPresenca(id) {
-      if(!confirm("Deseja apagar este registro de ponto?")) return;
-      await supabaseClient.from('presencas').delete().eq('id', id);
-      await carregarPresencas();
-    }
-
-    async function carregarComprovantes() {
-      if(!supabaseClient) return;
-      const { data } = await supabaseClient.from('vales')
-        .select('*, funcionarios(nome), obras(nome)')
-        .order('data', { ascending: false });
-
-      const grid = document.getElementById('grid-comprovantes');
-      if(!data || data.length === 0) {
-        grid.innerHTML = '<p class="text-gray-500 col-span-3">Nenhum vale ou comprovante enviado.</p>';
-        return;
-      }
-
-      grid.innerHTML = data.map(v => `
-        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm">
-          <div class="flex justify-between items-center mb-2">
-            <span class="font-bold text-blue-950">${v.funcionarios?.nome || 'N/I'}</span>
-            <span class="text-orange-600 font-bold">R$ ${(v.valor || 0).toFixed(2)}</span>
-          </div>
-          <p class="text-xs text-gray-500 mb-1">${v.obras?.nome || 'N/I'} - ${v.data}</p>
-          <p class="text-sm text-gray-700 mb-3">${v.descricao || 'Sem descrição'}</p>
-          ${v.comprovante_url ? `<a href="${v.comprovante_url}" target="_blank" class="block text-center text-xs bg-blue-900 text-white py-1.5 rounded-lg hover:bg-blue-950">Ver Comprovante</a>` : '<span class="text-xs text-gray-400">Sem imagem</span>'}
-        </div>
-      `).join('');
-    }
-
-    async function carregarFechamento() {
-      if(!supabaseClient) return;
-      const { data: funcs } = await supabaseClient.from('funcionarios').select('*');
-      const { data: presencas } = await supabaseClient.from('presencas').select('*');
-      const { data: vales } = await supabaseClient.from('vales').select('*');
-
-      const tabela = document.getElementById('tabela-fechamento');
-      if(!funcs || funcs.length === 0) {
-        tabela.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Sem dados para fechamento.</td></tr>';
-        return;
-      }
-
-      tabela.innerHTML = funcs.map(f => {
-        const totalDias = presencas ? presencas.filter(p => p.funcionario_id === f.id).length : 0;
-        const totalDiarias = totalDias * (f.valor_diaria || 0);
-        const totalVales = vales ? vales.filter(v => v.funcionario_id === f.id).reduce((acc, cur) => acc + (cur.valor || 0), 0) : 0;
-        const saldoFinal = totalDiarias - totalVales;
-
+      tabela.innerHTML = pontos.map(p => {
+        const func = equipe.find(f => f.id === p.funcionarioId);
+        const obra = obras.find(o => o.id === p.obraId);
         return `
-          <tr class="border-b">
-            <td class="p-3 font-bold text-blue-950">${f.nome}</td>
-            <td class="p-3">${totalDias} dias</td>
-            <td class="p-3">R$ ${totalDiarias.toFixed(2)}</td>
-            <td class="p-3 text-red-600">R$ ${totalVales.toFixed(2)}</td>
-            <td class="p-3 font-bold ${saldoFinal >= 0 ? 'text-green-600' : 'text-red-600'}">R$ ${saldoFinal.toFixed(2)}</td>
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 font-semibold text-gray-800">${p.data} <span class="text-xs text-gray-400">(${p.hora || ''})</span></td>
+            <td class="p-3 font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
+            <td class="p-3 text-gray-600">${obra ? obra.nome : 'Obra Desconhecida'}</td>
+            <td class="p-3 text-right">
+              <button onclick="excluirPonto('${p.id}')" class="text-red-600 hover:text-red-800 font-bold text-xs">Excluir</button>
+            </td>
           </tr>
         `;
       }).join('');
+    }
+
+    function excluirPonto(id) {
+      if (confirm("Excluir este registro de presença?")) {
+        pontos = pontos.filter(p => p.id !== id);
+        salvarTudo();
+        carregarPresencas();
+      }
+    }
+
+    // COMPROVANTES VALES
+    function carregarValesAdmin() {
+      const container = document.getElementById('container-vales-admin');
+      if (vales.length === 0) {
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4">Nenhum vale ou nota enviada.</p>';
+        return;
+      }
+
+      container.innerHTML = vales.map(v => {
+        const func = equipe.find(f => f.id === v.funcionarioId);
+        const obra = obras.find(o => o.id === v.obraId);
+        return `
+          <div class="card-acustico-blur p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <h4 class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</h4>
+                  <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'N/A'}</p>
+                </div>
+                <span class="text-sm font-extrabold text-orange-600">R$ ${v.valor.toFixed(2)}</span>
+              </div>
+              <p class="text-xs text-gray-700 font-medium mb-1">Motivo: ${v.descricao || 'Sem descrição'}</p>
+              <p class="text-[10px] text-gray-400 mb-3">Data: ${v.data}</p>
+
+              ${v.comprovante ? `
+                <a href="${v.comprovante}" target="_blank" class="block mb-2">
+                  <img src="${v.comprovante}" class="w-full h-32 object-cover rounded-lg border hover:opacity-90 transition" alt="Comprovante">
+                </a>
+              ` : '<p class="text-xs text-gray-400 italic mb-2">Sem foto anexada</p>'}
+            </div>
+
+            <div class="text-right pt-2 border-t">
+              <button onclick="excluirVale('${v.id}')" class="text-xs text-red-600 hover:text-red-800 font-bold">Excluir Vale</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function excluirVale(id) {
+      if (confirm("Deseja excluir este registro de vale?")) {
+        vales = vales.filter(v => v.id !== id);
+        salvarTudo();
+        carregarValesAdmin();
+      }
+    }
+
+    // FECHAMENTO DE CONTA COM FILTRO DE MÊS E ANO
+    function calcularFechamentoMensal() {
+      const mesSelecionado = parseInt(document.getElementById('fechamento-mes').value);
+      const anoSelecionado = parseInt(document.getElementById('fechamento-ano').value);
+      const tabela = document.getElementById('tabela-fechamento');
+
+      // Filtra presenças e vales pelo Mês e Ano selecionados
+      const pontosDoMes = pontos.filter(p => {
+        if (!p.data) return false;
+        const partes = p.data.split('-'); // Esperado AAAA-MM-DD
+        if (partes.length === 3) {
+          const ano = parseInt(partes[0]);
+          const mes = parseInt(partes[1]) - 1; // Mês 0-11
+          return ano === anoSelecionado && mes === mesSelecionado;
+        }
+        return false;
+      });
+
+      const valesDoMes = vales.filter(v => {
+        if (!v.data) return false;
+        const partes = v.data.split('-');
+        if (partes.length === 3) {
+          const ano = parseInt(partes[0]);
+          const mes = parseInt(partes[1]) - 1;
+          return ano === anoSelecionado && mes === mesSelecionado;
+        }
+        return false;
+      });
+
+      // Inclui todos os funcionários (mesmo ex-colaboradores) que possuem histórico ou que estão cadastrados
+      const todosFuncionarios = [...equipe];
+
+      if (todosFuncionarios.length === 0) {
+        tabela.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500 text-xs">Nenhum funcionário cadastrado.</td></tr>';
+        return;
+      }
+
+      let totalGeralBruto = 0;
+      let totalGeralVales = 0;
+      let totalGeralLiquido = 0;
+
+      const linhasHtml = todosFuncionarios.map(func => {
+        // Conta pontos do colaborador no período
+        const diasTrabalhados = pontosDoMes.filter(p => p.funcionarioId === func.id).length;
+        
+        // Soma vales do colaborador no período
+        const totalValesFunc = valesDoMes
+          .filter(v => v.funcionarioId === func.id)
+          .reduce((sum, v) => sum + parseFloat(v.valor || 0), 0);
+
+        const totalBruto = diasTrabalhados * func.diaria;
+        const saldoLiquido = totalBruto - totalValesFunc;
+
+        // Se o funcionário foi inativado/removido e não teve trabalho no mês selecionado, não exibe
+        if (func.ativo === false && diasTrabalhados === 0 && totalValesFunc === 0) {
+          return '';
+        }
+
+        totalGeralBruto += totalBruto;
+        totalGeralVales += totalValesFunc;
+        totalGeralLiquido += saldoLiquido;
+
+        return `
+          <tr class="hover:bg-gray-50 ${func.ativo === false ? 'bg-red-50/50' : ''}">
+            <td class="p-3 font-bold text-blue-950">
+              ${func.nome}
+              ${func.ativo === false ? '<span class="text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded ml-1 font-semibold">Ex-colaborador</span>' : ''}
+            </td>
+            <td class="p-3 text-center">R$ ${func.diaria.toFixed(2)}</td>
+            <td class="p-3 text-center font-bold">${diasTrabalhados} dias</td>
+            <td class="p-3 text-right font-semibold">R$ ${totalBruto.toFixed(2)}</td>
+            <td class="p-3 text-right text-red-600 font-semibold">R$ ${totalValesFunc.toFixed(2)}</td>
+            <td class="p-3 text-right font-extrabold ${saldoLiquido < 0 ? 'text-red-600' : 'text-emerald-700'}">
+              R$ ${saldoLiquido.toFixed(2)}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      if (!linhasHtml.trim()) {
+        tabela.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500 text-xs">Nenhum registro encontrado para este mês/ano.</td></tr>';
+        return;
+      }
+
+      // Linha de Totais da Empresa
+      const linhaTotal = `
+        <tr class="bg-gray-100 font-bold border-t-2 border-gray-300 text-gray-900">
+          <td class="p-3" colspan="3">TOTAL GERAL DO MÊS:</td>
+          <td class="p-3 text-right text-blue-950">R$ ${totalGeralBruto.toFixed(2)}</td>
+          <td class="p-3 text-right text-red-600">R$ ${totalGeralVales.toFixed(2)}</td>
+          <td class="p-3 text-right text-emerald-800 text-base">R$ ${totalGeralLiquido.toFixed(2)}</td>
+        </tr>
+      `;
+
+      tabela.innerHTML = linhasHtml + linhaTotal;
     }
   </script>
 </body>
