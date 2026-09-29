@@ -3,241 +3,238 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ecozlin Painéis - Gestão de Obras e Equipe</title>
+  <title>T.R.E. - Gestão de Obras e Equipe</title>
   
   <!-- Configurações PWA -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ecozlin Obras">
+  <meta name="apple-mobile-web-app-title" content="T.R.E. Obras">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <style>
-    /* Estilo de fundo padrão focado em acústica / painéis */
-    .bg-ecozlin {
-      background-color: #0f172a;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0), linear-gradient(to bottom, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1600&auto=format&fit=crop');
-      background-size: 24px 24px, cover, cover;
-      background-position: 0 0, center, center;
+    /* Papel de Parede Temático: Acabamento Acústico de Alto Padrão (Painéis Ripados / Tratamento Acústico Premium) */
+    .bg-acustico-premium {
+      background-image: 
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.94)),
+        url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1920&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
       background-attachment: fixed;
     }
 
-    /* Banners para as abas do administrador com fotos de acústica e buffers */
-    .banner-ecozlin {
-      background-size: cover;
-      background-position: center;
-      position: relative;
-    }
-    .banner-ecozlin::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.6));
-      border-radius: 0.75rem;
+    /* Textura de fundo sutil para os cards */
+    .card-acustico-blur {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
     }
   </style>
 </head>
-<body class="bg-ecozlin text-gray-800 font-sans min-h-screen">
+<body class="bg-acustico-premium text-gray-800 font-sans min-h-screen flex flex-col">
 
   <!-- TELA DE SELEÇÃO DE ACESSO (INICIAL) -->
   <div id="pantalla-login" class="flex flex-col items-center justify-center min-h-screen p-4">
-    <div class="bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-slate-200">
-      <div class="mb-4 inline-block bg-slate-900 text-amber-400 p-3 rounded-xl shadow-inner font-extrabold text-2xl tracking-wider">
-        🔊 ECOZLIN
-      </div>
-      <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Ecozlin Painéis</h1>
-      <p class="text-slate-500 mb-8 font-medium">Soluções Acústicas & Gestão de Obras</p>
+    <div class="card-acustico-blur p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border-t-4 border-orange-500">
+      <!-- Elemento Decorativo Laranja/Azul -->
+      <div class="w-16 h-1 bg-orange-500 mx-auto mb-4 rounded-full"></div>
+      
+      <h1 class="text-3xl font-extrabold text-blue-950 tracking-tight mb-1">T.R.E. Montagens</h1>
+      <p class="text-orange-600 font-medium text-sm tracking-wide uppercase mb-8">Gestão de Equipe e Obras</p>
 
       <div class="space-y-4">
-        <button onclick="mostrarVisao('funcionario')" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition cursor-pointer flex items-center justify-center gap-2">
-          👷 Acesso Funcionário (Ponto / Vales)
+        <button onclick="mostrarVisao('funcionario')" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 border-l-4 border-orange-500 cursor-pointer flex items-center justify-center gap-2">
+          <span>👷</span> Acesso Funcionário (Ponto / Vales)
         </button>
 
-        <button onclick="solicitarSenhaAdmin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition cursor-pointer flex items-center justify-center gap-2 border border-slate-700">
-          👑 Acesso Administrador (Patrão)
+        <button onclick="solicitarSenhaAdmin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 cursor-pointer flex items-center justify-center gap-2">
+          <span>👑</span> Acesso Administrador (Patrão)
         </button>
       </div>
     </div>
   </div>
 
   <!-- VISÃO DO FUNCIONÁRIO (MARCAR PONTO E ENVIAR VALES/COMPROVANTES) -->
-  <div id="visao-funcionario" class="hidden p-4 max-w-lg mx-auto min-h-screen pb-12">
-    <div class="flex justify-between items-center mb-6 bg-slate-900/90 backdrop-blur-md p-4 rounded-xl border border-slate-700 text-white">
-      <div>
-        <h2 class="text-xl font-bold text-amber-400">🔊 Ecozlin Painéis</h2>
-        <p class="text-xs text-slate-300">Área do Colaborador</p>
-      </div>
-      <button onclick="sair()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition">Sair</button>
+  <div id="visao-funcionario" class="hidden p-4 max-w-lg mx-auto min-h-screen pb-12 w-full">
+    <div class="flex justify-between items-center mb-6 bg-blue-950 p-4 rounded-2xl border-b-2 border-orange-500 shadow-md">
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">
+        <span>👷</span> Área do Colaborador
+      </h2>
+      <button onclick="sair()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">Sair</button>
     </div>
 
     <!-- CARD 1: MARCAR PONTO -->
-    <div class="bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-xl space-y-4 border border-slate-100">
-      <h3 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-        <span>📍</span> Registro de Ponto Diário
+    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 border-t-4 border-blue-900">
+      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
+        <span>📍 Registro de Ponto Diário</span>
+        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">Obras / Acabamento</span>
       </h3>
       
       <div>
-        <label class="block text-sm font-semibold mb-1">Selecione o seu Nome:</label>
-        <select id="ponto-funcionario" class="w-full p-3 border rounded-xl bg-gray-50"></select>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o seu Nome:</label>
+        <select id="ponto-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"></select>
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1">Selecione a Obra / Projeto Acústico:</label>
-        <select id="ponto-obra" class="w-full p-3 border rounded-xl bg-gray-50"></select>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
+        <select id="ponto-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"></select>
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1">Data:</label>
-        <input type="date" id="ponto-data" class="w-full p-3 border rounded-xl bg-gray-50">
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Data:</label>
+        <input type="date" id="ponto-data" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1">PIN / Senha do Colaborador:</label>
-        <input type="password" id="ponto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50">
+        <label class="block text-sm font-semibold mb-1 text-gray-700">PIN / Senha do Colaborador:</label>
+        <input type="password" id="ponto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
       </div>
 
-      <button onclick="registrarPonto()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-md text-lg transition">
+      <button onclick="registrarPonto()" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition border-b-4 border-orange-500 cursor-pointer">
         📍 BATER PONTO HOJE
       </button>
     </div>
 
     <!-- CARD 2: ENVIAR VALE / NOTA COMPROVANTE -->
-    <div class="bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-xl space-y-4 mt-6 border border-slate-100">
-      <h3 class="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-        <span>🧾</span> Enviar Vale ou Nota Comprovante
-      </h3>
+    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-orange-500">
+      <h3 class="text-lg font-bold text-blue-950 border-b pb-2">🧾 Enviar Vale ou Nota Comprovante</h3>
       
       <div>
-        <label class="block text-sm font-semibold mb-1">Selecione o seu Nome:</label>
-        <select id="vale-funcionario" class="w-full p-3 border rounded-xl bg-gray-50"></select>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o seu Nome:</label>
+        <select id="vale-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"></select>
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1">Selecione a Obra:</label>
-        <select id="vale-obra" class="w-full p-3 border rounded-xl bg-gray-50"></select>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
+        <select id="vale-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"></select>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-semibold mb-1">Valor (R$):</label>
-          <input type="number" step="0.01" id="vale-valor" placeholder="0,00" class="w-full p-3 border rounded-xl bg-gray-50">
+          <label class="block text-sm font-semibold mb-1 text-gray-700">Valor (R$):</label>
+          <input type="number" step="0.01" id="vale-valor" placeholder="0,00" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
         </div>
         <div>
-          <label class="block text-sm font-semibold mb-1">Data:</label>
-          <input type="date" id="vale-data" class="w-full p-3 border rounded-xl bg-gray-50">
+          <label class="block text-sm font-semibold mb-1 text-gray-700">Data:</label>
+          <input type="date" id="vale-data" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1">Descrição / Motivo:</label>
-        <input type="text" id="vale-descricao" placeholder="Ex: Almoço, Passagem, Vale semanal, Material para buffers" class="w-full p-3 border rounded-xl bg-gray-50">
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Descrição / Motivo:</label>
+        <input type="text" id="vale-descricao" placeholder="Ex: Almoço, Passagem, Vale semanal, Compra de material" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1">Link da Foto / Comprovante (URL):</label>
-        <input type="url" id="vale-comprovante-url" placeholder="https://..." class="w-full p-3 border rounded-xl bg-gray-50">
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Link da Foto / Comprovante (URL):</label>
+        <input type="url" id="vale-comprovante-url" placeholder="https://..." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1">PIN / Senha do Colaborador:</label>
-        <input type="password" id="vale-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50">
+        <label class="block text-sm font-semibold mb-1 text-gray-700">PIN / Senha do Colaborador:</label>
+        <input type="password" id="vale-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
       </div>
 
-      <button onclick="registrarVale()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl shadow-md text-base transition">
+      <button onclick="registrarVale()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-900 cursor-pointer">
         💸 ENVIAR VALE / COMPROVANTE
       </button>
     </div>
 
     <!-- Histórico Pessoal Recente -->
-    <div class="mt-8 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-slate-100">
-      <h3 class="font-bold text-slate-800 mb-3">Seus Pontos Registrados Recentes:</h3>
-      <div id="lista-ponto-recentes" class="space-y-2 text-sm text-slate-600">
+    <div class="mt-8 card-acustico-blur p-6 rounded-2xl shadow-xl border-l-4 border-orange-500">
+      <h3 class="font-bold text-blue-950 mb-3 flex items-center justify-between">
+        <span>Seus Pontos Registrados Recentes:</span>
+        <span class="text-xs text-gray-500 font-normal">Últimos 5 registros</span>
+      </h3>
+      <div id="lista-ponto-recentes" class="space-y-2 text-sm text-gray-700 divide-y divide-gray-100">
         Carregando...
       </div>
     </div>
   </div>
 
   <!-- VISÃO DO ADMINISTRADOR (PATRÃO) -->
-  <div id="visao-admin" class="hidden min-h-screen flex flex-col">
-    <nav class="bg-slate-900 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b border-slate-800 shadow-md">
+  <div id="visao-admin" class="hidden min-h-screen flex flex-col w-full">
+    <nav class="bg-blue-950 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-2 border-orange-500 shadow-md">
       <div class="flex items-center gap-2">
-        <span class="text-2xl">🔊</span>
-        <h1 class="text-xl font-bold tracking-wide text-amber-400">Ecozlin Painéis | Painel do Patrão</h1>
+        <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+        <h1 class="text-xl font-bold tracking-tight">T.R.E. | Painel do Patrão</h1>
       </div>
-      <button onclick="sair()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-semibold transition">Sair</button>
+      <button onclick="sair()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">Sair</button>
     </nav>
 
-    <div class="bg-slate-800/90 backdrop-blur-md text-white flex overflow-x-auto text-sm font-semibold border-b border-slate-700">
-      <button onclick="mudarAbaAdmin('obras')" class="px-5 py-3 hover:bg-slate-700 border-b-2 border-amber-400 transition">🏗️ Obras & Buffers</button>
-      <button onclick="mudarAbaAdmin('equipe')" class="px-5 py-3 hover:bg-slate-700 transition">👥 Equipe</button>
-      <button onclick="mudarAbaAdmin('presencas')" class="px-5 py-3 hover:bg-slate-700 transition">📅 Presenças</button>
-      <button onclick="mudarAbaAdmin('comprovantes')" class="px-5 py-3 hover:bg-slate-700 transition">📑 Comprovantes</button>
-      <button onclick="mudarAbaAdmin('fechamento')" class="px-5 py-3 hover:bg-slate-700 transition">📊 Fechamento</button>
+    <!-- NAVEGAÇÃO DE ABAS COM TEMA AZUL MARINHO E DESTACADOS EM LARANJA -->
+    <div class="bg-blue-900 text-white flex overflow-x-auto text-sm font-semibold border-t border-blue-800 shadow-inner">
+      <button onclick="mudarAbaAdmin('obras')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5">
+        <span>🏗️</span> Obras
+      </button>
+      <button onclick="mudarAbaAdmin('equipe')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>👥</span> Equipe
+      </button>
+      <button onclick="mudarAbaAdmin('presencas')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>📅</span> Presenças
+      </button>
+      <button onclick="mudarAbaAdmin('comprovantes')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>📑</span> Comprovantes
+      </button>
+      <button onclick="mudarAbaAdmin('fechamento')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>📊</span> Fechamento
+      </button>
     </div>
 
     <div class="p-4 max-w-5xl mx-auto w-full flex-grow">
 
       <!-- ABA OBRAS -->
       <div id="aba-obras" class="aba-content space-y-6">
-        <!-- Banner Acústico -->
-        <div class="banner-ecozlin rounded-xl p-6 text-white shadow-lg" style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200&auto=format&fit=crop');">
-          <div class="relative z-10">
-            <h2 class="text-2xl font-bold text-amber-400">Gestão de Obras & Instalações Acústicas</h2>
-            <p class="text-slate-200 text-sm mt-1">Controle de montagem de painéis, buffers e isolamento acústico Ecozlin.</p>
-          </div>
-        </div>
-
-        <div class="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow border border-slate-100">
-          <h3 class="text-lg font-bold mb-4 text-slate-900">Cadastrar Nova Obra / Projeto</h3>
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Nova Obra</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="text" id="obra-nome" placeholder="Nome da Obra (ex: Estúdio Ecozlin SP)" class="p-3 border rounded-xl bg-gray-50">
-            <input type="text" id="obra-local" placeholder="Localização / Endereço" class="p-3 border rounded-xl bg-gray-50">
+            <input type="text" id="obra-nome" placeholder="Nome da Obra (ex: Avanço RJ)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="obra-local" placeholder="Localização / Endereço" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
           </div>
-          <button onclick="cadastrarObra()" class="mt-4 bg-slate-900 text-amber-400 font-bold px-6 py-2.5 rounded-xl hover:bg-slate-800 transition">Cadastrar Obra</button>
+          <button onclick="cadastrarObra()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Cadastrar Obra</button>
         </div>
 
-        <div class="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow border border-slate-100">
-          <h3 class="text-lg font-bold mb-4 text-slate-900">Obras Cadastradas</h3>
-          <ul id="lista-obras" class="divide-y"></ul>
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Obras Cadastradas</h3>
+          <ul id="lista-obras" class="divide-y text-gray-700"></ul>
         </div>
       </div>
 
       <!-- ABA EQUIPE -->
       <div id="aba-equipe" class="aba-content hidden space-y-6">
-        <div class="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow border border-slate-100">
-          <h3 class="text-lg font-bold mb-4 text-slate-900">Cadastrar / Editar Funcionário</h3>
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar / Editar Funcionário</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="text" id="func-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50">
-            <input type="number" step="0.01" id="func-diaria" placeholder="Valor da Diária (R$)" class="p-3 border rounded-xl bg-gray-50">
-            <input type="text" id="func-pin" placeholder="PIN/Senha Pessoal (Ex: 9876)" class="p-3 border rounded-xl bg-gray-50">
+            <input type="text" id="func-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="number" step="0.01" id="func-diaria" placeholder="Valor da Diária (R$)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="func-pin" placeholder="PIN/Senha Pessoal (Ex: 9876)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
           </div>
-          <button onclick="cadastrarFuncionario()" class="mt-4 bg-slate-900 text-amber-400 font-bold px-6 py-2.5 rounded-xl hover:bg-slate-800 transition">Salvar Funcionário</button>
+          <button onclick="cadastrarFuncionario()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Salvar Funcionário</button>
         </div>
 
-        <div class="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow border border-slate-100">
-          <h3 class="text-lg font-bold mb-4 text-slate-900">Lista de Funcionários (Exclusivo Patrão)</h3>
-          <ul id="lista-funcionarios" class="divide-y"></ul>
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Lista de Funcionários (Apenas Visível pelo Patrão)</h3>
+          <ul id="lista-funcionarios" class="divide-y text-gray-700"></ul>
         </div>
       </div>
 
       <!-- ABA PRESENÇAS -->
       <div id="aba-presencas" class="aba-content hidden space-y-6">
-        <div class="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow border border-slate-100">
-          <h3 class="text-lg font-bold mb-4 text-slate-900">Histórico Geral de Ponto nas Obras Ecozlin</h3>
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Histórico Geral de Ponto</h3>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b bg-slate-100 text-slate-700">
-                  <th class="p-3">Data</th>
+                <tr class="border-b bg-blue-950 text-white">
+                  <th class="p-3 rounded-tl-lg">Data</th>
                   <th class="p-3">Funcionário</th>
-                  <th class="p-3">Obra / Local</th>
-                  <th class="p-3">Ações</th>
+                  <th class="p-3">Obra</th>
+                  <th class="p-3 rounded-tr-lg">Ações</th>
                 </tr>
               </thead>
-              <tbody id="tabela-presencas"></tbody>
+              <tbody id="tabela-presencas" class="divide-y text-gray-700"></tbody>
             </table>
           </div>
         </div>
@@ -245,28 +242,28 @@
 
       <!-- ABA COMPROVANTES -->
       <div id="aba-comprovantes" class="aba-content hidden space-y-6">
-        <div class="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow border border-slate-100">
-          <h3 class="text-lg font-bold mb-4 text-slate-900">📑 Galeria de Comprovantes Registrados</h3>
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">📑 Galeria de Comprovantes Registrados</h3>
           <div id="grid-comprovantes" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
         </div>
       </div>
 
       <!-- ABA FECHAMENTO -->
       <div id="aba-fechamento" class="aba-content hidden space-y-6">
-        <div class="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow border border-slate-100">
-          <h3 class="text-lg font-bold mb-4 text-slate-900">📊 Fechamento e Saldo a Pagar</h3>
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">📊 Fechamento e Saldo a Pagar</h3>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b bg-slate-100 text-slate-700">
-                  <th class="p-3">Funcionário</th>
+                <tr class="border-b bg-blue-950 text-white">
+                  <th class="p-3 rounded-tl-lg">Funcionário</th>
                   <th class="p-3">Dias Trabalhados</th>
                   <th class="p-3">Total Diárias</th>
                   <th class="p-3">Total Vales</th>
-                  <th class="p-3">Saldo Final</th>
+                  <th class="p-3 rounded-tr-lg">Saldo Final</th>
                 </tr>
               </thead>
-              <tbody id="tabela-fechamento"></tbody>
+              <tbody id="tabela-fechamento" class="divide-y text-gray-700"></tbody>
             </table>
           </div>
         </div>
@@ -442,8 +439,8 @@
 
       lista.innerHTML = data.map(p => `
         <div class="flex justify-between border-b py-2">
-          <span><strong>${p.funcionarios?.nome || 'Funcionário'}</strong> - ${p.obras?.nome || 'Obra'}</span>
-          <span class="text-gray-500">${p.data}</span>
+          <span><strong class="text-blue-900">${p.funcionarios?.nome || 'Funcionário'}</strong> - ${p.obras?.nome || 'Obra'}</span>
+          <span class="text-orange-600 font-semibold">${p.data}</span>
         </div>
       `).join('');
     }
@@ -451,6 +448,8 @@
     async function carregarDadosAdmin() {
       await carregarListasIniciais();
       await carregarObras();
+      await carregarFuncionarios();
+      await carregarPresencas();
     }
 
     async function cadastrarObra() {
@@ -486,10 +485,10 @@
       lista.innerHTML = data.map(o => `
         <li class="py-3 flex justify-between items-center">
           <div>
-            <p class="font-bold text-slate-800">${o.nome}</p>
-            <p class="text-xs text-slate-500">${o.local || 'Sem local informado'}</p>
+            <strong class="text-blue-950 font-bold">${o.nome}</strong>
+            <p class="text-xs text-gray-500">${o.local || 'Sem endereço informado'}</p>
           </div>
-          <span class="text-xs px-2.5 py-1 rounded-full ${o.ativa ? 'bg-emerald-100 text-emerald-800 font-semibold' : 'bg-gray-100 text-gray-600'}">
+          <span class="px-3 py-1 text-xs rounded-full ${o.ativa ? 'bg-orange-100 text-orange-800 border border-orange-300 font-semibold' : 'bg-gray-100 text-gray-600'}">
             ${o.ativa ? 'Ativa' : 'Inativa'}
           </span>
         </li>
