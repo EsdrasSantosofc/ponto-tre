@@ -45,7 +45,7 @@
 
       <div class="space-y-4">
         <button onclick="mostrarVisao('funcionario')" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 border-l-4 border-orange-500 cursor-pointer flex items-center justify-center gap-2">
-          <span>👷</span> Acesso Funcionário (Ponto / Vales / Fotos)
+          <span>👷</span> Acesso Funcionário (Ponto / Vales / Projetos)
         </button>
 
         <button onclick="solicitarSenhaAdmin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 cursor-pointer flex items-center justify-center gap-2">
@@ -96,7 +96,24 @@
       </button>
     </div>
 
-    <!-- CARD 2: ENVIAR VALE / NOTA COMPROVANTE -->
+    <!-- CARD 2: CONSULTAR PDFS DA OBRA (NOVO) -->
+    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-purple-600">
+      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
+        <span>📄 PDFs & Projetos das Obras</span>
+        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-semibold">Projetos & Plantas</span>
+      </h3>
+      
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra para ver os Arquivos:</label>
+        <select id="consulta-pdf-obra" onchange="buscarPdfsObra()" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-purple-600 focus:outline-none"></select>
+      </div>
+
+      <div id="container-pdf-obra" class="space-y-2 pt-2">
+        <p class="text-xs text-gray-500 italic">Selecione uma obra acima para carregar as plantas e relatórios anexados.</p>
+      </div>
+    </div>
+
+    <!-- CARD 3: ENVIAR VALE / NOTA COMPROVANTE -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-orange-500">
       <h3 class="text-lg font-bold text-blue-950 border-b pb-2">🧾 Enviar Vale ou Nota Comprovante</h3>
       
@@ -141,7 +158,7 @@
       </button>
     </div>
 
-    <!-- CARD 3: NOVO - ENVIAR FOTO DE OBRA / FINALIZAÇÃO / OBSERVAÇÃO -->
+    <!-- CARD 4: ENVIAR FOTO DE OBRA -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-emerald-600">
       <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
         <span>📸 Diário de Obra & Finalização</span>
@@ -211,7 +228,7 @@
 
     <div class="bg-blue-900 text-white flex overflow-x-auto text-sm font-semibold border-t border-blue-800 shadow-inner">
       <button id="tab-btn-obras" onclick="mudarAbaAdmin('obras')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5">
-        <span>🏗️</span> Obras & Galeria
+        <span>🏗️</span> Obras, PDFs & Galeria
       </button>
       <button id="tab-btn-equipe" onclick="mudarAbaAdmin('equipe')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
         <span>👥</span> Equipe
@@ -241,7 +258,7 @@
         </div>
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">Obras Cadastradas & Galerias de Finalização</h3>
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Obras Cadastradas, PDFs de Projeto & Galerias</h3>
           <ul id="lista-obras" class="divide-y text-gray-700"></ul>
         </div>
 
@@ -258,6 +275,31 @@
             
             <div id="modal-galeria-conteudo" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Fotos inseridas dinamicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL PARA ANEXAR PDF À OBRA -->
+        <div id="modal-anexar-pdf" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+              <div>
+                <h3 class="text-lg font-bold text-blue-950">Anexar Projeto PDF</h3>
+                <p id="modal-pdf-obra-nome" class="text-xs text-purple-700 font-semibold"></p>
+              </div>
+              <button onclick="fecharModalPdf()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕</button>
+            </div>
+
+            <input type="hidden" id="modal-pdf-obra-id">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o arquivo PDF do Projeto:</label>
+                <input type="file" id="pdf-file-input" accept="application/pdf" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
+              </div>
+
+              <button onclick="salvarPdfObra()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow transition">
+                💾 Anexar Projeto para a Equipe
+              </button>
             </div>
           </div>
         </div>
@@ -360,7 +402,7 @@
       }
     });
 
-    // Função para converter arquivo de imagem para Base64
+    // Converter arquivo para Base64
     function converterArquivoParaBase64(file) {
       return new Promise((resolve, reject) => {
         if (!file) {
@@ -378,7 +420,10 @@
       document.getElementById('pantalla-login').classList.add('hidden');
       if(tipo === 'funcionario') {
         document.getElementById('visao-funcionario').classList.remove('hidden');
-        if(supabaseClient) carregarHistoricoPonto();
+        if(supabaseClient) {
+          carregarHistoricoPonto();
+          buscarPdfsObra();
+        }
       } else if(tipo === 'admin') {
         document.getElementById('visao-admin').classList.remove('hidden');
         if(supabaseClient) carregarDadosAdmin();
@@ -427,6 +472,7 @@
       const selectObraVale = document.getElementById('vale-obra');
       const selectFuncFoto = document.getElementById('foto-funcionario');
       const selectObraFoto = document.getElementById('foto-obra');
+      const selectObraPdf = document.getElementById('consulta-pdf-obra');
 
       const optionsFuncs = funcs?.length ? funcs.map(f => `<option value="${f.id}">${f.nome}</option>`).join('') : '<option value="">Nenhum cadastrado</option>';
       const optionsObras = obras?.length ? obras.map(o => `<option value="${o.id}">${o.nome}</option>`).join('') : '<option value="">Nenhuma obra ativa disponível</option>';
@@ -437,6 +483,7 @@
       if(selectObraVale) selectObraVale.innerHTML = optionsObras;
       if(selectFuncFoto) selectFuncFoto.innerHTML = optionsFuncs;
       if(selectObraFoto) selectObraFoto.innerHTML = optionsObras;
+      if(selectObraPdf) selectObraPdf.innerHTML = optionsObras;
     }
 
     async function validarPinFuncionario(funcId, pinDigitado) {
@@ -515,7 +562,6 @@
       }
     }
 
-    // REGISTRAR FOTO DA OBRA (GALERIA/FINALIZAÇÃO)
     async function enviarFotoObra() {
       if(!supabaseClient) return alert("Erro na conexão!");
       const funcId = document.getElementById('foto-funcionario').value;
@@ -543,13 +589,51 @@
       }]);
 
       if(error) {
-        alert("Erro ao enviar foto para a galeria: " + error.message + "\n\n(Verifique se a tabela 'fotos_obra' foi criada no Supabase)");
+        alert("Erro ao enviar foto para a galeria: " + error.message);
       } else {
         alert("Foto enviada com sucesso para a galeria da obra!");
         document.getElementById('foto-file').value = '';
         document.getElementById('foto-observacao').value = '';
         document.getElementById('foto-pin').value = '';
       }
+    }
+
+    // BUSCAR PDFS DA OBRA SELECIONADA (VISÃO DO FUNCIONÁRIO)
+    async function buscarPdfsObra() {
+      if(!supabaseClient) return;
+      const obraId = document.getElementById('consulta-pdf-obra')?.value;
+      const container = document.getElementById('container-pdf-obra');
+
+      if (!obraId) {
+        container.innerHTML = '<p class="text-xs text-gray-400">Nenhuma obra selecionada.</p>';
+        return;
+      }
+
+      const { data, error } = await supabaseClient.from('obras').select('pdf_url, nome').eq('id', obraId).single();
+
+      if (error || !data || !data.pdf_url) {
+        container.innerHTML = `
+          <div class="bg-gray-50 border border-dashed p-3 rounded-xl text-center">
+            <p class="text-xs text-gray-500">Nenhum projeto em PDF foi anexado a esta obra até o momento.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">📄</span>
+            <div>
+              <p class="text-sm font-bold text-blue-950">Projeto / Planta da Obra</p>
+              <p class="text-xs text-gray-500">${data.nome}</p>
+            </div>
+          </div>
+          <a href="${data.pdf_url}" target="_blank" download="Projeto_Obra.pdf" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-2 rounded-lg shadow transition">
+            ⬇️ Abrir PDF
+          </a>
+        </div>
+      `;
     }
 
     async function carregarHistoricoPonto() {
@@ -624,10 +708,15 @@
             <div>
               <strong class="text-blue-950 font-bold text-base">${o.nome}</strong>
               <p class="text-xs text-gray-500">${o.local || 'Sem endereço informado'}</p>
+              ${o.pdf_url ? '<span class="text-xs font-semibold text-purple-700 block mt-0.5">📄 Projeto PDF Anexado</span>' : ''}
             </div>
             <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="abrirModalAnexarPdf(${o.id}, '${o.nome}')" class="px-3 py-1.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1">
+                📑 ${o.pdf_url ? 'Alterar PDF' : 'Anexar PDF'}
+              </button>
+
               <button onclick="abrirGaleriaObra(${o.id}, '${o.nome}')" class="px-3 py-1.5 bg-blue-900 hover:bg-blue-950 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1">
-                🖼️ Ver Galeria & Relatórios
+                🖼️ Galeria
               </button>
 
               ${statusTag}
@@ -637,13 +726,63 @@
                 <option value="finalizada" ${o.finalizada ? 'selected' : ''}>Finalizada</option>
                 <option value="inativa" ${!o.ativa && !o.finalizada ? 'selected' : ''}>Inativa</option>
               </select>
+
+              <button onclick="excluirObra(${o.id}, '${o.nome}')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow transition">
+                🗑️ Excluir Obra
+              </button>
             </div>
           </li>
         `;
       }).join('');
     }
 
-    // ABRIR GALERIA ESPECÍFICA DA OBRA NO PAINEL DO PATRÃO
+    // EXCLUIR OBRA (SOMENTE PATRÃO)
+    async function excluirObra(obraId, nomeObra) {
+      if(!confirm(`⚠️ Tem certeza absoluta que deseja excluir a obra "${nomeObra}"?\n\nEsta ação removerá a obra permanentemente.`)) return;
+
+      const { error } = await supabaseClient.from('obras').delete().eq('id', obraId);
+
+      if(error) {
+        alert("Erro ao excluir obra: " + error.message);
+      } else {
+        alert("Obra excluída com sucesso!");
+        await carregarObras();
+        await carregarListasIniciais();
+      }
+    }
+
+    // MODAL DE ANEXAR PDF
+    function abrirModalAnexarPdf(obraId, nomeObra) {
+      document.getElementById('modal-pdf-obra-id').value = obraId;
+      document.getElementById('modal-pdf-obra-nome').innerText = `Obra: ${nomeObra}`;
+      document.getElementById('pdf-file-input').value = '';
+      document.getElementById('modal-anexar-pdf').classList.remove('hidden');
+    }
+
+    function fecharModalPdf() {
+      document.getElementById('modal-anexar-pdf').classList.add('hidden');
+    }
+
+    async function salvarPdfObra() {
+      const obraId = document.getElementById('modal-pdf-obra-id').value;
+      const fileInput = document.getElementById('pdf-file-input');
+
+      if(!fileInput.files || !fileInput.files[0]) return alert("Selecione um arquivo PDF!");
+
+      const pdfBase64 = await converterArquivoParaBase64(fileInput.files[0]);
+
+      const { error } = await supabaseClient.from('obras').update({ pdf_url: pdfBase64 }).eq('id', obraId);
+
+      if (error) {
+        alert("Erro ao anexar PDF: " + error.message + "\n\n(Verifique se a coluna 'pdf_url' existe na tabela 'obras')");
+      } else {
+        alert("Projeto PDF anexado com sucesso!");
+        fecharModalPdf();
+        await carregarObras();
+      }
+    }
+
+    // ABRIR GALERIA ESPECÍFICA DA OBRA
     async function abrirGaleriaObra(obraId, nomeObra) {
       if(!supabaseClient) return;
       document.getElementById('modal-obra-titulo').innerText = nomeObra;
