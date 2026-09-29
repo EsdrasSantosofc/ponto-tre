@@ -15,19 +15,18 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- SDK Supabase (Banco de Dados na Nuvem) -->
+  <!-- SDK Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Bibliotecas para Exportação de Relatórios (Excel e PDF) -->
+  <!-- Bibliotecas para Exportação (Excel e PDF) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-  <!-- [NOVO] Chart.js para Renderização de Gráficos na Aba de Fechamento -->
+  <!-- Chart.js para Renderização de Gráficos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* Papel de Parede Temático: Acabamento Acústico de Alto Padrão */
     .bg-acustico-premium {
       background-image: 
         linear-gradient(to bottom, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.94)),
@@ -36,8 +35,6 @@
       background-position: center;
       background-attachment: fixed;
     }
-
-    /* Textura de fundo para os cards com desfoque elegante */
     .card-acustico-blur {
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(8px);
@@ -46,7 +43,7 @@
 </head>
 <body class="bg-acustico-premium text-gray-800 font-sans min-h-screen flex flex-col">
 
-  <!-- TELA DE SELEÇÃO DE ACESSO (INICIAL) -->
+  <!-- TELA DE SELEÇÃO DE ACESSO -->
   <div id="pantalla-login" class="flex flex-col items-center justify-center min-h-screen p-4">
     <div class="card-acustico-blur p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border-t-4 border-orange-500">
       <div class="w-16 h-1 bg-orange-500 mx-auto mb-4 rounded-full"></div>
@@ -55,11 +52,11 @@
       <p class="text-orange-600 font-medium text-sm tracking-wide uppercase mb-8">Gestão de Equipe e Obras</p>
 
       <div class="space-y-4">
-        <button onclick="tocarSom('clique'); mostrarVisao('funcionario')" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 border-l-4 border-orange-500 cursor-pointer flex items-center justify-center gap-2">
-          <span>👷</span> Acesso Funcionário (Ponto / Vales / Ressarcimentos / Projetos)
+        <button onclick="tocarSom('clique'); mostrarVisao('funcionario')" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition border-l-4 border-orange-500 flex items-center justify-center gap-2">
+          <span>👷</span> Acesso Funcionário
         </button>
 
-        <button onclick="tocarSom('clique'); solicitarSenhaAdmin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 cursor-pointer flex items-center justify-center gap-2">
+        <button onclick="tocarSom('clique'); solicitarSenhaAdmin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition flex items-center justify-center gap-2">
           <span>👑</span> Acesso Administrador (Patrão)
         </button>
       </div>
@@ -102,7 +99,7 @@
         <input type="password" id="ponto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
       </div>
 
-      <button id="btn-ponto" onclick="tocarSom('parafusadeira'); registrarPontoComGPS()" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition border-b-4 border-orange-500 cursor-pointer disabled:opacity-50">
+      <button id="btn-ponto" onclick="tocarSom('parafusadeira'); registrarPontoComGPS()" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition border-b-4 border-orange-500 disabled:opacity-50">
         📍 BATER PONTO HOJE
       </button>
     </div>
@@ -124,15 +121,15 @@
       </div>
     </div>
 
-    <!-- CARD 3: ENVIAR VALE OU RESSARCIMENTO / NOTA COMPROVANTE -->
+    <!-- CARD 3: ENVIAR VALE OU RESSARCIMENTO -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-orange-500">
-      <h3 class="text-lg font-bold text-blue-950 border-b pb-2">🧾 Enviar Vale, Ressarcimento ou Comprovante</h3>
+      <h3 class="text-lg font-bold text-blue-950 border-b pb-2">🧾 Enviar Vale ou Ressarcimento</h3>
       
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Tipo de Lançamento:</label>
         <select id="vale-tipo-lacamento" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
           <option value="Vale">💸 Vale / Adiantamento (Desconta do pagamento)</option>
-          <option value="Ressarcimento">🍔 Ressarcimento (Almoço, Estacionamento, Passagem, Material)</option>
+          <option value="Ressarcimento">🍔 Ressarcimento (Almoço, Passagem, Material)</option>
         </select>
       </div>
 
@@ -159,12 +156,7 @@
 
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Descrição / Motivo:</label>
-        <input type="text" id="vale-descricao" placeholder="Ex: Almoço, Estacionamento, Vale semanal, Pedágio" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">Foto / Comprovante (Galeria ou Câmera):</label>
-        <input type="file" id="vale-comprovante-file" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer">
+        <input type="text" id="vale-descricao" placeholder="Ex: Almoço, Pedágio" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
       </div>
 
       <div>
@@ -172,70 +164,13 @@
         <input type="password" id="vale-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
       </div>
 
-      <button id="btn-vale" onclick="tocarSom('clique'); registrarVale()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-900 cursor-pointer disabled:opacity-50">
+      <button id="btn-vale" onclick="tocarSom('clique'); registrarVale()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-900 disabled:opacity-50">
         💸 ENVIAR VALE / RESSARCIMENTO
       </button>
     </div>
-
-    <!-- CARD 4: ENVIAR FOTO / VÍDEOS DE OBRA -->
-    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-emerald-600">
-      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
-        <span>📸 Diário de Obra (Fotos e Vídeos)</span>
-        <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">Múltiplos Arquivos</span>
-      </h3>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o seu Nome:</label>
-        <select id="foto-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
-        <select id="foto-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">Tipo de Registro:</label>
-        <select id="foto-tipo" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
-          <option value="Finalização">🏁 Finalização / Conclusão da Obra</option>
-          <option value="Observação">⚠️️ Observação / Problema / Ajuste</option>
-          <option value="Andamento">🔨 Registro de Andamento Diário</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">Fotos ou Vídeos da Obra (Pode selecionar vários):</label>
-        <input type="file" id="foto-file" accept="image/*,video/*" multiple class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">Observações / Comentários:</label>
-        <textarea id="foto-observacao" rows="2" placeholder="Ex: Painéis instalados conforme projeto, faltando apenas limpeza." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">PIN / Senha do Colaborador:</label>
-        <input type="password" id="foto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
-      </div>
-
-      <button id="btn-foto" onclick="tocarSom('clique'); enviarFotoObra()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer disabled:opacity-50">
-        📤 ENVIAR PARA A GALERIA DA OBRA
-      </button>
-    </div>
-
-    <!-- Histórico Pessoal Recente -->
-    <div class="mt-8 card-acustico-blur p-6 rounded-2xl shadow-xl border-l-4 border-orange-500">
-      <h3 class="font-bold text-blue-950 mb-3 flex items-center justify-between">
-        <span>Seus Pontos Registrados Recentes:</span>
-        <span class="text-xs text-gray-500 font-normal">Últimos 5 registros</span>
-      </h3>
-      <div id="lista-ponto-recentes" class="space-y-2 text-sm text-gray-700 divide-y divide-gray-100">
-        Carregando...
-      </div>
-    </div>
   </div>
 
-  <!-- VISÃO DO ADMINISTRADOR (PATRÃO) -->
+  <!-- VISÃO DO ADMINISTRADOR -->
   <div id="visao-admin" class="hidden min-h-screen flex flex-col w-full">
     <nav class="bg-blue-950 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-2 border-orange-500 shadow-md">
       <div class="flex items-center gap-2">
@@ -246,28 +181,24 @@
     </nav>
 
     <div class="bg-blue-900 text-white flex overflow-x-auto text-sm font-semibold border-t border-blue-800 shadow-inner">
-      <button id="tab-btn-obras" onclick="tocarSom('clique'); mudarAbaAdmin('obras')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5">
-        <span>🏗️</span> Obras, PDFs & Galeria
+      <button id="tab-btn-obras" onclick="tocarSom('clique'); mudarAbaAdmin('obras')" class="px-5 py-3 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5">
+        <span>🏗️</span> Obras & Projetos
       </button>
-      <button id="tab-btn-equipe" onclick="tocarSom('clique'); mudarAbaAdmin('equipe')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+      <button id="tab-btn-equipe" onclick="tocarSom('clique'); mudarAbaAdmin('equipe')" class="px-5 py-3 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
         <span>👥</span> Equipe
       </button>
-      <button id="tab-btn-designar" onclick="tocarSom('clique'); mudarAbaAdmin('designar')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
-        <span>📲</span> Designar Obra
-      </button>
-      <button id="tab-btn-presencas" onclick="tocarSom('clique'); mudarAbaAdmin('presencas')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+      <button id="tab-btn-presencas" onclick="tocarSom('clique'); mudarAbaAdmin('presencas')" class="px-5 py-3 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
         <span>📅</span> Presenças
       </button>
-      <button id="tab-btn-comprovantes" onclick="tocarSom('clique'); mudarAbaAdmin('comprovantes')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
-        <span>📑</span> Comprovantes Vales / Ressarcimentos
+      <button id="tab-btn-comprovantes" onclick="tocarSom('clique'); mudarAbaAdmin('comprovantes')" class="px-5 py-3 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>📑</span> Comprovantes
       </button>
-      <button id="tab-btn-fechamento" onclick="tocarSom('clique'); mudarAbaAdmin('fechamento')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+      <button id="tab-btn-fechamento" onclick="tocarSom('clique'); mudarAbaAdmin('fechamento')" class="px-5 py-3 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
         <span>📊</span> Fechamento
       </button>
     </div>
 
     <div class="p-4 max-w-5xl mx-auto w-full flex-grow">
-
       <!-- ABA OBRAS -->
       <div id="aba-obras" class="aba-content space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
@@ -280,70 +211,8 @@
         </div>
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">Obras Cadastradas, PDFs de Projeto & Galerias</h3>
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Obras Cadastradas</h3>
           <ul id="lista-obras" class="divide-y text-gray-700"></ul>
-        </div>
-
-        <!-- MODAL DE GALERIA DA OBRA -->
-        <div id="modal-galeria-obra" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl relative border-t-4 border-orange-500">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-              <div>
-                <h3 id="modal-obra-titulo" class="text-xl font-bold text-blue-950"></h3>
-                <p class="text-xs text-gray-500">Galeria de Fotos, Vídeos, Finalizações e Observações</p>
-              </div>
-              <button onclick="tocarSom('deletar'); fecharModalGaleria()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕ Fechar</button>
-            </div>
-            
-            <div id="modal-galeria-conteudo" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-          </div>
-        </div>
-
-        <!-- MODAL PARA ANEXAR VÁRIOS PDFS À OBRA -->
-        <div id="modal-anexar-pdf" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-              <div>
-                <h3 class="text-lg font-bold text-blue-950">Projetos & PDFs da Obra</h3>
-                <p id="modal-pdf-obra-nome" class="text-xs text-purple-700 font-semibold"></p>
-              </div>
-              <button onclick="tocarSom('deletar'); fecharModalPdf()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕</button>
-            </div>
-
-            <input type="hidden" id="modal-pdf-obra-id">
-            
-            <div class="space-y-4">
-              <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
-                <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wide">Anexar Novo Projeto / PDF</h4>
-                <input type="text" id="pdf-titulo-input" placeholder="Nome/Prefixo do Documento (Ex: Planta Baixa)" class="w-full p-2.5 border rounded-xl bg-white text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
-                <input type="file" id="pdf-file-input" accept="application/pdf" multiple class="w-full p-2 border rounded-xl bg-white text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
-                <button id="btn-pdf-salvar" onclick="tocarSom('clique'); salvarPdfObra()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2 disabled:opacity-50">
-                  <span>📎</span> Adicionar PDF(s) à Obra
-                </button>
-              </div>
-
-              <div>
-                <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Arquivos Já Anexados:</h4>
-                <div id="lista-pdfs-existentes" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- MODAL PARA ENVIAR AVISO DE OBRA VIA WHATSAPP -->
-        <div id="modal-whatsapp-obra" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-t-4 border-emerald-500">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-              <h3 class="text-lg font-bold text-blue-950">Enviar Aviso via WhatsApp</h3>
-              <button onclick="tocarSom('deletar'); fecharModalWhatsapp()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕</button>
-            </div>
-            <div class="space-y-3">
-              <textarea id="zap-mensagem" rows="4" class="w-full p-3 border rounded-xl bg-gray-50 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Digite a mensagem..."></textarea>
-              <button onclick="tocarSom('clique'); enviarMensagemZap()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
-                <span>📲</span> Abrir WhatsApp
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -353,7 +222,7 @@
           <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Novo Colaborador</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input type="text" id="equipe-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-            <input type="text" id="equipe-cargo" placeholder="Cargo / Função" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="equipe-cargo" placeholder="Cargo (Ex: Instalador PET)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             <input type="password" id="equipe-pin" placeholder="PIN Individual (4 dígitos)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
           </div>
           <button onclick="tocarSom('clique'); cadastrarFuncionario()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Cadastrar Colaborador</button>
@@ -362,24 +231,6 @@
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
           <h3 class="text-lg font-bold text-blue-950 mb-4">Equipe Cadastrada</h3>
           <ul id="lista-equipe" class="divide-y text-gray-700"></ul>
-        </div>
-      </div>
-
-      <!-- ABA DESIGNAR OBRA -->
-      <div id="aba-designar" class="aba-content hidden space-y-6">
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">Designar Colaborador para Obra</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o Colaborador:</label>
-              <select id="designar-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"></select>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
-              <select id="designar-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"></select>
-            </div>
-          </div>
-          <button onclick="tocarSom('clique'); designarObra()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Confirmar Designação</button>
         </div>
       </div>
 
@@ -415,8 +266,7 @@
                   <th class="p-3">Tipo</th>
                   <th class="p-3">Colaborador</th>
                   <th class="p-3">Valor</th>
-                  <th class="p-3">Descrição</th>
-                  <th class="p-3 rounded-tr-lg">Comprovante</th>
+                  <th class="p-3 rounded-tr-lg">Descrição</th>
                 </tr>
               </thead>
               <tbody id="tabela-comprovantes" class="divide-y"></tbody>
@@ -429,7 +279,7 @@
       <div id="aba-fechamento" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-500">
           <h3 class="text-lg font-bold text-blue-950 mb-2">Exportar Relatórios Consolidados</h3>
-          <p class="text-sm text-gray-600 mb-6">Gere planilhas Excel ou relatórios PDF contendo todos os registros de ponto com GPS, vales e ressarcimentos para o fechamento da folha.</p>
+          <p class="text-sm text-gray-600 mb-6">Gere planilhas Excel ou PDF para fechamento da folha de pagamento.</p>
           
           <div class="flex flex-wrap gap-4 mb-8">
             <button onclick="tocarSom('clique'); exportarExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2">
@@ -441,7 +291,6 @@
             </button>
           </div>
 
-          <!-- [NOVO] SEÇÃO DE GRÁFICOS VISUAIS DE FECHAMENTO -->
           <div class="border-t pt-6">
             <h4 class="text-md font-bold text-blue-950 mb-4 flex items-center gap-2">
               <span>📈</span> Indicadores Visuais da Obra & Equipe
@@ -459,16 +308,12 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- SCRIPTS E LÓGICA DO SISTEMA -->
+  <!-- LÓGICA E SCRIPTS -->
   <script>
-    // -------------------------------------------------------------
-    // CONFIGURAÇÃO DO SUPABASE
-    // (Cole aqui suas credenciais reais do Supabase para conectar à nuvem)
-    // -------------------------------------------------------------
+    // Configuração Supabase
     const SUPABASE_URL = 'https://SEU-PROJETO.supabase.co';
     const SUPABASE_KEY = 'SUA-CHAVE-ANON-PUBLIC-KEY';
     
@@ -477,74 +322,42 @@
       _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
 
-    // -------------------------------------------------------------
-    // SISTEMA DE ÁUDIOS SUTIS DA OBRA (WEB AUDIO API SYNTH)
-    // Sem necessidade de arquivos MP3 externos (funciona offline e instantâneo)
-    // -------------------------------------------------------------
+    // Variável para guardar colaboradores carregados na memória para validar o PIN
+    let colaboradoresCache = [];
+
+    // Sintetizador Web Audio API
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function tocarSom(tipo) {
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
       if (tipo === 'parafusadeira') {
-        // Som curto, sutil, lembrando aperto de parafuso/parafusadeira metálica
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(180, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
-        
         gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-        
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        
         osc.start();
         osc.stop(audioCtx.currentTime + 0.15);
       } else if (tipo === 'clique') {
-        // Clique seco sutil metálico
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(600, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.05);
-        
         gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-        
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        
         osc.start();
         osc.stop(audioCtx.currentTime + 0.05);
-      } else if (tipo === 'deletar') {
-        // Tom suave descendente para fechamentos/remoção
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.1);
-        
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.1);
       }
     }
 
-    // -------------------------------------------------------------
-    // GERENCIAMENTO DE VISÃO E NAVEGAÇÃO DAS ABAS
-    // -------------------------------------------------------------
+    // Navegação
     function mostrarVisao(visao) {
       document.getElementById('pantalla-login').classList.add('hidden');
       if (visao === 'funcionario') {
@@ -580,34 +393,18 @@
       document.querySelectorAll('.aba-content').forEach(el => el.classList.add('hidden'));
       const abaAlvo = document.getElementById(`aba-${aba}`);
       if(abaAlvo) abaAlvo.classList.remove('hidden');
-      
-      const botoes = ['obras', 'equipe', 'designar', 'presencas', 'comprovantes', 'fechamento'];
-      botoes.forEach(b => {
-        const btn = document.getElementById(`tab-btn-${b}`);
-        if(btn) {
-          if (b === aba) {
-            btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5";
-          } else {
-            btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
-          }
-        }
-      });
 
-      if (aba === 'fechamento') {
-        renderizarGraficosFechamento();
-      }
+      if (aba === 'fechamento') renderizarGraficosFechamento();
     }
 
-    // -------------------------------------------------------------
-    // INTEGRACAO SUPABASE E CARREGAMENTO DE DADOS DEMAIS ABAS
-    // -------------------------------------------------------------
+    // Carregamento de dados com Validação
     async function carregarDadosIniciais() {
       if (!_supabase) return;
 
-      // Carregar Funcionários nos Selects
       const { data: colaboradores } = await _supabase.from('funcionarios').select('*');
       if (colaboradores) {
-        const selectsFunc = ['ponto-funcionario', 'vale-funcionario', 'foto-funcionario', 'designar-funcionario'];
+        colaboradoresCache = colaboradores; // Salva para validação do PIN
+        const selectsFunc = ['ponto-funcionario', 'vale-funcionario'];
         selectsFunc.forEach(id => {
           const el = document.getElementById(id);
           if (el) {
@@ -615,7 +412,6 @@
           }
         });
 
-        // Preencher lista equipe
         const listaEq = document.getElementById('lista-equipe');
         if (listaEq) {
           listaEq.innerHTML = colaboradores.map(f => `
@@ -623,16 +419,15 @@
               <div>
                 <strong class="text-blue-950">${f.nome}</strong> - <span class="text-gray-600">${f.cargo || 'Montador'}</span>
               </div>
-              <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">PIN: ***</span>
+              <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">PIN Configurado</span>
             </li>
           `).join('');
         }
       }
 
-      // Carregar Obras nos Selects
       const { data: obras } = await _supabase.from('obras').select('*');
       if (obras) {
-        const selectsObra = ['ponto-obra', 'consulta-pdf-obra', 'vale-obra', 'foto-obra', 'designar-obra'];
+        const selectsObra = ['ponto-obra', 'consulta-pdf-obra', 'vale-obra'];
         selectsObra.forEach(id => {
           const el = document.getElementById(id);
           if (el) {
@@ -640,7 +435,6 @@
           }
         });
 
-        // Preencher lista Obras
         const listaOb = document.getElementById('lista-obras');
         if (listaOb) {
           listaOb.innerHTML = obras.map(o => `
@@ -648,72 +442,64 @@
               <div>
                 <strong class="text-blue-950">${o.nome_obra}</strong> - <span class="text-gray-600">${o.endereco || 'Sem endereço'}</span>
               </div>
-              <div class="flex gap-2">
-                <button onclick="tocarSom('clique'); abrirModalPdf('${o.id}', '${o.nome_obra}')" class="text-xs bg-purple-600 text-white px-2.5 py-1 rounded-lg">📄 PDFs</button>
-                <button onclick="tocarSom('clique'); abrirModalGaleria('${o.id}', '${o.nome_obra}')" class="text-xs bg-emerald-600 text-white px-2.5 py-1 rounded-lg">🖼️ Galeria</button>
-              </div>
             </li>
           `).join('');
         }
       }
 
-      // Carregar Presenças na Tabela
       const { data: presencas } = await _supabase.from('pontos').select('*, funcionarios(nome), obras(nome_obra)');
       const tabPresencas = document.getElementById('tabela-presencas');
       if (tabPresencas && presencas) {
         tabPresencas.innerHTML = presencas.map(p => `
           <tr class="hover:bg-gray-50 text-xs">
             <td class="p-3">${p.data_ponto || ''}</td>
-            <td class="p-3 font-semibold">${p.funcionarios?.nome || p.funcionario_id || ''}</td>
-            <td class="p-3">${p.obras?.nome_obra || p.obra_id || ''}</td>
+            <td class="p-3 font-semibold">${p.funcionarios?.nome || p.funcionario_id}</td>
+            <td class="p-3">${p.obras?.nome_obra || p.obra_id}</td>
             <td class="p-3">${p.google_maps_url ? `<a href="${p.google_maps_url}" target="_blank" class="text-blue-600 underline">🗺️ Ver Mapa GPS</a>` : 'Sem GPS'}</td>
-          </tr>
-        `).join('');
-      }
-
-      // Carregar Vales na Tabela
-      const { data: vales } = await _supabase.from('vales').select('*, funcionarios(nome)');
-      const tabComprovantes = document.getElementById('tabela-comprovantes');
-      if (tabComprovantes && vales) {
-        tabComprovantes.innerHTML = vales.map(v => `
-          <tr class="hover:bg-gray-50 text-xs">
-            <td class="p-3">${v.data_lancamento || ''}</td>
-            <td class="p-3 font-bold ${v.tipo === 'Vale' ? 'text-orange-600' : 'text-emerald-600'}">${v.tipo}</td>
-            <td class="p-3 font-semibold">${v.funcionarios?.nome || ''}</td>
-            <td class="p-3">R$ ${parseFloat(v.valor || 0).toFixed(2)}</td>
-            <td class="p-3">${v.descricao || '-'}</td>
-            <td class="p-3">${v.comprovante_url ? `<a href="${v.comprovante_url}" target="_blank" class="text-purple-600 underline">📎 Ver Anexo</a>` : 'Sem foto'}</td>
           </tr>
         `).join('');
       }
     }
 
-    // -------------------------------------------------------------
-    // REGISTRO DE PONTO COM GEOLOCALIZAÇÃO (GPS)
-    // -------------------------------------------------------------
+    // Validação de PIN Individual
+    function validarPin(funcionarioId, pinDigitado) {
+      if (!colaboradoresCache || colaboradoresCache.length === 0) return true;
+      const func = colaboradoresCache.find(f => f.id == funcionarioId);
+      if (func && func.pin) {
+        return String(func.pin) === String(pinDigitado);
+      }
+      return true;
+    }
+
+    // Registro de Ponto GPS
     function registrarPontoComGPS() {
+      const funcionario = document.getElementById('ponto-funcionario').value;
+      const pin = document.getElementById('ponto-pin').value;
+
+      if (!validarPin(funcionario, pin)) {
+        alert("❌ PIN/Senha do colaborador incorreto!");
+        return;
+      }
+
       const btn = document.getElementById('btn-ponto');
       btn.disabled = true;
       btn.innerText = "⏳ Obtendo Localização (GPS)...";
 
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-            await salvarPonto(latitude, longitude, mapsLink);
+          async (pos) => {
+            const mapsLink = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+            await salvarPonto(pos.coords.latitude, pos.coords.longitude, mapsLink);
             btn.disabled = false;
             btn.innerText = "📍 BATER PONTO HOJE";
           },
-          async (error) => {
-            alert("Não foi possível obter a localização GPS. Ponto sendo registrado sem coordenadas.");
+          async () => {
+            alert("Não foi possível obter o GPS. Registrando ponto apenas com data/hora.");
             await salvarPonto(null, null, null);
             btn.disabled = false;
             btn.innerText = "📍 BATER PONTO HOJE";
           },
-          { enableHighAccuracy: true, timeout: 10000 }
+          { enableHighAccuracy: true, timeout: 8000 }
         );
       } else {
         salvarPonto(null, null, null);
@@ -728,44 +514,55 @@
       const data = document.getElementById('ponto-data').value;
       const pin = document.getElementById('ponto-pin').value;
 
-      if(!funcionario || !obra || !data || !pin) {
-        alert("Preencha todos os campos obrigatórios!");
-        return;
-      }
-
       if (_supabase) {
         const { error } = await _supabase.from('pontos').insert([{ 
           funcionario_id: funcionario, obra_id: obra, data_ponto: data, pin_usado: pin, latitude: lat, longitude: lng, google_maps_url: mapsUrl 
         }]);
         if (error) alert("Erro Supabase: " + error.message);
         else {
-          alert("✅ Ponto sincronizado no banco de dados com GPS!");
+          alert("✅ Ponto registrado com sucesso!");
+          document.getElementById('ponto-pin').value = '';
           carregarDadosIniciais();
         }
-      } else {
-        alert("✅ Ponto registrado localmente com GPS!");
       }
     }
 
-    // -------------------------------------------------------------
-    // FUNÇÕES DE CADASTRO E GERENCIAMENTO (OPERAÇÕES LOCAIS/MODAIS)
-    // -------------------------------------------------------------
+    async function registrarVale() {
+      const func = document.getElementById('vale-funcionario').value;
+      const pin = document.getElementById('vale-pin').value;
+
+      if (!validarPin(func, pin)) {
+        alert("❌ PIN/Senha incorreto!");
+        return;
+      }
+
+      const tipo = document.getElementById('vale-tipo-lacamento').value;
+      const obra = document.getElementById('vale-obra').value;
+      const valor = document.getElementById('vale-valor').value;
+      const data = document.getElementById('vale-data').value;
+      const desc = document.getElementById('vale-descricao').value;
+
+      if (_supabase) {
+        const { error } = await _supabase.from('vales').insert([{
+          tipo, funcionario_id: func, obra_id: obra, valor, data_lancamento: data, descricao: desc
+        }]);
+        if (error) alert("Erro: " + error.message);
+        else {
+          alert("✅ Lançamento enviado!");
+          document.getElementById('vale-pin').value = '';
+          carregarDadosIniciais();
+        }
+      }
+    }
+
     async function cadastrarObra() {
       const nome = document.getElementById('obra-nome').value;
       const local = document.getElementById('obra-local').value;
       if (!nome) return alert("Digite o nome da obra!");
 
       if (_supabase) {
-        const { error } = await _supabase.from('obras').insert([{ nome_obra: nome, endereco: local }]);
-        if (error) alert("Erro Supabase: " + error.message);
-        else {
-          alert("Obra cadastrada com sucesso!");
-          document.getElementById('obra-nome').value = '';
-          document.getElementById('obra-local').value = '';
-          carregarDadosIniciais();
-        }
-      } else {
-        alert("Obra cadastrada localmente!");
+        await _supabase.from('obras').insert([{ nome_obra: nome, endereco: local }]);
+        carregarDadosIniciais();
       }
     }
 
@@ -777,133 +574,18 @@
       if (!nome || !pin) return alert("Preencha Nome e PIN!");
 
       if (_supabase) {
-        const { error } = await _supabase.from('funcionarios').insert([{ nome: nome, cargo: cargo, pin: pin }]);
-        if (error) alert("Erro Supabase: " + error.message);
-        else {
-          alert("Colaborador cadastrado!");
-          document.getElementById('equipe-nome').value = '';
-          document.getElementById('equipe-cargo').value = '';
-          document.getElementById('equipe-pin').value = '';
-          carregarDadosIniciais();
-        }
-      } else {
-        alert("Colaborador cadastrado!");
+        await _supabase.from('funcionarios').insert([{ nome, cargo, pin }]);
+        carregarDadosIniciais();
       }
     }
 
-    function designarObra() { alert("Obra designada!"); }
-
-    async function registrarVale() {
-      const tipo = document.getElementById('vale-tipo-lacamento').value;
-      const func = document.getElementById('vale-funcionario').value;
-      const obra = document.getElementById('vale-obra').value;
-      const valor = document.getElementById('vale-valor').value;
-      const data = document.getElementById('vale-data').value;
-      const desc = document.getElementById('vale-descricao').value;
-
-      if (!func || !valor) return alert("Preencha o colaborador e o valor!");
-
-      if (_supabase) {
-        const { error } = await _supabase.from('vales').insert([{
-          tipo: tipo, funcionario_id: func, obra_id: obra, valor: valor, data_lancamento: data, descricao: desc
-        }]);
-        if (error) alert("Erro Supabase: " + error.message);
-        else {
-          alert("Vale/Ressarcimento salvo com sucesso!");
-          carregarDadosIniciais();
-        }
-      } else {
-        alert("Vale/Ressarcimento enviado!");
-      }
-    }
-
-    function enviarFotoObra() { alert("Arquivo enviado para a galeria!"); }
-    
-    async function buscarPdfsObra() {
-      const obraId = document.getElementById('consulta-pdf-obra').value;
-      const container = document.getElementById('container-pdf-obra');
-      if (!obraId || !_supabase) return;
-
-      const { data } = await _supabase.from('projetos_pdf').select('*').eq('obra_id', obraId);
-      if (data && data.length > 0) {
-        container.innerHTML = data.map(p => `
-          <div class="flex justify-between items-center bg-white p-3 rounded-xl border text-sm">
-            <span class="font-semibold text-purple-900">📄 ${p.titulo}</span>
-            <a href="${p.pdf_url}" target="_blank" class="bg-purple-600 text-white px-3 py-1 rounded-lg text-xs">Baixar / Abrir</a>
-          </div>
-        `).join('');
-      } else {
-        container.innerHTML = `<p class="text-xs text-gray-500 italic">Nenhum projeto anexado a esta obra.</p>`;
-      }
-    }
-
-    function abrirModalGaleria(id, nome) {
-      document.getElementById('modal-obra-titulo').innerText = nome;
-      document.getElementById('modal-galeria-obra').classList.remove('hidden');
-    }
-
-    function abrirModalPdf(id, nome) {
-      document.getElementById('modal-pdf-obra-nome').innerText = nome;
-      document.getElementById('modal-pdf-obra-id').value = id;
-      document.getElementById('modal-anexar-pdf').classList.remove('hidden');
-    }
-
-    function fecharModalGaleria() { document.getElementById('modal-galeria-obra').classList.add('hidden'); }
-    function fecharModalPdf() { document.getElementById('modal-anexar-pdf').classList.add('hidden'); }
-    function fecharModalWhatsapp() { document.getElementById('modal-whatsapp-obra').classList.add('hidden'); }
-    function salvarPdfObra() { alert("PDF salvo no projeto!"); }
-    function enviarMensagemZap() {}
-
-    // -------------------------------------------------------------
-    // EXPORTAÇÃO DE RELATÓRIOS (EXCEL E PDF)
-    // -------------------------------------------------------------
-    async function exportarExcel() {
-      let dados = [{ Data: '2026-03-30', Funcionario: 'João Silva', Obra: 'Avanço RJ', Status: 'GPS Confirmado' }];
-      if (_supabase) {
-        const { data } = await _supabase.from('pontos').select('*');
-        if (data && data.length > 0) dados = data;
-      }
-      const worksheet = XLSX.utils.json_to_sheet(dados);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Fechamento");
-      XLSX.writeFile(workbook, `Relatorio_TRE_Montagens_${new Date().toISOString().slice(0,10)}.xlsx`);
-    }
-
-    async function exportarPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text("T.R.E. Montagens - Relatório de Fechamento", 14, 15);
-
-      let dados = [{ data_ponto: '2026-03-30', funcionario_id: 'João Silva', obra_id: 'Avanço RJ', google_maps_url: 'Sim' }];
-      if (_supabase) {
-        const { data } = await _supabase.from('pontos').select('*');
-        if (data && data.length > 0) dados = data;
-      }
-
-      const tableRows = [];
-      dados.forEach(p => {
-        tableRows.push([p.data_ponto || '', p.funcionario_id || '', p.obra_id || '', p.google_maps_url ? 'GPS Confirmado' : 'Sem GPS']);
-      });
-
-      doc.autoTable({
-        head: [['Data', 'Funcionário', 'Obra', 'Localização']],
-        body: tableRows,
-        startY: 20
-      });
-
-      doc.save(`Relatorio_TRE_Montagens_${new Date().toISOString().slice(0,10)}.pdf`);
-    }
-
-    // -------------------------------------------------------------
-    // RENDERIZAÇÃO DOS GRÁFICOS DA ABA FECHAMENTO
-    // -------------------------------------------------------------
+    // Gráficos
     let chartPresencasObj = null;
     let chartFinanceiroObj = null;
 
     function renderizarGraficosFechamento() {
       const ctxP = document.getElementById('chart-presencas');
       const ctxF = document.getElementById('chart-financeiro');
-
       if (!ctxP || !ctxF) return;
 
       if (chartPresencasObj) chartPresencasObj.destroy();
@@ -912,12 +594,8 @@
       chartPresencasObj = new Chart(ctxP, {
         type: 'bar',
         data: {
-          labels: ['Avanço RJ', 'Avanço SP', 'Obra Matriz'],
-          datasets: [{
-            label: 'Dias de Ponto Batidos',
-            data: [14, 8, 5],
-            backgroundColor: '#0f172a'
-          }]
+          labels: ['Avanço RJ', 'Avanço SP'],
+          datasets: [{ label: 'Pontos Batidos', data: [12, 6], backgroundColor: '#0f172a' }]
         },
         options: { responsive: true, maintainAspectRatio: false }
       });
@@ -925,14 +603,26 @@
       chartFinanceiroObj = new Chart(ctxF, {
         type: 'doughnut',
         data: {
-          labels: ['Vales / Adiantamentos', 'Ressarcimentos'],
-          datasets: [{
-            data: [1250.00, 480.50],
-            backgroundColor: ['#f97316', '#10b981']
-          }]
+          labels: ['Vales', 'Ressarcimentos'],
+          datasets: [{ data: [850, 320], backgroundColor: ['#f97316', '#10b981'] }]
         },
         options: { responsive: true, maintainAspectRatio: false }
       });
+    }
+
+    // Exportações
+    function exportarExcel() {
+      const ws = XLSX.utils.json_to_sheet([{ Data: '2026-03-30', Status: 'Ok' }]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Fechamento");
+      XLSX.writeFile(wb, "Relatorio_TRE.xlsx");
+    }
+
+    function exportarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("T.R.E. Montagens - Relatório", 14, 15);
+      doc.save("Relatorio_TRE.pdf");
     }
   </script>
 </body>
