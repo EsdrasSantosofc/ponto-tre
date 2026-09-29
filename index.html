@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>T.R.E. - Gestão de Obras e Equipe</title>
+  
+  <!-- Configurações PWA -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#1e3a8a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="T.R.E. Obras">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -227,7 +235,7 @@
     const SUPABASE_ANON_KEY = "sb_publishable_1fJ58_NZXTgATaISERowTQ_vH7ueeex";
     let supabaseClient = null;
 
-    // DEFINA A SUA SENHA DE PATRÃO/ADMINISTRADOR AQUI
+    // SENHA DE PATRÃO/ADMINISTRADOR
     const SENHA_ADMIN_MESTRE = "2026@TRE"; 
 
     try {
@@ -306,8 +314,8 @@
     async function validarPinFuncionario(funcId, pinDigitado) {
       if(!pinDigitado) return false;
       const { data, error } = await supabaseClient.from('funcionarios').select('pin').eq('id', funcId).single();
-      if(error || !data) return true; // Se a coluna ainda não existir no banco, permite
-      if(!data.pin) return true; // Se não tiver PIN cadastrado, permite
+      if(error || !data) return true;
+      if(!data.pin) return true;
       return data.pin.toString().trim() === pinDigitado.toString().trim();
     }
 
@@ -589,6 +597,17 @@
           </tr>
         `;
       }).join('');
+    }
+  </script>
+
+  <!-- REGISTRO DO SERVICE WORKER (PWA) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('PWA Service Worker registrado!'))
+          .catch(err => console.log('Erro no Service Worker:', err));
+      });
     }
   </script>
 </body>
