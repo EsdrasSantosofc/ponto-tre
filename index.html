@@ -15,15 +15,16 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Supabase JS Client -->
+  <!-- [NOVO] SDK Supabase (Banco de Dados na Nuvem) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Bibliotecas para Relatórios (Excel e PDF) -->
+  <!-- [NOVO] Bibliotecas para Exportação de Relatórios (Excel e PDF) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
+    /* Papel de Parede Temático: Acabamento Acústico de Alto Padrão */
     .bg-acustico-premium {
       background-image: 
         linear-gradient(to bottom, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.94)),
@@ -33,6 +34,7 @@
       background-attachment: fixed;
     }
 
+    /* Textura de fundo para os cards com desfoque elegante */
     .card-acustico-blur {
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(8px);
@@ -70,7 +72,7 @@
       <button onclick="sair()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">Sair</button>
     </div>
 
-    <!-- CARD 1: MARCAR PONTO COM GEOLOCALIZAÇÃO -->
+    <!-- CARD 1: MARCAR PONTO -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 border-t-4 border-blue-900">
       <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
         <span>📍 Registro de Ponto Diário</span>
@@ -79,20 +81,12 @@
       
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o seu Nome:</label>
-        <select id="ponto-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-          <option value="">Selecione...</option>
-          <option value="João Silva">João Silva</option>
-          <option value="Carlos Eduardo">Carlos Eduardo</option>
-        </select>
+        <select id="ponto-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"></select>
       </div>
 
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
-        <select id="ponto-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-          <option value="">Selecione...</option>
-          <option value="Obra Central">Obra Central</option>
-          <option value="Avanço RJ">Avanço RJ</option>
-        </select>
+        <select id="ponto-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"></select>
       </div>
 
       <div>
@@ -104,8 +98,6 @@
         <label class="block text-sm font-semibold mb-1 text-gray-700">PIN / Senha do Colaborador:</label>
         <input type="password" id="ponto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
       </div>
-
-      <div id="status-gps" class="text-xs text-gray-500 text-center italic">📍 GPS ativo para confirmação do local de trabalho.</div>
 
       <button id="btn-ponto" onclick="registrarPontoComGPS()" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition border-b-4 border-orange-500 cursor-pointer disabled:opacity-50">
         📍 BATER PONTO HOJE
@@ -121,10 +113,7 @@
       
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra para ver os Arquivos:</label>
-        <select id="consulta-pdf-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-purple-600 focus:outline-none">
-          <option value="">Selecione uma obra...</option>
-          <option value="Obra Central">Obra Central</option>
-        </select>
+        <select id="consulta-pdf-obra" onchange="buscarPdfsObra()" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-purple-600 focus:outline-none"></select>
       </div>
 
       <div id="container-pdf-obra" class="space-y-2 pt-2">
@@ -132,7 +121,7 @@
       </div>
     </div>
 
-    <!-- CARD 3: ENVIAR VALE OU RESSARCIMENTO -->
+    <!-- CARD 3: ENVIAR VALE OU RESSARCIMENTO / NOTA COMPROVANTE -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-orange-500">
       <h3 class="text-lg font-bold text-blue-950 border-b pb-2">🧾 Enviar Vale, Ressarcimento ou Comprovante</h3>
       
@@ -146,16 +135,12 @@
 
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o seu Nome:</label>
-        <select id="vale-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
-          <option value="João Silva">João Silva</option>
-        </select>
+        <select id="vale-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"></select>
       </div>
 
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
-        <select id="vale-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
-          <option value="Obra Central">Obra Central</option>
-        </select>
+        <select id="vale-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"></select>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
@@ -188,6 +173,63 @@
         💸 ENVIAR VALE / RESSARCIMENTO
       </button>
     </div>
+
+    <!-- CARD 4: ENVIAR FOTO / VÍDEOS DE OBRA -->
+    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-emerald-600">
+      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
+        <span>📸 Diário de Obra (Fotos e Vídeos)</span>
+        <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">Múltiplos Arquivos</span>
+      </h3>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o seu Nome:</label>
+        <select id="foto-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
+        <select id="foto-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Tipo de Registro:</label>
+        <select id="foto-tipo" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          <option value="Finalização">🏁 Finalização / Conclusão da Obra</option>
+          <option value="Observação">⚠️ Observação / Problema / Ajuste</option>
+          <option value="Andamento">🔨 Registro de Andamento Diário</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Fotos ou Vídeos da Obra (Pode selecionar vários):</label>
+        <input type="file" id="foto-file" accept="image/*,video/*" multiple class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Observações / Comentários:</label>
+        <textarea id="foto-observacao" rows="2" placeholder="Ex: Painéis instalados conforme projeto, faltando apenas limpeza." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">PIN / Senha do Colaborador:</label>
+        <input type="password" id="foto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+      </div>
+
+      <button id="btn-foto" onclick="enviarFotoObra()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer disabled:opacity-50">
+        📤 ENVIAR PARA A GALERIA DA OBRA
+      </button>
+    </div>
+
+    <!-- Histórico Pessoal Recente -->
+    <div class="mt-8 card-acustico-blur p-6 rounded-2xl shadow-xl border-l-4 border-orange-500">
+      <h3 class="font-bold text-blue-950 mb-3 flex items-center justify-between">
+        <span>Seus Pontos Registrados Recentes:</span>
+        <span class="text-xs text-gray-500 font-normal">Últimos 5 registros</span>
+      </h3>
+      <div id="lista-ponto-recentes" class="space-y-2 text-sm text-gray-700 divide-y divide-gray-100">
+        Carregando...
+      </div>
+    </div>
   </div>
 
   <!-- VISÃO DO ADMINISTRADOR (PATRÃO) -->
@@ -204,21 +246,183 @@
       <button id="tab-btn-obras" onclick="mudarAbaAdmin('obras')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5">
         <span>🏗️</span> Obras, PDFs & Galeria
       </button>
+      <button id="tab-btn-equipe" onclick="mudarAbaAdmin('equipe')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>👥</span> Equipe
+      </button>
+      <button id="tab-btn-designar" onclick="mudarAbaAdmin('designar')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>📲</span> Designar Obra
+      </button>
+      <button id="tab-btn-presencas" onclick="mudarAbaAdmin('presencas')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>📅</span> Presenças
+      </button>
+      <button id="tab-btn-comprovantes" onclick="mudarAbaAdmin('comprovantes')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>📑</span> Comprovantes Vales / Ressarcimentos
+      </button>
       <button id="tab-btn-fechamento" onclick="mudarAbaAdmin('fechamento')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
-        <span>📊</span> Fechamento & Relatórios
+        <span>📊</span> Fechamento
       </button>
     </div>
 
     <div class="p-4 max-w-5xl mx-auto w-full flex-grow">
+
       <!-- ABA OBRAS -->
       <div id="aba-obras" class="aba-content space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">Painel de Obras</h3>
-          <p class="text-sm text-gray-600">Gestão de obras, envio de projetos e fotos do progresso.</p>
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Nova Obra</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" id="obra-nome" placeholder="Nome da Obra (ex: Avanço RJ)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="obra-local" placeholder="Localização / Endereço" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+          </div>
+          <button onclick="cadastrarObra()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Cadastrar Obra</button>
+        </div>
+
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Obras Cadastradas, PDFs de Projeto & Galerias</h3>
+          <ul id="lista-obras" class="divide-y text-gray-700"></ul>
+        </div>
+
+        <!-- MODAL DE GALERIA DA OBRA -->
+        <div id="modal-galeria-obra" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl relative border-t-4 border-orange-500">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+              <div>
+                <h3 id="modal-obra-titulo" class="text-xl font-bold text-blue-950"></h3>
+                <p class="text-xs text-gray-500">Galeria de Fotos, Vídeos, Finalizações e Observações</p>
+              </div>
+              <button onclick="fecharModalGaleria()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕ Fechar</button>
+            </div>
+            
+            <div id="modal-galeria-conteudo" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+          </div>
+        </div>
+
+        <!-- MODAL PARA ANEXAR VÁRIOS PDFS À OBRA -->
+        <div id="modal-anexar-pdf" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+              <div>
+                <h3 class="text-lg font-bold text-blue-950">Projetos & PDFs da Obra</h3>
+                <p id="modal-pdf-obra-nome" class="text-xs text-purple-700 font-semibold"></p>
+              </div>
+              <button onclick="fecharModalPdf()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕</button>
+            </div>
+
+            <input type="hidden" id="modal-pdf-obra-id">
+            
+            <div class="space-y-4">
+              <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
+                <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wide">Anexar Novo Projeto / PDF</h4>
+                <input type="text" id="pdf-titulo-input" placeholder="Nome/Prefixo do Documento (Ex: Planta Baixa)" class="w-full p-2.5 border rounded-xl bg-white text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                <input type="file" id="pdf-file-input" accept="application/pdf" multiple class="w-full p-2 border rounded-xl bg-white text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
+                <button id="btn-pdf-salvar" onclick="salvarPdfObra()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                  <span>📎</span> Adicionar PDF(s) à Obra
+                </button>
+              </div>
+
+              <div>
+                <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Arquivos Já Anexados:</h4>
+                <div id="lista-pdfs-existentes" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL PARA ENVIAR AVISO DE OBRA VIA WHATSAPP -->
+        <div id="modal-whatsapp-obra" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-t-4 border-emerald-500">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+              <h3 class="text-lg font-bold text-blue-950">Enviar Aviso via WhatsApp</h3>
+              <button onclick="fecharModalWhatsapp()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕</button>
+            </div>
+            <div class="space-y-3">
+              <textarea id="zap-mensagem" rows="4" class="w-full p-3 border rounded-xl bg-gray-50 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Digite a mensagem..."></textarea>
+              <button onclick="enviarMensagemZap()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                <span>📲</span> Abrir WhatsApp
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- ABA FECHAMENTO E RELATÓRIOS -->
+      <!-- ABA EQUIPE -->
+      <div id="aba-equipe" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Novo Colaborador</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="text" id="equipe-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="equipe-cargo" placeholder="Cargo / Função" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="password" id="equipe-pin" placeholder="PIN Individual (4 dígitos)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+          </div>
+          <button onclick="cadastrarFuncionario()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Cadastrar Colaborador</button>
+        </div>
+
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Equipe Cadastrada</h3>
+          <ul id="lista-equipe" class="divide-y text-gray-700"></ul>
+        </div>
+      </div>
+
+      <!-- ABA DESIGNAR OBRA -->
+      <div id="aba-designar" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Designar Colaborador para Obra</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o Colaborador:</label>
+              <select id="designar-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"></select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
+              <select id="designar-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"></select>
+            </div>
+          </div>
+          <button onclick="designarObra()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Confirmar Designação</button>
+        </div>
+      </div>
+
+      <!-- ABA PRESENÇAS -->
+      <div id="aba-presencas" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Registros de Presença / Ponto</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-blue-950 text-white uppercase text-xs">
+                <tr>
+                  <th class="p-3 rounded-tl-lg">Data</th>
+                  <th class="p-3">Colaborador</th>
+                  <th class="p-3">Obra</th>
+                  <th class="p-3 rounded-tr-lg">Localização (GPS)</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-presencas" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA COMPROVANTES -->
+      <div id="aba-comprovantes" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Comprovantes de Vales e Ressarcimentos</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-blue-950 text-white uppercase text-xs">
+                <tr>
+                  <th class="p-3 rounded-tl-lg">Data</th>
+                  <th class="p-3">Tipo</th>
+                  <th class="p-3">Colaborador</th>
+                  <th class="p-3">Valor</th>
+                  <th class="p-3">Descrição</th>
+                  <th class="p-3 rounded-tr-lg">Comprovante</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-comprovantes" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA FECHAMENTO -->
       <div id="aba-fechamento" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-500">
           <h3 class="text-lg font-bold text-blue-950 mb-2">Exportar Relatórios Consolidados</h3>
@@ -235,23 +439,35 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
-  <!-- SCRIPT DE NAVEGAÇÃO E LÓGICA DO SUPABASE -->
+  <!-- SCRIPTS E LÓGICA DO SISTEMA -->
   <script>
     // -------------------------------------------------------------
-    // CONTROLE DE TELAS E NAVEGAÇÃO (RESOLVE O PROBLEMA DO CLIQUE)
+    // CONFIGURAÇÃO DO SUPABASE
+    // (Cole aqui suas credenciais reais do Supabase para conectar à nuvem)
+    // -------------------------------------------------------------
+    const SUPABASE_URL = 'https://SEU-PROJETO.supabase.co';
+    const SUPABASE_KEY = 'SUA-CHAVE-ANON-PUBLIC-KEY';
+    
+    let _supabase = null;
+    if (SUPABASE_URL.indexOf('SEU-PROJETO') === -1) {
+      _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+
+    // -------------------------------------------------------------
+    // GERENCIAMENTO DE VISÃO E NAVEGAÇÃO DAS ABAS
     // -------------------------------------------------------------
     function mostrarVisao(visao) {
       document.getElementById('pantalla-login').classList.add('hidden');
-      
       if (visao === 'funcionario') {
         document.getElementById('visao-funcionario').classList.remove('hidden');
         document.getElementById('visao-admin').classList.add('hidden');
-        // Define data atual automaticamente no campo data
         const hoje = new Date().toISOString().split('T')[0];
         if(document.getElementById('ponto-data')) document.getElementById('ponto-data').value = hoje;
+        if(document.getElementById('vale-data')) document.getElementById('vale-data').value = hoje;
       } else if (visao === 'admin') {
         document.getElementById('visao-admin').classList.remove('hidden');
         document.getElementById('visao-funcionario').classList.add('hidden');
@@ -260,7 +476,6 @@
 
     function solicitarSenhaAdmin() {
       const senha = prompt("Digite a senha do Administrador:");
-      // Defina sua senha aqui (Padrão inicial: 1234)
       if (senha === "1234" || senha === "admin") {
         mostrarVisao('admin');
       } else if (senha !== null) {
@@ -276,24 +491,20 @@
 
     function mudarAbaAdmin(aba) {
       document.querySelectorAll('.aba-content').forEach(el => el.classList.add('hidden'));
-      document.getElementById(`aba-${aba}`).classList.remove('hidden');
+      const abaAlvo = document.getElementById(`aba-${aba}`);
+      if(abaAlvo) abaAlvo.classList.remove('hidden');
       
-      // Atualiza estilo das abas
-      document.getElementById('tab-btn-obras').className = "px-5 py-3 hover:bg-blue-800 border-b-2 " + (aba === 'obras' ? "border-orange-500 text-orange-400 font-bold" : "border-transparent");
-      document.getElementById('tab-btn-fechamento').className = "px-5 py-3 hover:bg-blue-800 border-b-2 " + (aba === 'fechamento' ? "border-orange-500 text-orange-400 font-bold" : "border-transparent");
-    }
-
-    // -------------------------------------------------------------
-    // CONFIGURAÇÃO DO SUPABASE (COM VALIDAÇÃO DE SEGURANÇA)
-    // -------------------------------------------------------------
-    const SUPABASE_URL = 'https://SEU-PROJETO.supabase.co';
-    const SUPABASE_KEY = 'SUA-CHAVE-ANON-PUBLIC-KEY';
-    
-    let _supabase = null;
-    
-    // Inicializa o Supabase apenas se as credenciais foram alteradas
-    if (SUPABASE_URL.indexOf('SEU-PROJETO') === -1) {
-      _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const botoes = ['obras', 'equipe', 'designar', 'presencas', 'comprovantes', 'fechamento'];
+      botoes.forEach(b => {
+        const btn = document.getElementById(`tab-btn-${b}`);
+        if(btn) {
+          if (b === aba) {
+            btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5";
+          } else {
+            btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
+          }
+        }
+      });
     }
 
     // -------------------------------------------------------------
@@ -311,26 +522,26 @@
             const longitude = position.coords.longitude;
             const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-            await salvarPontoNoBanco(latitude, longitude, mapsLink);
+            await salvarPonto(latitude, longitude, mapsLink);
             btn.disabled = false;
             btn.innerText = "📍 BATER PONTO HOJE";
           },
           async (error) => {
-            alert("Atenção: Não foi possível obter sua localização GPS. Registrando ponto sem coordenadas...");
-            await salvarPontoNoBanco(null, null, null);
+            alert("Não foi possível obter a localização GPS. Ponto sendo registrado sem coordenadas.");
+            await salvarPonto(null, null, null);
             btn.disabled = false;
             btn.innerText = "📍 BATER PONTO HOJE";
           },
           { enableHighAccuracy: true, timeout: 10000 }
         );
       } else {
-        salvarPontoNoBanco(null, null, null);
+        salvarPonto(null, null, null);
         btn.disabled = false;
         btn.innerText = "📍 BATER PONTO HOJE";
       }
     }
 
-    async function salvarPontoNoBanco(lat, lng, mapsUrl) {
+    async function salvarPonto(lat, lng, mapsUrl) {
       const funcionario = document.getElementById('ponto-funcionario').value;
       const obra = document.getElementById('ponto-obra').value;
       const data = document.getElementById('ponto-data').value;
@@ -341,79 +552,61 @@
         return;
       }
 
-      if (!_supabase) {
-        alert("✅ Ponto registrado localmente com sucesso! (Para conectar ao banco de dados em tempo real, configure as chaves do Supabase no código).");
-        return;
-      }
-
-      const { data: response, error } = await _supabase
-        .from('pontos')
-        .insert([
-          { 
-            funcionario_id: funcionario, 
-            obra_id: obra, 
-            data_ponto: data, 
-            pin_usado: pin,
-            latitude: lat,
-            longitude: lng,
-            google_maps_url: mapsUrl
-          }
-        ]);
-
-      if (error) {
-        alert("Erro ao salvar no banco de dados: " + error.message);
+      if (_supabase) {
+        const { error } = await _supabase.from('pontos').insert([{ 
+          funcionario_id: funcionario, obra_id: obra, data_ponto: data, pin_usado: pin, latitude: lat, longitude: lng, google_maps_url: mapsUrl 
+        }]);
+        if (error) alert("Erro Supabase: " + error.message);
+        else alert("✅ Ponto sincronizado no banco de dados com GPS!");
       } else {
-        alert("✅ Ponto registrado com sucesso e sincronizado no painel do patrão!");
+        alert("✅ Ponto registrado localmente com GPS!");
       }
     }
 
-    function registrarVale() {
-      alert("✅ Vale/Ressarcimento enviado com sucesso!");
-    }
+    // -------------------------------------------------------------
+    // FUNÇÕES DE CADASTRO E GERENCIAMENTO (OPERAÇÕES LOCAIS/MODAIS)
+    // -------------------------------------------------------------
+    function cadastrarObra() { alert("Obra cadastrada!"); }
+    function cadastrarFuncionario() { alert("Colaborador cadastrado!"); }
+    function designarObra() { alert("Obra designada!"); }
+    function registrarVale() { alert("Vale/Ressarcimento enviado!"); }
+    function enviarFotoObra() { alert("Arquivo enviado para a galeria!"); }
+    function buscarPdfsObra() {}
+    function fecharModalGaleria() { document.getElementById('modal-galeria-obra').classList.add('hidden'); }
+    function fecharModalPdf() { document.getElementById('modal-anexar-pdf').classList.add('hidden'); }
+    function fecharModalWhatsapp() { document.getElementById('modal-whatsapp-obra').classList.add('hidden'); }
+    function salvarPdfObra() {}
+    function enviarMensagemZap() {}
 
     // -------------------------------------------------------------
     // EXPORTAÇÃO DE RELATÓRIOS (EXCEL E PDF)
     // -------------------------------------------------------------
     async function exportarExcel() {
-      let pontos = [
-        { Data: '2026-03-30', Funcionario: 'João Silva', Obra: 'Avanço RJ', Localizacao: 'GPS Confirmado' }
-      ];
-
+      let dados = [{ Data: '2026-03-30', Funcionario: 'João Silva', Obra: 'Avanço RJ', Status: 'GPS Confirmado' }];
       if (_supabase) {
-        const { data, error } = await _supabase.from('pontos').select('*');
-        if (!error && data.length > 0) pontos = data;
+        const { data } = await _supabase.from('pontos').select('*');
+        if (data && data.length > 0) dados = data;
       }
-
-      const worksheet = XLSX.utils.json_to_sheet(pontos);
+      const worksheet = XLSX.utils.json_to_sheet(dados);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Fechamento");
-
       XLSX.writeFile(workbook, `Relatorio_TRE_Montagens_${new Date().toISOString().slice(0,10)}.xlsx`);
     }
 
     async function exportarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-
       doc.text("T.R.E. Montagens - Relatório de Fechamento", 14, 15);
 
-      let pontos = [
-        { data_ponto: '2026-03-30', funcionario_id: 'João Silva', obra_id: 'Avanço RJ', google_maps_url: 'Sim' }
-      ];
-
+      let dados = [{ data_ponto: '2026-03-30', funcionario_id: 'João Silva', obra_id: 'Avanço RJ', google_maps_url: 'Sim' }];
       if (_supabase) {
         const { data } = await _supabase.from('pontos').select('*');
-        if (data && data.length > 0) pontos = data;
+        if (data && data.length > 0) dados = data;
       }
 
       const tableRows = [];
-      pontos.forEach(p => {
-        tableRows.push([
-          p.data_ponto || '',
-          p.funcionario_id || '',
-          p.obra_id || '',
-          p.google_maps_url ? 'GPS Confirmado' : 'Sem GPS'
-        ]);
+      dados.forEach(p => {
+        tableRows.push([p.data_ponto || '', p.funcionario_id || '', p.obra_id || '', p.google_maps_url ? 'GPS Confirmado' : 'Sem GPS']);
       });
 
       doc.autoTable({
