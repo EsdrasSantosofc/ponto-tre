@@ -339,6 +339,8 @@
     async function carregarListasIniciais() {
       if(!supabaseClient) return;
       const { data: funcs } = await supabaseClient.from('funcionarios').select('*').order('nome');
+      
+      // FILTRO: Carrega apenas obras ativas (ignora finalizadas e inativas) para os funcionários
       const { data: obras } = await supabaseClient.from('obras').select('*').eq('ativa', true).order('nome');
 
       const selectFuncPonto = document.getElementById('ponto-funcionario');
@@ -347,7 +349,7 @@
       const selectObraVale = document.getElementById('vale-obra');
 
       const optionsFuncs = funcs?.length ? funcs.map(f => `<option value="${f.id}">${f.nome}</option>`).join('') : '<option value="">Nenhum cadastrado</option>';
-      const optionsObras = obras?.length ? obras.map(o => `<option value="${o.id}">${o.nome}</option>`).join('') : '<option value="">Nenhuma cadastrada</option>';
+      const optionsObras = obras?.length ? obras.map(o => `<option value="${o.id}">${o.nome}</option>`).join('') : '<option value="">Nenhuma obra ativa disponível</option>';
 
       if(selectFuncPonto) selectFuncPonto.innerHTML = optionsFuncs;
       if(selectObraPonto) selectObraPonto.innerHTML = optionsObras;
@@ -460,7 +462,7 @@
       
       if(!nome) return alert("Preencha o nome da obra!");
 
-      const { error } = await supabaseClient.from('obras').insert([{ nome, local, ativa: true }]);
+      const { error } = await supabaseClient.from('obras').insert([{ nome, local, ativa: true, finalizada: false }]);
       
       if(error) {
         alert("Erro ao cadastrar obra: " + error.message);
@@ -483,20 +485,57 @@
         return;
       }
 
-      lista.innerHTML = data.map(o => `
-        <li class="py-3 flex justify-between items-center">
-          <div>
-            <strong class="text-blue-950 font-bold">${o.nome}</strong>
-            <p class="text-xs text-gray-500">${o.local || 'Sem endereço informado'}</p>
-          </div>
-          <span class="px-3 py-1 text-xs rounded-full ${o.ativa ? 'bg-orange-100 text-orange-800 border border-orange-300 font-semibold' : 'bg-gray-100 text-gray-600'}">
-            ${o.ativa ? 'Ativa' : 'Inativa'}
-          </span>
-        </li>
-      `).join('');
+      lista.innerHTML = data.map(o => {
+        let statusTag = '';
+        if (o.finalizada) {
+          statusTag = '<span class="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-semibold">🏁 Finalizada</span>';
+        } else if (o.ativa) {
+          statusTag = '<span class="px-3 py-1 text-xs rounded-full bg-orange-100 text-orange-800 border border-orange-300 font-semibold">⚡ Em Andamento</span>';
+        } else {
+          statusTag = '<span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">Inativa</span>';
+        }
+
+        return `
+          <li class="py-3 flex justify-between items-center flex-wrap gap-2">
+            <div>
+              <strong class="text-blue-950 font-bold">${o.nome}</strong>
+              <p class="text-xs text-gray-500">${o.local || 'Sem endereço informado'}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              ${statusTag}
+              <select onchange="alterarStatusObra(${o.id}, this.value)" class="text-xs p-1.5 border rounded-lg bg-white shadow-sm focus:outline-none">
+                <option value="ativa" ${o.ativa && !o.finalizada ? 'selected' : ''}>Em Andamento</option>
+                <option value="finalizada" ${o.finalizada ? 'selected' : ''}>Finalizada</option>
+                <option value="inativa" ${!o.ativa && !o.finalizada ? 'selected' : ''}>Inativa</option>
+              </select>
+            </div>
+          </li>
+        `;
+      }).join('');
     }
 
-    // CORREÇÃO E IMPLEMENTAÇÃO COMPLETA DE FUNCIONÁRIOS
+    async function alterarStatusObra(id, status) {
+      if(!supabaseClient) return;
+      
+      let payload = {};
+      if (status === 'ativa') {
+        payload = { ativa: true, finalizada: false };
+      } else if (status === 'finalizada') {
+        payload = { ativa: false, finalizada: true };
+      } else if (status === 'inativa') {
+        payload = { ativa: false, finalizada: false };
+      }
+
+      const { error } = await supabaseClient.from('obras').update(payload).eq('id', id);
+
+      if (error) {
+        alert("Erro ao alterar status da obra: " + error.message);
+      } else {
+        await carregarObras();
+        await carregarListasIniciais();
+      }
+    }
+
     async function cadastrarFuncionario() {
       if(!supabaseClient) return alert("Sem conexão com o banco!");
       const nome = document.getElementById('func-nome').value.trim();
