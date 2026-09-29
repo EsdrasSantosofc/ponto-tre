@@ -15,10 +15,10 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- [NOVO] SDK Supabase (Banco de Dados na Nuvem) -->
+  <!-- SDK Supabase (Banco de Dados na Nuvem) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- [NOVO] Bibliotecas para Exportação de Relatórios (Excel e PDF) -->
+  <!-- Bibliotecas para Exportação de Relatórios (Excel e PDF) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -443,8 +443,125 @@
     </div>
   </div>
 
-  <!-- SCRIPTS E LÓGICA DO SISTEMA -->
+  <!-- SCRIPTS, ÁUDIOS E LÓGICA DO SISTEMA -->
   <script>
+    // -------------------------------------------------------------
+    // MOTOR DE ÁUDIO DE OBRA (Web Audio API - Sutil e Temático)
+    // -------------------------------------------------------------
+    const AudioObra = {
+      ctx: null,
+      
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+
+      // Som 1: Clique Geral / Botões (Sutil som de catraca / parafusadeira rápida)
+      playCliqueParafusadeira() {
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.05);
+
+        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      },
+
+      // Som 2: Confirmação / Sucesso (Bip de Nível Laser Inteligente)
+      playSucessoLaser() {
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, this.ctx.currentTime); // Nota A5
+        osc.frequency.setValueAtTime(1760, this.ctx.currentTime + 0.08); // Bip duplo rápido
+
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+      },
+
+      // Som 3: Registro de GPS / Ponto (Sinal de Radar GPS)
+      playSinalGPS() {
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+      },
+
+      // Som 4: Deletar / Sair / Cancelar (Batida seca em chapa de madeira/drywall)
+      playDeletarBatida() {
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(80, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.08);
+
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+    };
+
+    // Vincular sons aos cliques globais de botões
+    document.addEventListener('click', (e) => {
+      const button = e.target.closest('button');
+      if (button) {
+        if (button.innerText.includes('Sair') || button.innerText.includes('✕')) {
+          AudioObra.playDeletarBatida();
+        } else {
+          AudioObra.playCliqueParafusadeira();
+        }
+      }
+    });
+
     // -------------------------------------------------------------
     // CONFIGURAÇÃO DO SUPABASE
     // (Cole aqui suas credenciais reais do Supabase para conectar à nuvem)
@@ -477,8 +594,10 @@
     function solicitarSenhaAdmin() {
       const senha = prompt("Digite a senha do Administrador:");
       if (senha === "1234" || senha === "admin") {
+        AudioObra.playSucessoLaser();
         mostrarVisao('admin');
       } else if (senha !== null) {
+        AudioObra.playDeletarBatida();
         alert("Senha incorreta!");
       }
     }
@@ -511,6 +630,7 @@
     // REGISTRO DE PONTO COM GEOLOCALIZAÇÃO (GPS)
     // -------------------------------------------------------------
     function registrarPontoComGPS() {
+      AudioObra.playSinalGPS();
       const btn = document.getElementById('btn-ponto');
       btn.disabled = true;
       btn.innerText = "⏳ Obtendo Localização (GPS)...";
@@ -548,6 +668,7 @@
       const pin = document.getElementById('ponto-pin').value;
 
       if(!funcionario || !obra || !data || !pin) {
+        AudioObra.playDeletarBatida();
         alert("Preencha todos os campos obrigatórios!");
         return;
       }
@@ -556,9 +677,15 @@
         const { error } = await _supabase.from('pontos').insert([{ 
           funcionario_id: funcionario, obra_id: obra, data_ponto: data, pin_usado: pin, latitude: lat, longitude: lng, google_maps_url: mapsUrl 
         }]);
-        if (error) alert("Erro Supabase: " + error.message);
-        else alert("✅ Ponto sincronizado no banco de dados com GPS!");
+        if (error) {
+          AudioObra.playDeletarBatida();
+          alert("Erro Supabase: " + error.message);
+        } else {
+          AudioObra.playSucessoLaser();
+          alert("✅ Ponto sincronizado no banco de dados com GPS!");
+        }
       } else {
+        AudioObra.playSucessoLaser();
         alert("✅ Ponto registrado localmente com GPS!");
       }
     }
@@ -566,22 +693,23 @@
     // -------------------------------------------------------------
     // FUNÇÕES DE CADASTRO E GERENCIAMENTO (OPERAÇÕES LOCAIS/MODAIS)
     // -------------------------------------------------------------
-    function cadastrarObra() { alert("Obra cadastrada!"); }
-    function cadastrarFuncionario() { alert("Colaborador cadastrado!"); }
-    function designarObra() { alert("Obra designada!"); }
-    function registrarVale() { alert("Vale/Ressarcimento enviado!"); }
-    function enviarFotoObra() { alert("Arquivo enviado para a galeria!"); }
+    function cadastrarObra() { AudioObra.playSucessoLaser(); alert("Obra cadastrada!"); }
+    function cadastrarFuncionario() { AudioObra.playSucessoLaser(); alert("Colaborador cadastrado!"); }
+    function designarObra() { AudioObra.playSucessoLaser(); alert("Obra designada!"); }
+    function registrarVale() { AudioObra.playSucessoLaser(); alert("Vale/Ressarcimento enviado!"); }
+    function enviarFotoObra() { AudioObra.playSucessoLaser(); alert("Arquivo enviado para a galeria!"); }
     function buscarPdfsObra() {}
     function fecharModalGaleria() { document.getElementById('modal-galeria-obra').classList.add('hidden'); }
     function fecharModalPdf() { document.getElementById('modal-anexar-pdf').classList.add('hidden'); }
     function fecharModalWhatsapp() { document.getElementById('modal-whatsapp-obra').classList.add('hidden'); }
-    function salvarPdfObra() {}
+    function salvarPdfObra() { AudioObra.playSucessoLaser(); }
     function enviarMensagemZap() {}
 
     // -------------------------------------------------------------
     // EXPORTAÇÃO DE RELATÓRIOS (EXCEL E PDF)
     // -------------------------------------------------------------
     async function exportarExcel() {
+      AudioObra.playSucessoLaser();
       let dados = [{ Data: '2026-03-30', Funcionario: 'João Silva', Obra: 'Avanço RJ', Status: 'GPS Confirmado' }];
       if (_supabase) {
         const { data } = await _supabase.from('pontos').select('*');
@@ -594,6 +722,7 @@
     }
 
     async function exportarPDF() {
+      AudioObra.playSucessoLaser();
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       doc.text("T.R.E. Montagens - Relatório de Fechamento", 14, 15);
