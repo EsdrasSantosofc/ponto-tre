@@ -44,7 +44,7 @@
 
       <div class="space-y-4">
         <button onclick="mostrarVisao('funcionario')" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 border-l-4 border-orange-500 cursor-pointer flex items-center justify-center gap-2">
-          <span>👷</span> Acesso Funcionário (Ponto / Vales / Projetos)
+          <span>👷</span> Acesso Funcionário (Ponto / Vales / Ressarcimentos / Projetos)
         </button>
 
         <button onclick="solicitarSenhaAdmin()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 cursor-pointer flex items-center justify-center gap-2">
@@ -112,10 +112,18 @@
       </div>
     </div>
 
-    <!-- CARD 3: ENVIAR VALE / NOTA COMPROVANTE -->
+    <!-- CARD 3: ENVIAR VALE OU RESSARCIMENTO / NOTA COMPROVANTE -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-orange-500">
-      <h3 class="text-lg font-bold text-blue-950 border-b pb-2">🧾 Enviar Vale ou Nota Comprovante</h3>
+      <h3 class="text-lg font-bold text-blue-950 border-b pb-2">🧾 Enviar Vale, Ressarcimento ou Comprovante</h3>
       
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Tipo de Lançamento:</label>
+        <select id="vale-tipo-lacamento" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
+          <option value="Vale">💸 Vale / Adiantamento (Desconta do pagamento)</option>
+          <option value="Ressarcimento">🍔 Ressarcimento (Almoço, Estacionamento, Passagem, Material)</option>
+        </select>
+      </div>
+
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o seu Nome:</label>
         <select id="vale-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"></select>
@@ -139,7 +147,7 @@
 
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Descrição / Motivo:</label>
-        <input type="text" id="vale-descricao" placeholder="Ex: Almoço, Passagem, Vale semanal, Compra de material" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
+        <input type="text" id="vale-descricao" placeholder="Ex: Almoço, Estacionamento, Vale semanal, Pedágio" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
       </div>
 
       <div>
@@ -153,7 +161,7 @@
       </div>
 
       <button id="btn-vale" onclick="registrarVale()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-900 cursor-pointer disabled:opacity-50">
-        💸 ENVIAR VALE / COMPROVANTE
+        💸 ENVIAR VALE / RESSARCIMENTO
       </button>
     </div>
 
@@ -239,7 +247,7 @@
         <span>📅</span> Presenças
       </button>
       <button id="tab-btn-comprovantes" onclick="mudarAbaAdmin('comprovantes')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
-        <span>📑</span> Comprovantes Vales
+        <span>📑</span> Comprovantes Vales / Ressarcimentos
       </button>
       <button id="tab-btn-fechamento" onclick="mudarAbaAdmin('fechamento')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
         <span>📊</span> Fechamento
@@ -424,11 +432,11 @@
         </div>
       </div>
 
-      <!-- ABA COMPROVANTES VALES -->
+      <!-- ABA COMPROVANTES VALES E RESSARCIMENTOS -->
       <div id="aba-comprovantes" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-blue-950">Vales e Comprovantes Recebidos</h3>
+            <h3 class="text-lg font-bold text-blue-950">Vales, Ressarcimentos e Comprovantes Recebidos</h3>
             <button onclick="carregarValesAdmin()" class="text-xs bg-orange-100 text-orange-900 px-3 py-1 rounded-lg font-bold hover:bg-orange-200">Atualizar</button>
           </div>
           <div id="container-vales-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -441,7 +449,7 @@
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b pb-4">
             <div>
               <h3 class="text-xl font-bold text-blue-950">📊 Fechamento Mensal e Balanço de Diárias</h3>
-              <p class="text-xs text-gray-500">Histórico de pagamentos, vales e saldos calculados por período</p>
+              <p class="text-xs text-gray-500">Histórico de pagamentos, vales, ressarcimentos e saldos calculados por período</p>
             </div>
             
             <div class="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded-xl border">
@@ -482,6 +490,7 @@
                   <th class="p-3 border-b text-center">Valor Diária</th>
                   <th class="p-3 border-b text-center">Dias Trabalhados</th>
                   <th class="p-3 border-b text-right">Total Bruto</th>
+                  <th class="p-3 border-b text-right text-blue-700">Ressarcimentos</th>
                   <th class="p-3 border-b text-right text-red-600">Total Vales</th>
                   <th class="p-3 border-b text-right text-emerald-700">Saldo a Pagar</th>
                 </tr>
@@ -740,6 +749,7 @@
 
     async function registrarVale() {
       const btn = document.getElementById('btn-vale');
+      const tipoLancamento = document.getElementById('vale-tipo-lacamento').value;
       const funcId = document.getElementById('vale-funcionario').value;
       const obraId = document.getElementById('vale-obra').value;
       const valor = parseFloat(document.getElementById('vale-valor').value);
@@ -749,7 +759,7 @@
       const fileInput = document.getElementById('vale-comprovante-file');
 
       if (!funcId || !obraId || !valor || !data || !pin) {
-        alert("Preencha todos os campos obrigatórios do vale!");
+        alert("Preencha todos os campos obrigatórios!");
         return;
       }
 
@@ -759,7 +769,7 @@
       }
 
       btn.disabled = true;
-      btn.innerText = "⏳ ENVIANDO VALE...";
+      btn.innerText = "⏳ ENVIANDO...";
 
       let fotoDataUrl = null;
       if (fileInput.files && fileInput.files[0]) {
@@ -768,6 +778,7 @@
 
       const novoVale = {
         id: Date.now().toString(),
+        tipo: tipoLancamento || 'Vale',
         funcionarioId: funcId,
         obraId: obraId,
         valor: valor,
@@ -778,14 +789,14 @@
 
       vales.unshift(novoVale);
       salvarTudo();
-      alert("💸 Vale/Comprovante enviado com sucesso!");
+      alert(`💸 ${tipoLancamento}/Comprovante enviado com sucesso!`);
       document.getElementById('vale-valor').value = '';
       document.getElementById('vale-descricao').value = '';
       document.getElementById('vale-pin').value = '';
       document.getElementById('vale-comprovante-file').value = '';
 
       btn.disabled = false;
-      btn.innerText = "💸 ENVIAR VALE / COMPROVANTE";
+      btn.innerText = "💸 ENVIAR VALE / RESSARCIMENTO";
     }
 
     async function enviarFotoObra() {
@@ -1298,13 +1309,16 @@
     function carregarValesAdmin() {
       const container = document.getElementById('container-vales-admin');
       if (vales.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4">Nenhum vale recebido.</p>';
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4">Nenhum vale ou ressarcimento recebido.</p>';
         return;
       }
 
       container.innerHTML = vales.map(v => {
         const func = equipe.find(f => f.id === v.funcionarioId);
         const obra = obras.find(o => o.id === v.obraId);
+        const tipoItem = v.tipo || 'Vale';
+        const isRessarcimento = tipoItem === 'Ressarcimento';
+
         return `
           <div class="card-acustico-blur p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
             <div>
@@ -1313,7 +1327,10 @@
                   <h4 class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</h4>
                   <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'N/A'}</p>
                 </div>
-                <span class="text-sm font-extrabold text-orange-600">R$ ${v.valor.toFixed(2)}</span>
+                <div class="text-right">
+                  <span class="text-xs font-bold px-2 py-0.5 rounded-full ${isRessarcimento ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}">${tipoItem}</span>
+                  <p class="text-sm font-extrabold ${isRessarcimento ? 'text-blue-700' : 'text-orange-600'} mt-1">R$ ${v.valor.toFixed(2)}</p>
+                </div>
               </div>
               <p class="text-xs text-gray-700 font-medium mb-1">Motivo: ${v.descricao || 'Sem descrição'}</p>
               <p class="text-[10px] text-gray-400 mb-3">Data: ${v.data}</p>
@@ -1326,7 +1343,7 @@
             </div>
 
             <div class="text-right pt-2 border-t">
-              <button onclick="excluirVale('${v.id}')" class="text-xs text-red-600 hover:text-red-800 font-bold">Excluir Vale</button>
+              <button onclick="excluirVale('${v.id}')" class="text-xs text-red-600 hover:text-red-800 font-bold">Excluir Registro</button>
             </div>
           </div>
         `;
@@ -1334,7 +1351,7 @@
     }
 
     function excluirVale(id) {
-      if (confirm("Deseja excluir este vale?")) {
+      if (confirm("Deseja excluir este registro?")) {
         vales = vales.filter(v => v.id !== id);
         salvarTudo();
         carregarValesAdmin();
@@ -1365,24 +1382,32 @@
       });
 
       if (equipe.length === 0) {
-        tabela.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500 text-xs">Nenhum funcionário cadastrado.</td></tr>';
+        tabela.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum funcionário cadastrado.</td></tr>';
         return;
       }
 
-      let totalGeralBruto = 0, totalGeralVales = 0, totalGeralLiquido = 0;
+      let totalGeralBruto = 0, totalGeralRessarcimentos = 0, totalGeralVales = 0, totalGeralLiquido = 0;
 
       const linhasHtml = equipe.map(func => {
         const diasTrabalhados = pontosDoMes.filter(p => p.funcionarioId === func.id).length;
-        const totalValesFunc = valesDoMes
-          .filter(v => v.funcionarioId === func.id)
+        
+        const lancamentosFunc = valesDoMes.filter(v => v.funcionarioId === func.id);
+
+        const totalValesFunc = lancamentosFunc
+          .filter(v => (v.tipo || 'Vale') === 'Vale')
+          .reduce((sum, v) => sum + parseFloat(v.valor || 0), 0);
+
+        const totalRessarcimentosFunc = lancamentosFunc
+          .filter(v => v.tipo === 'Ressarcimento')
           .reduce((sum, v) => sum + parseFloat(v.valor || 0), 0);
 
         const totalBruto = diasTrabalhados * func.diaria;
-        const saldoLiquido = totalBruto - totalValesFunc;
+        const saldoLiquido = (totalBruto + totalRessarcimentosFunc) - totalValesFunc;
 
-        if (func.ativo === false && diasTrabalhados === 0 && totalValesFunc === 0) return '';
+        if (func.ativo === false && diasTrabalhados === 0 && totalValesFunc === 0 && totalRessarcimentosFunc === 0) return '';
 
         totalGeralBruto += totalBruto;
+        totalGeralRessarcimentos += totalRessarcimentosFunc;
         totalGeralVales += totalValesFunc;
         totalGeralLiquido += saldoLiquido;
 
@@ -1395,6 +1420,7 @@
             <td class="p-3 text-center">R$ ${func.diaria.toFixed(2)}</td>
             <td class="p-3 text-center font-bold">${diasTrabalhados} dias</td>
             <td class="p-3 text-right font-semibold">R$ ${totalBruto.toFixed(2)}</td>
+            <td class="p-3 text-right text-blue-700 font-semibold">R$ ${totalRessarcimentosFunc.toFixed(2)}</td>
             <td class="p-3 text-right text-red-600 font-semibold">R$ ${totalValesFunc.toFixed(2)}</td>
             <td class="p-3 text-right font-extrabold ${saldoLiquido < 0 ? 'text-red-600' : 'text-emerald-700'}">
               R$ ${saldoLiquido.toFixed(2)}
@@ -1404,7 +1430,7 @@
       }).join('');
 
       if (!linhasHtml.trim()) {
-        tabela.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500 text-xs">Nenhum registro encontrado para este mês/ano.</td></tr>';
+        tabela.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum registro encontrado para este mês/ano.</td></tr>';
         return;
       }
 
@@ -1412,6 +1438,7 @@
         <tr class="bg-gray-100 font-bold border-t-2 border-gray-300 text-gray-900">
           <td class="p-3" colspan="3">TOTAL GERAL DO MÊS:</td>
           <td class="p-3 text-right text-blue-950">R$ ${totalGeralBruto.toFixed(2)}</td>
+          <td class="p-3 text-right text-blue-700">R$ ${totalGeralRessarcimentos.toFixed(2)}</td>
           <td class="p-3 text-right text-red-600">R$ ${totalGeralVales.toFixed(2)}</td>
           <td class="p-3 text-right text-emerald-800 text-base">R$ ${totalGeralLiquido.toFixed(2)}</td>
         </tr>
