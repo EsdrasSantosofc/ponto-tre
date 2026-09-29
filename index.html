@@ -13,7 +13,6 @@
   <meta name="apple-mobile-web-app-title" content="T.R.E. Obras">
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     /* Papel de Parede Temático: Acabamento Acústico de Alto Padrão */
@@ -91,7 +90,7 @@
         <input type="password" id="ponto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
       </div>
 
-      <button onclick="registrarPonto()" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition border-b-4 border-orange-500 cursor-pointer">
+      <button id="btn-ponto" onclick="registrarPonto()" class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition border-b-4 border-orange-500 cursor-pointer disabled:opacity-50">
         📍 BATER PONTO HOJE
       </button>
     </div>
@@ -145,7 +144,7 @@
 
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Foto / Comprovante (Galeria ou Câmera):</label>
-        <input type="file" id="vale-comprovante-file" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer">
+        <input type="file" id="vale-comprovante-file" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer">
       </div>
 
       <div>
@@ -153,12 +152,12 @@
         <input type="password" id="vale-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
       </div>
 
-      <button onclick="registrarVale()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-900 cursor-pointer">
+      <button id="btn-vale" onclick="registrarVale()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-900 cursor-pointer disabled:opacity-50">
         💸 ENVIAR VALE / COMPROVANTE
       </button>
     </div>
 
-    <!-- CARD 4: ENVIAR FOTO / VÍDEOS DE OBRA (MÚLTIPLOS RECURSOS) -->
+    <!-- CARD 4: ENVIAR FOTO / VÍDEOS DE OBRA -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-emerald-600">
       <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
         <span>📸 Diário de Obra (Fotos e Vídeos)</span>
@@ -186,7 +185,7 @@
 
       <div>
         <label class="block text-sm font-semibold mb-1 text-gray-700">Fotos ou Vídeos da Obra (Pode selecionar vários):</label>
-        <input type="file" id="foto-file" accept="image/*,video/*" multiple class="w-full p-2.5 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
+        <input type="file" id="foto-file" accept="image/*,video/*" multiple class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
       </div>
 
       <div>
@@ -199,7 +198,7 @@
         <input type="password" id="foto-pin" placeholder="Digite seu PIN individual" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
       </div>
 
-      <button onclick="enviarFotoObra()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer">
+      <button id="btn-foto" onclick="enviarFotoObra()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer disabled:opacity-50">
         📤 ENVIAR PARA A GALERIA DA OBRA
       </button>
     </div>
@@ -276,13 +275,11 @@
               <button onclick="fecharModalGaleria()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕ Fechar</button>
             </div>
             
-            <div id="modal-galeria-conteudo" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Fotos e Vídeos inseridos dinamicamente -->
-            </div>
+            <div id="modal-galeria-conteudo" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
           </div>
         </div>
 
-        <!-- MODAL PARA ANEXAR VÁRIOS PDFS À OBRA (CORRIGIDO) -->
+        <!-- MODAL PARA ANEXAR VÁRIOS PDFS À OBRA -->
         <div id="modal-anexar-pdf" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -297,19 +294,17 @@
             
             <div class="space-y-4">
               <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
-                <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wide">Anexar Novo Projeto / PDF (Selecione um ou mais)</h4>
-                <input type="text" id="pdf-titulo-input" placeholder="Nome/Prefixo do Documento (Ex: Planta Baixa, Projeto Elétrico)" class="w-full p-2.5 border rounded-xl bg-white text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wide">Anexar Novo Projeto / PDF</h4>
+                <input type="text" id="pdf-titulo-input" placeholder="Nome/Prefixo do Documento (Ex: Planta Baixa)" class="w-full p-2.5 border rounded-xl bg-white text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
                 <input type="file" id="pdf-file-input" accept="application/pdf" multiple class="w-full p-2 border rounded-xl bg-white text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
-                <button onclick="salvarPdfObra()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                <button id="btn-pdf-salvar" onclick="salvarPdfObra()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2 disabled:opacity-50">
                   <span>📎</span> Adicionar PDF(s) à Obra
                 </button>
               </div>
 
               <div>
                 <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Arquivos Já Anexados:</h4>
-                <div id="lista-pdfs-existentes" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                  <!-- Lista de PDFs carregada dinamicamente -->
-                </div>
+                <div id="lista-pdfs-existentes" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
               </div>
             </div>
           </div>
@@ -337,7 +332,7 @@
 
               <div>
                 <label class="block text-sm font-semibold mb-1 text-gray-700">Instrução / Orientação Adicional:</label>
-                <textarea id="modal-whatsapp-mensagem" rows="3" placeholder="Ex: Favor estar na obra às 07:30. Levar os equipamentos de proteção e laser nível." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+                <textarea id="modal-whatsapp-mensagem" rows="3" placeholder="Ex: Favor estar na obra às 07:30." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
               </div>
 
               <button onclick="enviarMensagemWhatsapp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
@@ -354,7 +349,7 @@
           <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Novo Colaborador</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input type="text" id="func-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-            <input type="text" id="func-whatsapp" placeholder="WhatsApp (ex: 77999998888 ou 11999998888)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="func-whatsapp" placeholder="WhatsApp (ex: 77999998888)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             <input type="number" step="0.01" id="func-diaria" placeholder="Valor Diária (R$)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             <input type="text" id="func-pin" placeholder="PIN Individual (4 dígitos)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
           </div>
@@ -363,18 +358,17 @@
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
           <h3 class="text-lg font-bold text-blue-950 mb-4">Equipe Cadastrada</h3>
-          <p class="text-xs text-gray-500 mb-3">Nota: Ao remover um colaborador da lista ativa, todo o histórico de diárias, pontos e vales passados permanecerá intacto nos relatórios e fechamentos.</p>
+          <p class="text-xs text-gray-500 mb-3">Nota: O histórico permanecerá salvo mesmo desativando colaboradores.</p>
           <ul id="lista-equipe" class="divide-y text-gray-700"></ul>
         </div>
       </div>
 
-      <!-- ABA DESIGNAR OBRA (NOVA) -->
+      <!-- ABA DESIGNAR OBRA -->
       <div id="aba-designar" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600 space-y-4">
           <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center gap-2">
             <span>📲 Designar Funcionário para Obra</span>
           </h3>
-          <p class="text-xs text-gray-500">Selecione o colaborador, escolha a obra e a data para enviar a convocação diretamente para o WhatsApp dele.</p>
 
           <div>
             <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o Colaborador:</label>
@@ -392,20 +386,18 @@
           </div>
 
           <div>
-            <label class="block text-sm font-semibold mb-1 text-gray-700">Instruções ou Recomendações do Projeto:</label>
-            <textarea id="designar-instrucao" rows="3" placeholder="Ex: Comparecer às 07h30 com os EPIs completos, nível a laser e fita métrica." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Instruções do Projeto:</label>
+            <textarea id="designar-instrucao" rows="3" placeholder="Ex: Comparecer às 07h30 com os EPIs completos." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
           </div>
 
-          <button onclick="confirmarEEnviarDesignacao()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer flex items-center justify-center gap-2">
+          <button id="btn-designar" onclick="confirmarEEnviarDesignacao()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50">
             <span>💬</span> DESIGNAR E ENVIAR CONVOCAÇÃO VIA WHATSAPP
           </button>
         </div>
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
           <h3 class="text-lg font-bold text-blue-950 mb-4">Histórico de Convocações / Designações</h3>
-          <div id="lista-designacoes" class="space-y-2 text-sm divide-y">
-            <!-- Carregado via JS -->
-          </div>
+          <div id="lista-designacoes" class="space-y-2 text-sm divide-y"></div>
         </div>
       </div>
 
@@ -439,13 +431,11 @@
             <h3 class="text-lg font-bold text-blue-950">Vales e Comprovantes Recebidos</h3>
             <button onclick="carregarValesAdmin()" class="text-xs bg-orange-100 text-orange-900 px-3 py-1 rounded-lg font-bold hover:bg-orange-200">Atualizar</button>
           </div>
-          <div id="container-vales-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Vales e fotos inseridos dinamicamente -->
-          </div>
+          <div id="container-vales-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
       </div>
 
-      <!-- ABA FECHAMENTO COM FILTRO POR ANO E MÊS -->
+      <!-- ABA FECHAMENTO -->
       <div id="aba-fechamento" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b pb-4">
@@ -454,7 +444,6 @@
               <p class="text-xs text-gray-500">Histórico de pagamentos, vales e saldos calculados por período</p>
             </div>
             
-            <!-- FILTROS DE ANO E MÊS -->
             <div class="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded-xl border">
               <div>
                 <label class="block text-[10px] font-bold uppercase text-gray-500">Mês:</label>
@@ -476,9 +465,7 @@
 
               <div>
                 <label class="block text-[10px] font-bold uppercase text-gray-500">Ano:</label>
-                <select id="fechamento-ano" onchange="calcularFechamentoMensal()" class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500">
-                  <!-- Anos populados por script -->
-                </select>
+                <select id="fechamento-ano" onchange="calcularFechamentoMensal()" class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500"></select>
               </div>
 
               <button onclick="calcularFechamentoMensal()" class="mt-3 bg-emerald-600 text-white font-bold px-3 py-2 rounded-lg text-xs hover:bg-emerald-700 transition">
@@ -499,9 +486,7 @@
                   <th class="p-3 border-b text-right text-emerald-700">Saldo a Pagar</th>
                 </tr>
               </thead>
-              <tbody id="tabela-fechamento" class="text-sm divide-y">
-                <!-- Linhas preenchidas via Script -->
-              </tbody>
+              <tbody id="tabela-fechamento" class="text-sm divide-y"></tbody>
             </table>
           </div>
         </div>
@@ -512,10 +497,9 @@
 
   <script>
     /* =========================================================================
-       CONFIGURAÇÃO LOCAL E PERSISTÊNCIA (LOCALSTORAGE / COMPATÍVEL COM SUPABASE)
+       CONFIGURAÇÃO LOCAL E PERSISTÊNCIA OTIMIZADA
        ========================================================================= */
 
-    // Definição dos bancos locais padrão
     const DEFAULT_OBRAS = [
       { id: '1', nome: 'Avanço RJ', local: 'Rio de Janeiro / RJ' },
       { id: '2', nome: 'Sede T.R.E. Acústica', local: 'São Paulo / SP' }
@@ -526,7 +510,6 @@
       { id: '2', nome: 'Marcos Oliveira', diaria: 250.00, pin: '5678', whatsapp: '5577999997777', ativo: true }
     ];
 
-    // Carregamento de storage com fallbacks
     let obras = JSON.parse(localStorage.getItem('tre_obras')) || DEFAULT_OBRAS;
     let equipe = JSON.parse(localStorage.getItem('tre_equipe')) || DEFAULT_EQUIPE;
     let pontos = JSON.parse(localStorage.getItem('tre_pontos')) || [];
@@ -536,24 +519,63 @@
     let designacoes = JSON.parse(localStorage.getItem('tre_designacoes')) || [];
 
     function salvarTudo() {
-      localStorage.setItem('tre_obras', JSON.stringify(obras));
-      localStorage.setItem('tre_equipe', JSON.stringify(equipe));
-      localStorage.setItem('tre_pontos', JSON.stringify(pontos));
-      localStorage.setItem('tre_vales', JSON.stringify(vales));
-      localStorage.setItem('tre_fotos_obra', JSON.stringify(fotosObra));
-      localStorage.setItem('tre_pdfs_obra', JSON.stringify(pdfsObra));
-      localStorage.setItem('tre_designacoes', JSON.stringify(designacoes));
+      try {
+        localStorage.setItem('tre_obras', JSON.stringify(obras));
+        localStorage.setItem('tre_equipe', JSON.stringify(equipe));
+        localStorage.setItem('tre_pontos', JSON.stringify(pontos));
+        localStorage.setItem('tre_vales', JSON.stringify(vales));
+        localStorage.setItem('tre_fotos_obra', JSON.stringify(fotosObra));
+        localStorage.setItem('tre_pdfs_obra', JSON.stringify(pdfsObra));
+        localStorage.setItem('tre_designacoes', JSON.stringify(designacoes));
+      } catch (e) {
+        alert("⚠️ O armazenamento local está cheio! Apague alguns arquivos antigos na galeria do administrador.");
+      }
+    }
+
+    // UTILITÁRIO: COMPRESSÃO DE IMAGENS AUTOMÁTICA
+    function comprimirImagem(file, maxLargura = 1000, qualidade = 0.7) {
+      return new Promise((resolve) => {
+        if (!file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(file);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let largura = img.width;
+            let altura = img.height;
+
+            if (largura > maxLargura) {
+              altura = Math.round((altura * maxLargura) / largura);
+              largura = maxLargura;
+            }
+
+            canvas.width = largura;
+            canvas.height = altura;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, largura, altura);
+
+            resolve(canvas.toDataURL('image/jpeg', qualidade));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
     // Inicialização da Página
     document.addEventListener("DOMContentLoaded", () => {
-      // Configurar data atual nos campos
       const hoje = new Date().toISOString().split('T')[0];
       document.getElementById('ponto-data').value = hoje;
       document.getElementById('vale-data').value = hoje;
       document.getElementById('designar-data').value = hoje;
 
-      // Popular Seletor de Anos no Fechamento
       const anoSelect = document.getElementById('fechamento-ano');
       const anoAtual = new Date().getFullYear();
       for (let ano = anoAtual - 2; ano <= anoAtual + 3; ano++) {
@@ -564,14 +586,11 @@
         anoSelect.appendChild(option);
       }
 
-      // Definir mês atual no fechamento
       document.getElementById('fechamento-mes').value = new Date().getMonth();
-
       populardropdowns();
     });
 
     function populardropdowns() {
-      // Preencher funcionários ativos nos dropdowns
       const funcSelects = ['ponto-funcionario', 'vale-funcionario', 'foto-funcionario', 'modal-whatsapp-funcionario', 'designar-funcionario'];
       const funcionariosAtivos = equipe.filter(e => e.ativo !== false);
 
@@ -585,7 +604,6 @@
         });
       });
 
-      // Preencher Obras nos dropdowns
       const obraSelects = ['ponto-obra', 'consulta-pdf-obra', 'vale-obra', 'foto-obra', 'designar-obra'];
       obraSelects.forEach(id => {
         const el = document.getElementById(id);
@@ -596,10 +614,6 @@
         });
       });
     }
-
-    /* =========================================================================
-       NAVEGAÇÃO E SISTEMA DE VISÕES
-       ========================================================================= */
 
     function mostrarVisao(visao) {
       document.getElementById('pantalla-login').classList.add('hidden');
@@ -631,19 +645,15 @@
       document.querySelectorAll('.aba-content').forEach(el => el.classList.add('hidden'));
       document.getElementById(`aba-${aba}`).classList.remove('hidden');
 
-      // Atualizar botões de abas
       const abas = ['obras', 'equipe', 'designar', 'presencas', 'comprovantes', 'fechamento'];
       abas.forEach(a => {
         const btn = document.getElementById(`tab-btn-${a}`);
         if (!btn) return;
-        if (a === aba) {
-          btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5";
-        } else {
-          btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
-        }
+        btn.className = (a === aba) 
+          ? "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5"
+          : "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
       });
 
-      // Carregar dados específicos de cada aba
       if (aba === 'obras') renderizarObras();
       if (aba === 'equipe') renderizarEquipe();
       if (aba === 'designar') renderizarDesignacoes();
@@ -653,7 +663,7 @@
     }
 
     /* =========================================================================
-       REGRAS DA VISÃO DO FUNCIONÁRIO
+       REGRAS DA VISÃO DO FUNCIONÁRIO (COM TRAVA ANTI-DUPLICAÇÃO)
        ========================================================================= */
 
     function validarPin(funcId, pinDigitado) {
@@ -662,6 +672,7 @@
     }
 
     function registrarPonto() {
+      const btn = document.getElementById('btn-ponto');
       const funcId = document.getElementById('ponto-funcionario').value;
       const obraId = document.getElementById('ponto-obra').value;
       const data = document.getElementById('ponto-data').value;
@@ -673,23 +684,32 @@
       }
 
       if (!validarPin(funcId, pin)) {
-        alert("PIN incorreto! Verifique sua senha individual.");
+        alert("PIN incorreto!");
         return;
       }
 
-      const novoPonto = {
-        id: Date.now().toString(),
-        funcionarioId: funcId,
-        obraId: obraId,
-        data: data,
-        hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-      };
+      // TRAVA DE BOTÃO
+      btn.disabled = true;
+      btn.innerText = "⏳ REGISTRANDO...";
 
-      pontos.unshift(novoPonto);
-      salvarTudo();
-      alert("📍 Ponto registrado com sucesso!");
-      document.getElementById('ponto-pin').value = '';
-      carregarHistoricoPontosFuncionario();
+      setTimeout(() => {
+        const novoPonto = {
+          id: Date.now().toString(),
+          funcionarioId: funcId,
+          obraId: obraId,
+          data: data,
+          hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        };
+
+        pontos.unshift(novoPonto);
+        salvarTudo();
+        alert("📍 Ponto registrado com sucesso!");
+        document.getElementById('ponto-pin').value = '';
+        carregarHistoricoPontosFuncionario();
+
+        btn.disabled = false;
+        btn.innerText = "📍 BATER PONTO HOJE";
+      }, 100);
     }
 
     function carregarHistoricoPontosFuncionario() {
@@ -718,7 +738,8 @@
       }).join('');
     }
 
-    function registrarVale() {
+    async function registrarVale() {
+      const btn = document.getElementById('btn-vale');
       const funcId = document.getElementById('vale-funcionario').value;
       const obraId = document.getElementById('vale-obra').value;
       const valor = parseFloat(document.getElementById('vale-valor').value);
@@ -737,36 +758,38 @@
         return;
       }
 
-      const processarEEnviar = (fotoDataUrl) => {
-        const novoVale = {
-          id: Date.now().toString(),
-          funcionarioId: funcId,
-          obraId: obraId,
-          valor: valor,
-          data: data,
-          descricao: descricao,
-          comprovante: fotoDataUrl || null
-        };
+      btn.disabled = true;
+      btn.innerText = "⏳ ENVIANDO VALE...";
 
-        vales.unshift(novoVale);
-        salvarTudo();
-        alert("💸 Vale/Comprovante enviado com sucesso!");
-        document.getElementById('vale-valor').value = '';
-        document.getElementById('vale-descricao').value = '';
-        document.getElementById('vale-pin').value = '';
-        document.getElementById('vale-comprovante-file').value = '';
+      let fotoDataUrl = null;
+      if (fileInput.files && fileInput.files[0]) {
+        fotoDataUrl = await comprimirImagem(fileInput.files[0]);
+      }
+
+      const novoVale = {
+        id: Date.now().toString(),
+        funcionarioId: funcId,
+        obraId: obraId,
+        valor: valor,
+        data: data,
+        descricao: descricao,
+        comprovante: fotoDataUrl
       };
 
-      if (fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => processarEEnviar(e.target.result);
-        reader.readAsDataURL(fileInput.files[0]);
-      } else {
-        processarEEnviar(null);
-      }
+      vales.unshift(novoVale);
+      salvarTudo();
+      alert("💸 Vale/Comprovante enviado com sucesso!");
+      document.getElementById('vale-valor').value = '';
+      document.getElementById('vale-descricao').value = '';
+      document.getElementById('vale-pin').value = '';
+      document.getElementById('vale-comprovante-file').value = '';
+
+      btn.disabled = false;
+      btn.innerText = "💸 ENVIAR VALE / COMPROVANTE";
     }
 
-    function enviarFotoObra() {
+    async function enviarFotoObra() {
+      const btn = document.getElementById('btn-foto');
       const funcId = document.getElementById('foto-funcionario').value;
       const obraId = document.getElementById('foto-obra').value;
       const tipo = document.getElementById('foto-tipo').value;
@@ -775,7 +798,7 @@
       const fileInput = document.getElementById('foto-file');
 
       if (!funcId || !obraId || !pin || !fileInput.files || fileInput.files.length === 0) {
-        alert("Selecione o funcionário, a obra, informe a senha e escolha ao menos um arquivo!");
+        alert("Selecione o funcionário, a obra, informe o PIN e escolha os arquivos!");
         return;
       }
 
@@ -784,38 +807,38 @@
         return;
       }
 
+      btn.disabled = true;
+      btn.innerText = "⏳ PROCESSANDO E ENVIANDO...";
+
       const files = Array.from(fileInput.files);
-      let concluidos = 0;
-
-      files.forEach((file, index) => {
-        const reader = new FileReader();
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const isVideo = file.type.startsWith('video/');
+        const imagemProcessada = await comprimirImagem(file);
 
-        reader.onload = function(e) {
-          const novaFoto = {
-            id: (Date.now() + index).toString(),
-            funcionarioId: funcId,
-            obraId: obraId,
-            tipo: tipo,
-            observacao: observacao,
-            imagem: e.target.result,
-            isVideo: isVideo,
-            data: new Date().toLocaleDateString('pt-BR')
-          };
-
-          fotosObra.unshift(novaFoto);
-          concluidos++;
-
-          if (concluidos === files.length) {
-            salvarTudo();
-            alert(`📸 ${files.length} arquivo(s) enviado(s) com sucesso para a galeria da obra!`);
-            document.getElementById('foto-observacao').value = '';
-            document.getElementById('foto-pin').value = '';
-            document.getElementById('foto-file').value = '';
-          }
+        const novaFoto = {
+          id: (Date.now() + i).toString(),
+          funcionarioId: funcId,
+          obraId: obraId,
+          tipo: tipo,
+          observacao: observacao,
+          imagem: imagemProcessada,
+          isVideo: isVideo,
+          data: new Date().toLocaleDateString('pt-BR')
         };
-        reader.readAsDataURL(file);
-      });
+
+        fotosObra.unshift(novaFoto);
+      }
+
+      salvarTudo();
+      alert(`📸 ${files.length} arquivo(s) enviado(s) com sucesso!`);
+      document.getElementById('foto-observacao').value = '';
+      document.getElementById('foto-pin').value = '';
+      document.getElementById('foto-file').value = '';
+
+      btn.disabled = false;
+      btn.innerText = "📤 ENVIAR PARA A GALERIA DA OBRA";
     }
 
     function buscarPdfsObra() {
@@ -823,14 +846,14 @@
       const container = document.getElementById('container-pdf-obra');
 
       if (!obraId) {
-        container.innerHTML = '<p class="text-xs text-gray-500 italic">Selecione uma obra acima para carregar os arquivos.</p>';
+        container.innerHTML = '<p class="text-xs text-gray-500 italic">Selecione uma obra acima.</p>';
         return;
       }
 
       const pdfs = pdfsObra.filter(p => p.obraId === obraId);
 
       if (pdfs.length === 0) {
-        container.innerHTML = '<p class="text-xs text-orange-600 bg-orange-50 p-3 rounded-xl border border-orange-200 font-medium">Nenhum projeto PDF anexado a esta obra até o momento.</p>';
+        container.innerHTML = '<p class="text-xs text-orange-600 bg-orange-50 p-3 rounded-xl border border-orange-200">Nenhum PDF anexado a esta obra.</p>';
         return;
       }
 
@@ -848,10 +871,9 @@
     }
 
     /* =========================================================================
-       REGRAS DA VISÃO DO ADMINISTRADOR (PATRÃO)
+       REGRAS DA VISÃO DO ADMINISTRADOR
        ========================================================================= */
 
-    // OBRAS & PDFS
     function cadastrarObra() {
       const nome = document.getElementById('obra-nome').value.trim();
       const local = document.getElementById('obra-local').value.trim();
@@ -892,18 +914,10 @@
               </div>
             </div>
             <div class="flex flex-wrap gap-2">
-              <button onclick="abrirModalPdf('${o.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
-                📄 Projetos PDFs
-              </button>
-              <button onclick="abrirGaleriaObra('${o.id}')" class="bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
-                📸 Ver Galeria
-              </button>
-              <button onclick="abrirModalWhatsapp('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
-                💬 Aviso Whats
-              </button>
-              <button onclick="excluirObra('${o.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition">
-                🗑️️
-              </button>
+              <button onclick="abrirModalPdf('${o.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">📄 Projetos PDFs</button>
+              <button onclick="abrirGaleriaObra('${o.id}')" class="bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">📸 Ver Galeria</button>
+              <button onclick="abrirModalWhatsapp('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">💬 Aviso Whats</button>
+              <button onclick="excluirObra('${o.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition">🗑</button>
             </div>
           </li>
         `;
@@ -911,7 +925,7 @@
     }
 
     function excluirObra(id) {
-      if (confirm("Tem certeza que deseja excluir esta obra? Os dados de presenças permanecerão guardados.")) {
+      if (confirm("Deseja excluir esta obra?")) {
         obras = obras.filter(o => o.id !== id);
         salvarTudo();
         populardropdowns();
@@ -919,7 +933,6 @@
       }
     }
 
-    // GESTÃO DE MÚLTIPLOS PDFS DA OBRA
     function abrirModalPdf(obraId) {
       const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
@@ -927,9 +940,7 @@
       document.getElementById('modal-pdf-obra-id').value = obraId;
       document.getElementById('modal-pdf-obra-nome').textContent = `Obra: ${obra.nome}`;
       document.getElementById('pdf-titulo-input').value = '';
-      
-      const fileInput = document.getElementById('pdf-file-input');
-      fileInput.value = '';
+      document.getElementById('pdf-file-input').value = '';
 
       renderizarListaPdfsModal(obraId);
       document.getElementById('modal-anexar-pdf').classList.remove('hidden');
@@ -940,7 +951,7 @@
       const pdfs = pdfsObra.filter(p => p.obraId === obraId);
 
       if (pdfs.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 italic py-2">Nenhum PDF cadastrado nesta obra.</p>';
+        container.innerHTML = '<p class="text-xs text-gray-500 italic py-2">Nenhum PDF cadastrado.</p>';
         return;
       }
 
@@ -959,6 +970,7 @@
     }
 
     function salvarPdfObra() {
+      const btn = document.getElementById('btn-pdf-salvar');
       const obraId = document.getElementById('modal-pdf-obra-id').value;
       const tituloBase = document.getElementById('pdf-titulo-input').value.trim() || 'Projeto PDF';
       const fileInput = document.getElementById('pdf-file-input');
@@ -967,6 +979,9 @@
         alert("Selecione pelo menos um arquivo PDF!");
         return;
       }
+
+      btn.disabled = true;
+      btn.innerText = "⏳ ANEXANDO...";
 
       const files = Array.from(fileInput.files);
       let processados = 0;
@@ -993,6 +1008,9 @@
             fileInput.value = '';
             renderizarListaPdfsModal(obraId);
             renderizarObras();
+
+            btn.disabled = false;
+            btn.innerText = "📎 Adicionar PDF(s) à Obra";
           }
         };
         reader.readAsDataURL(file);
@@ -1000,7 +1018,7 @@
     }
 
     function excluirPdf(pdfId, obraId) {
-      if (confirm("Deseja remover este PDF da obra?")) {
+      if (confirm("Deseja remover este PDF?")) {
         pdfsObra = pdfsObra.filter(p => p.id !== pdfId);
         salvarTudo();
         renderizarListaPdfsModal(obraId);
@@ -1012,18 +1030,16 @@
       document.getElementById('modal-anexar-pdf').classList.add('hidden');
     }
 
-    // GALERIA DA OBRA
     function abrirGaleriaObra(obraId) {
       const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
 
       document.getElementById('modal-obra-titulo').textContent = `Galeria - ${obra.nome}`;
       const container = document.getElementById('modal-galeria-conteudo');
-
       const fotos = fotosObra.filter(f => f.obraId === obraId);
 
       if (fotos.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-8 text-center">Nenhuma foto ou vídeo enviado para esta obra ainda.</p>';
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-8 text-center">Nenhuma mídia enviada ainda.</p>';
       } else {
         container.innerHTML = fotos.map(f => {
           const func = equipe.find(eq => eq.id === f.funcionarioId);
@@ -1066,7 +1082,6 @@
       document.getElementById('modal-galeria-obra').classList.add('hidden');
     }
 
-    // AVISOS WHATSAPP
     function abrirModalWhatsapp(obraId) {
       const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
@@ -1100,14 +1115,9 @@
       let texto = `Olá ${func.nome}, tudo bem?\n\n*Aviso de Convocação de Obra - T.R.E. Montagens*\n\n`;
       texto += `🏗️ *Obra:* ${obra.nome}\n`;
       texto += `📍 *Local:* ${local}\n`;
-
-      if (instrucao) {
-        texto += `📝 *Instruções:* ${instrucao}\n`;
-      }
-
+      if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
       texto += `\nPor favor, confirme o recebimento e não se esqueça de bater o ponto na chegada!`;
 
-      // Limpar caracteres não numéricos do telefone do colaborador se existir
       const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
       const link = numLimpo 
         ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
@@ -1117,7 +1127,6 @@
       fecharModalWhatsapp();
     }
 
-    // EQUIPE
     function cadastrarFuncionario() {
       const nome = document.getElementById('func-nome').value.trim();
       const whatsapp = document.getElementById('func-whatsapp').value.trim();
@@ -1129,15 +1138,7 @@
         return;
       }
 
-      const novoFunc = {
-        id: Date.now().toString(),
-        nome,
-        whatsapp,
-        diaria,
-        pin,
-        ativo: true
-      };
-
+      const novoFunc = { id: Date.now().toString(), nome, whatsapp, diaria, pin, ativo: true };
       equipe.push(novoFunc);
       salvarTudo();
       populardropdowns();
@@ -1153,7 +1154,7 @@
       const ativos = equipe.filter(f => f.ativo !== false);
 
       if (ativos.length === 0) {
-        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenhum funcionário ativo.</li>';
+        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenum colaborador ativo.</li>';
         return;
       }
 
@@ -1161,19 +1162,15 @@
         <li class="py-3 flex justify-between items-center">
           <div>
             <p class="font-bold text-blue-950">${f.nome}</p>
-            <p class="text-xs text-gray-500">
-              📱 WhatsApp: ${f.whatsapp || 'Não cadastrado'} | Diária: R$ ${f.diaria.toFixed(2)} | PIN: ****
-            </p>
+            <p class="text-xs text-gray-500">📱 ${f.whatsapp || 'Sem Whats'} | Diária: R$ ${f.diaria.toFixed(2)} | PIN: ****</p>
           </div>
-          <button onclick="desativarFuncionario('${f.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
-            Remover da Equipe Ativa
-          </button>
+          <button onclick="desativarFuncionario('${f.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Remover</button>
         </li>
       `).join('');
     }
 
     function desativarFuncionario(id) {
-      if (confirm("Deseja remover este colaborador da lista ativa? Os registros de diárias e pontos passados continuarão salvos no relatório de fechamento.")) {
+      if (confirm("Remover este colaborador da equipe ativa?")) {
         const index = equipe.findIndex(f => f.id === id);
         if (index !== -1) {
           equipe[index].ativo = false;
@@ -1184,11 +1181,8 @@
       }
     }
 
-    /* =========================================================================
-       SISTEMA DE DESIGNAÇÃO DE OBRA E ENVIO DIRETO DE WHATSAPP
-       ========================================================================= */
-
     function confirmarEEnviarDesignacao() {
+      const btn = document.getElementById('btn-designar');
       const funcId = document.getElementById('designar-funcionario').value;
       const obraId = document.getElementById('designar-obra').value;
       const dataInicio = document.getElementById('designar-data').value;
@@ -1201,8 +1195,9 @@
 
       const func = equipe.find(f => f.id === funcId);
       const obra = obras.find(o => o.id === obraId);
-
       if (!func || !obra) return;
+
+      btn.disabled = true;
 
       const novaDesignacao = {
         id: Date.now().toString(),
@@ -1217,33 +1212,22 @@
       salvarTudo();
       renderizarDesignacoes();
 
-      // Montagem do texto do WhatsApp
       let texto = `Olá *${func.nome}*, você foi escalado para uma obra pela *T.R.E. Montagens*!\n\n`;
       texto += `🏗️ *Obra:* ${obra.nome}\n`;
       texto += `📍 *Localização:* ${obra.local}\n`;
       texto += `📅 *Data:* ${dataInicio.split('-').reverse().join('/')}\n`;
+      if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
+      texto += `\nPor favor, confirme o recebimento e lembre-se de bater o ponto no app!`;
 
-      if (instrucao) {
-        texto += `📝 *Observações / Instruções:* ${instrucao}\n`;
-      }
-
-      texto += `\nPor favor, confirme o recebimento desta mensagem e lembre-se de registrar o ponto no aplicativo ao chegar no local!`;
-
-      // Tratamento do número
       const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
-      let linkZap = '';
-
-      if (numLimpo) {
-        linkZap = `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`;
-      } else {
-        alert("Atenção: Este funcionário não tem número de WhatsApp cadastrado. O WhatsApp será aberto sem o número preenchido.");
-        linkZap = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
-      }
+      const linkZap = numLimpo 
+        ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
 
       window.open(linkZap, '_blank');
-
-      // Limpar campos
       document.getElementById('designar-instrucao').value = '';
+
+      btn.disabled = false;
     }
 
     function renderizarDesignacoes() {
@@ -1251,7 +1235,7 @@
       if (!container) return;
 
       if (designacoes.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 py-3">Nenhuma designação realizada recente.</p>';
+        container.innerHTML = '<p class="text-xs text-gray-500 py-3">Nenhuma designação realizada.</p>';
         return;
       }
 
@@ -1266,23 +1250,20 @@
               <p class="text-xs text-gray-500">Data de Início: ${d.dataInicio} | Registrado em: ${d.dataRegistro}</p>
               ${d.instrucao ? `<p class="text-xs text-emerald-700 italic">"${d.instrucao}"</p>` : ''}
             </div>
-            <button onclick="removerDesignacao('${d.id}')" class="text-xs text-red-600 font-bold hover:underline">
-              Remover
-            </button>
+            <button onclick="removerDesignacao('${d.id}')" class="text-xs text-red-600 font-bold hover:underline">Remover</button>
           </div>
         `;
       }).join('');
     }
 
     function removerDesignacao(id) {
-      if (confirm("Remover este registro de designação?")) {
+      if (confirm("Remover este registro?")) {
         designacoes = designacoes.filter(d => d.id !== id);
         salvarTudo();
         renderizarDesignacoes();
       }
     }
 
-    // PRESENÇAS
     function carregarPresencas() {
       const tabela = document.getElementById('tabela-presencas');
       if (pontos.length === 0) {
@@ -1307,18 +1288,17 @@
     }
 
     function excluirPonto(id) {
-      if (confirm("Excluir este registro de presença?")) {
+      if (confirm("Excluir este ponto?")) {
         pontos = pontos.filter(p => p.id !== id);
         salvarTudo();
         carregarPresencas();
       }
     }
 
-    // COMPROVANTES VALES
     function carregarValesAdmin() {
       const container = document.getElementById('container-vales-admin');
       if (vales.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4">Nenhum vale ou nota enviada.</p>';
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4">Nenhum vale recebido.</p>';
         return;
       }
 
@@ -1354,14 +1334,13 @@
     }
 
     function excluirVale(id) {
-      if (confirm("Deseja excluir este registro de vale?")) {
+      if (confirm("Deseja excluir este vale?")) {
         vales = vales.filter(v => v.id !== id);
         salvarTudo();
         carregarValesAdmin();
       }
     }
 
-    // FECHAMENTO DE CONTA COM FILTRO DE MÊS E ANO
     function calcularFechamentoMensal() {
       const mesSelecionado = parseInt(document.getElementById('fechamento-mes').value);
       const anoSelecionado = parseInt(document.getElementById('fechamento-ano').value);
@@ -1371,9 +1350,7 @@
         if (!p.data) return false;
         const partes = p.data.split('-');
         if (partes.length === 3) {
-          const ano = parseInt(partes[0]);
-          const mes = parseInt(partes[1]) - 1;
-          return ano === anoSelecionado && mes === mesSelecionado;
+          return parseInt(partes[0]) === anoSelecionado && (parseInt(partes[1]) - 1) === mesSelecionado;
         }
         return false;
       });
@@ -1382,27 +1359,20 @@
         if (!v.data) return false;
         const partes = v.data.split('-');
         if (partes.length === 3) {
-          const ano = parseInt(partes[0]);
-          const mes = parseInt(partes[1]) - 1;
-          return ano === anoSelecionado && mes === mesSelecionado;
+          return parseInt(partes[0]) === anoSelecionado && (parseInt(partes[1]) - 1) === mesSelecionado;
         }
         return false;
       });
 
-      const todosFuncionarios = [...equipe];
-
-      if (todosFuncionarios.length === 0) {
+      if (equipe.length === 0) {
         tabela.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500 text-xs">Nenhum funcionário cadastrado.</td></tr>';
         return;
       }
 
-      let totalGeralBruto = 0;
-      let totalGeralVales = 0;
-      let totalGeralLiquido = 0;
+      let totalGeralBruto = 0, totalGeralVales = 0, totalGeralLiquido = 0;
 
-      const linhasHtml = todosFuncionarios.map(func => {
+      const linhasHtml = equipe.map(func => {
         const diasTrabalhados = pontosDoMes.filter(p => p.funcionarioId === func.id).length;
-        
         const totalValesFunc = valesDoMes
           .filter(v => v.funcionarioId === func.id)
           .reduce((sum, v) => sum + parseFloat(v.valor || 0), 0);
@@ -1410,9 +1380,7 @@
         const totalBruto = diasTrabalhados * func.diaria;
         const saldoLiquido = totalBruto - totalValesFunc;
 
-        if (func.ativo === false && diasTrabalhados === 0 && totalValesFunc === 0) {
-          return '';
-        }
+        if (func.ativo === false && diasTrabalhados === 0 && totalValesFunc === 0) return '';
 
         totalGeralBruto += totalBruto;
         totalGeralVales += totalValesFunc;
@@ -1440,7 +1408,7 @@
         return;
       }
 
-      const linhaTotal = `
+      tabela.innerHTML = linhasHtml + `
         <tr class="bg-gray-100 font-bold border-t-2 border-gray-300 text-gray-900">
           <td class="p-3" colspan="3">TOTAL GERAL DO MÊS:</td>
           <td class="p-3 text-right text-blue-950">R$ ${totalGeralBruto.toFixed(2)}</td>
@@ -1448,8 +1416,6 @@
           <td class="p-3 text-right text-emerald-800 text-base">R$ ${totalGeralLiquido.toFixed(2)}</td>
         </tr>
       `;
-
-      tabela.innerHTML = linhasHtml + linhaTotal;
     }
   </script>
 </body>
