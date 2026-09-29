@@ -233,6 +233,9 @@
       <button id="tab-btn-equipe" onclick="mudarAbaAdmin('equipe')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
         <span>👥</span> Equipe
       </button>
+      <button id="tab-btn-designar" onclick="mudarAbaAdmin('designar')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
+        <span>📲</span> Designar Obra
+      </button>
       <button id="tab-btn-presencas" onclick="mudarAbaAdmin('presencas')" class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5">
         <span>📅</span> Presenças
       </button>
@@ -349,8 +352,9 @@
       <div id="aba-equipe" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
           <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Novo Colaborador</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input type="text" id="func-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="func-whatsapp" placeholder="WhatsApp (ex: 77999998888 ou 11999998888)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             <input type="number" step="0.01" id="func-diaria" placeholder="Valor Diária (R$)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             <input type="text" id="func-pin" placeholder="PIN Individual (4 dígitos)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
           </div>
@@ -361,6 +365,47 @@
           <h3 class="text-lg font-bold text-blue-950 mb-4">Equipe Cadastrada</h3>
           <p class="text-xs text-gray-500 mb-3">Nota: Ao remover um colaborador da lista ativa, todo o histórico de diárias, pontos e vales passados permanecerá intacto nos relatórios e fechamentos.</p>
           <ul id="lista-equipe" class="divide-y text-gray-700"></ul>
+        </div>
+      </div>
+
+      <!-- ABA DESIGNAR OBRA (NOVA) -->
+      <div id="aba-designar" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600 space-y-4">
+          <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center gap-2">
+            <span>📲 Designar Funcionário para Obra</span>
+          </h3>
+          <p class="text-xs text-gray-500">Selecione o colaborador, escolha a obra e a data para enviar a convocação diretamente para o WhatsApp dele.</p>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o Colaborador:</label>
+            <select id="designar-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
+            <select id="designar-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Data de Início / Presença:</label>
+            <input type="date" id="designar-data" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Instruções ou Recomendações do Projeto:</label>
+            <textarea id="designar-instrucao" rows="3" placeholder="Ex: Comparecer às 07h30 com os EPIs completos, nível a laser e fita métrica." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+          </div>
+
+          <button onclick="confirmarEEnviarDesignacao()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer flex items-center justify-center gap-2">
+            <span>💬</span> DESIGNAR E ENVIAR CONVOCAÇÃO VIA WHATSAPP
+          </button>
+        </div>
+
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Histórico de Convocações / Designações</h3>
+          <div id="lista-designacoes" class="space-y-2 text-sm divide-y">
+            <!-- Carregado via JS -->
+          </div>
         </div>
       </div>
 
@@ -477,8 +522,8 @@
     ];
 
     const DEFAULT_EQUIPE = [
-      { id: '1', nome: 'Carlos Silva', diaria: 220.00, pin: '1234', ativo: true },
-      { id: '2', nome: 'Marcos Oliveira', diaria: 250.00, pin: '5678', ativo: true }
+      { id: '1', nome: 'Carlos Silva', diaria: 220.00, pin: '1234', whatsapp: '5511999998888', ativo: true },
+      { id: '2', nome: 'Marcos Oliveira', diaria: 250.00, pin: '5678', whatsapp: '5577999997777', ativo: true }
     ];
 
     // Carregamento de storage com fallbacks
@@ -488,6 +533,7 @@
     let vales = JSON.parse(localStorage.getItem('tre_vales')) || [];
     let fotosObra = JSON.parse(localStorage.getItem('tre_fotos_obra')) || [];
     let pdfsObra = JSON.parse(localStorage.getItem('tre_pdfs_obra')) || [];
+    let designacoes = JSON.parse(localStorage.getItem('tre_designacoes')) || [];
 
     function salvarTudo() {
       localStorage.setItem('tre_obras', JSON.stringify(obras));
@@ -496,6 +542,7 @@
       localStorage.setItem('tre_vales', JSON.stringify(vales));
       localStorage.setItem('tre_fotos_obra', JSON.stringify(fotosObra));
       localStorage.setItem('tre_pdfs_obra', JSON.stringify(pdfsObra));
+      localStorage.setItem('tre_designacoes', JSON.stringify(designacoes));
     }
 
     // Inicialização da Página
@@ -504,6 +551,7 @@
       const hoje = new Date().toISOString().split('T')[0];
       document.getElementById('ponto-data').value = hoje;
       document.getElementById('vale-data').value = hoje;
+      document.getElementById('designar-data').value = hoje;
 
       // Popular Seletor de Anos no Fechamento
       const anoSelect = document.getElementById('fechamento-ano');
@@ -523,9 +571,8 @@
     });
 
     function populardropdowns() {
-      // Preencher funcionários ativos nos dropdowns da visão do funcionário
-      const funcSelects = ['ponto-funcionario', 'vale-funcionario', 'foto-funcionario', 'modal-whatsapp-funcionario'];
-      
+      // Preencher funcionários ativos nos dropdowns
+      const funcSelects = ['ponto-funcionario', 'vale-funcionario', 'foto-funcionario', 'modal-whatsapp-funcionario', 'designar-funcionario'];
       const funcionariosAtivos = equipe.filter(e => e.ativo !== false);
 
       funcSelects.forEach(id => {
@@ -533,12 +580,13 @@
         if (!el) return;
         el.innerHTML = '<option value="">Selecione o Funcionário...</option>';
         funcionariosAtivos.forEach(f => {
-          el.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
+          const zapInfo = f.whatsapp ? ` (${f.whatsapp})` : '';
+          el.innerHTML += `<option value="${f.id}">${f.nome}${zapInfo}</option>`;
         });
       });
 
       // Preencher Obras nos dropdowns
-      const obraSelects = ['ponto-obra', 'consulta-pdf-obra', 'vale-obra', 'foto-obra'];
+      const obraSelects = ['ponto-obra', 'consulta-pdf-obra', 'vale-obra', 'foto-obra', 'designar-obra'];
       obraSelects.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -584,9 +632,10 @@
       document.getElementById(`aba-${aba}`).classList.remove('hidden');
 
       // Atualizar botões de abas
-      const abas = ['obras', 'equipe', 'presencas', 'comprovantes', 'fechamento'];
+      const abas = ['obras', 'equipe', 'designar', 'presencas', 'comprovantes', 'fechamento'];
       abas.forEach(a => {
         const btn = document.getElementById(`tab-btn-${a}`);
+        if (!btn) return;
         if (a === aba) {
           btn.className = "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5";
         } else {
@@ -597,6 +646,7 @@
       // Carregar dados específicos de cada aba
       if (aba === 'obras') renderizarObras();
       if (aba === 'equipe') renderizarEquipe();
+      if (aba === 'designar') renderizarDesignacoes();
       if (aba === 'presencas') carregarPresencas();
       if (aba === 'comprovantes') carregarValesAdmin();
       if (aba === 'fechamento') calcularFechamentoMensal();
@@ -716,7 +766,6 @@
       }
     }
 
-    // AJUSTE: SUPORTE A MÚLTIPLAS FOTOS E VÍDEOS NA GALERIA DA OBRA
     function enviarFotoObra() {
       const funcId = document.getElementById('foto-funcionario').value;
       const obraId = document.getElementById('foto-obra').value;
@@ -853,7 +902,7 @@
                 💬 Aviso Whats
               </button>
               <button onclick="excluirObra('${o.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition">
-                🗑️
+                🗑️️
               </button>
             </div>
           </li>
@@ -870,7 +919,7 @@
       }
     }
 
-    // GESTÃO DE MÚLTIPLOS PDFS DA OBRA (CORRIGIDA)
+    // GESTÃO DE MÚLTIPLOS PDFS DA OBRA
     function abrirModalPdf(obraId) {
       const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
@@ -880,7 +929,7 @@
       document.getElementById('pdf-titulo-input').value = '';
       
       const fileInput = document.getElementById('pdf-file-input');
-      fileInput.value = ''; // Limpa o seletor para evitar bloqueio ao reconectar
+      fileInput.value = '';
 
       renderizarListaPdfsModal(obraId);
       document.getElementById('modal-anexar-pdf').classList.remove('hidden');
@@ -963,7 +1012,7 @@
       document.getElementById('modal-anexar-pdf').classList.add('hidden');
     }
 
-    // GALERIA DA OBRA (COM SUPORTE A FOTOS E VÍDEOS)
+    // GALERIA DA OBRA
     function abrirGaleriaObra(obraId) {
       const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
@@ -1058,7 +1107,12 @@
 
       texto += `\nPor favor, confirme o recebimento e não se esqueça de bater o ponto na chegada!`;
 
-      const link = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+      // Limpar caracteres não numéricos do telefone do colaborador se existir
+      const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
+      const link = numLimpo 
+        ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+
       window.open(link, '_blank');
       fecharModalWhatsapp();
     }
@@ -1066,6 +1120,7 @@
     // EQUIPE
     function cadastrarFuncionario() {
       const nome = document.getElementById('func-nome').value.trim();
+      const whatsapp = document.getElementById('func-whatsapp').value.trim();
       const diaria = parseFloat(document.getElementById('func-diaria').value);
       const pin = document.getElementById('func-pin').value.trim();
 
@@ -1077,6 +1132,7 @@
       const novoFunc = {
         id: Date.now().toString(),
         nome,
+        whatsapp,
         diaria,
         pin,
         ativo: true
@@ -1087,6 +1143,7 @@
       populardropdowns();
       renderizarEquipe();
       document.getElementById('func-nome').value = '';
+      document.getElementById('func-whatsapp').value = '';
       document.getElementById('func-diaria').value = '';
       document.getElementById('func-pin').value = '';
     }
@@ -1096,7 +1153,7 @@
       const ativos = equipe.filter(f => f.ativo !== false);
 
       if (ativos.length === 0) {
-        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenum funcionário ativo.</li>';
+        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenhum funcionário ativo.</li>';
         return;
       }
 
@@ -1104,7 +1161,9 @@
         <li class="py-3 flex justify-between items-center">
           <div>
             <p class="font-bold text-blue-950">${f.nome}</p>
-            <p class="text-xs text-gray-500">Diária: R$ ${f.diaria.toFixed(2)} | PIN: ****</p>
+            <p class="text-xs text-gray-500">
+              📱 WhatsApp: ${f.whatsapp || 'Não cadastrado'} | Diária: R$ ${f.diaria.toFixed(2)} | PIN: ****
+            </p>
           </div>
           <button onclick="desativarFuncionario('${f.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
             Remover da Equipe Ativa
@@ -1122,6 +1181,104 @@
           populardropdowns();
           renderizarEquipe();
         }
+      }
+    }
+
+    /* =========================================================================
+       SISTEMA DE DESIGNAÇÃO DE OBRA E ENVIO DIRETO DE WHATSAPP
+       ========================================================================= */
+
+    function confirmarEEnviarDesignacao() {
+      const funcId = document.getElementById('designar-funcionario').value;
+      const obraId = document.getElementById('designar-obra').value;
+      const dataInicio = document.getElementById('designar-data').value;
+      const instrucao = document.getElementById('designar-instrucao').value.trim();
+
+      if (!funcId || !obraId || !dataInicio) {
+        alert("Selecione o colaborador, a obra e a data!");
+        return;
+      }
+
+      const func = equipe.find(f => f.id === funcId);
+      const obra = obras.find(o => o.id === obraId);
+
+      if (!func || !obra) return;
+
+      const novaDesignacao = {
+        id: Date.now().toString(),
+        funcionarioId: funcId,
+        obraId: obraId,
+        dataInicio: dataInicio,
+        instrucao: instrucao,
+        dataRegistro: new Date().toLocaleDateString('pt-BR')
+      };
+
+      designacoes.unshift(novaDesignacao);
+      salvarTudo();
+      renderizarDesignacoes();
+
+      // Montagem do texto do WhatsApp
+      let texto = `Olá *${func.nome}*, você foi escalado para uma obra pela *T.R.E. Montagens*!\n\n`;
+      texto += `🏗️ *Obra:* ${obra.nome}\n`;
+      texto += `📍 *Localização:* ${obra.local}\n`;
+      texto += `📅 *Data:* ${dataInicio.split('-').reverse().join('/')}\n`;
+
+      if (instrucao) {
+        texto += `📝 *Observações / Instruções:* ${instrucao}\n`;
+      }
+
+      texto += `\nPor favor, confirme o recebimento desta mensagem e lembre-se de registrar o ponto no aplicativo ao chegar no local!`;
+
+      // Tratamento do número
+      const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
+      let linkZap = '';
+
+      if (numLimpo) {
+        linkZap = `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`;
+      } else {
+        alert("Atenção: Este funcionário não tem número de WhatsApp cadastrado. O WhatsApp será aberto sem o número preenchido.");
+        linkZap = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+      }
+
+      window.open(linkZap, '_blank');
+
+      // Limpar campos
+      document.getElementById('designar-instrucao').value = '';
+    }
+
+    function renderizarDesignacoes() {
+      const container = document.getElementById('lista-designacoes');
+      if (!container) return;
+
+      if (designacoes.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 py-3">Nenhuma designação realizada recente.</p>';
+        return;
+      }
+
+      container.innerHTML = designacoes.slice(0, 10).map(d => {
+        const func = equipe.find(f => f.id === d.funcionarioId);
+        const obra = obras.find(o => o.id === d.obraId);
+
+        return `
+          <div class="py-3 flex justify-between items-center">
+            <div>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} ➔ ${obra ? obra.nome : 'Obra Removida'}</p>
+              <p class="text-xs text-gray-500">Data de Início: ${d.dataInicio} | Registrado em: ${d.dataRegistro}</p>
+              ${d.instrucao ? `<p class="text-xs text-emerald-700 italic">"${d.instrucao}"</p>` : ''}
+            </div>
+            <button onclick="removerDesignacao('${d.id}')" class="text-xs text-red-600 font-bold hover:underline">
+              Remover
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function removerDesignacao(id) {
+      if (confirm("Remover este registro de designação?")) {
+        designacoes = designacoes.filter(d => d.id !== id);
+        salvarTudo();
+        renderizarDesignacoes();
       }
     }
 
