@@ -346,14 +346,18 @@
       <!-- ABA EQUIPE -->
       <div id="aba-equipe" class="aba-content hidden space-y-6">
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar / Editar Funcionário</h3>
+          <h3 id="titulo-form-func" class="text-lg font-bold text-blue-950 mb-4">Cadastrar / Editar Funcionário</h3>
+          <input type="hidden" id="func-id-edit">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input type="text" id="func-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             <input type="text" id="func-whatsapp" placeholder="WhatsApp com DDD (Ex: 11999998888)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             <input type="number" step="0.01" id="func-diaria" placeholder="Valor da Diária (R$)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             <input type="text" id="func-pin" placeholder="PIN/Senha Pessoal (Ex: 9876)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
           </div>
-          <button onclick="cadastrarFuncionario()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Salvar Funcionário</button>
+          <div class="flex gap-2 mt-4">
+            <button id="btn-salvar-func" onclick="cadastrarFuncionario()" class="bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Salvar Funcionário</button>
+            <button id="btn-cancelar-edit" onclick="cancelarEdicaoFuncionario()" class="hidden bg-gray-400 text-white font-bold px-4 py-2.5 rounded-xl hover:bg-gray-500 transition shadow-md">Cancelar</button>
+          </div>
         </div>
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
@@ -886,7 +890,7 @@
       const { error } = await supabaseClient.from('obras').update({ pdf_url: pdfBase64 }).eq('id', obraId);
 
       if (error) {
-        alert("Erro ao anexar PDF: " + error.message + "\n\n(Verifique se a coluna 'pdf_url' existe na tabela 'obras')");
+        alert("Erro ao anexar PDF: " + error.message + "\n\n(Execute o comando SQL no Supabase: ALTER TABLE obras ADD COLUMN IF NOT EXISTS pdf_url TEXT;)");
       } else {
         alert("Projeto PDF anexado com sucesso!");
         fecharModalPdf();
@@ -977,6 +981,7 @@
 
     async function cadastrarFuncionario() {
       if(!supabaseClient) return alert("Sem conexão com o banco!");
+      const idEdit = document.getElementById('func-id-edit').value;
       const nome = document.getElementById('func-nome').value.trim();
       const whatsapp = document.getElementById('func-whatsapp').value.trim();
       const diaria = document.getElementById('func-diaria').value;
@@ -991,19 +996,45 @@
         pin: pin || null
       };
 
-      const { error } = await supabaseClient.from('funcionarios').insert([payload]);
-
-      if(error) {
-        alert("Erro ao salvar funcionário: " + error.message + "\n\n(Verifique se criou a coluna 'whatsapp' na tabela 'funcionarios')");
+      let res;
+      if (idEdit) {
+        res = await supabaseClient.from('funcionarios').update(payload).eq('id', idEdit);
       } else {
-        alert("Funcionário salvo com sucesso!");
-        document.getElementById('func-nome').value = '';
-        document.getElementById('func-whatsapp').value = '';
-        document.getElementById('func-diaria').value = '';
-        document.getElementById('func-pin').value = '';
+        res = await supabaseClient.from('funcionarios').insert([payload]);
+      }
+
+      if(res.error) {
+        alert("Erro ao salvar funcionário: " + res.error.message);
+      } else {
+        alert(idEdit ? "Funcionário atualizado com sucesso!" : "Funcionário cadastrado com sucesso!");
+        cancelarEdicaoFuncionario();
         await carregarFuncionarios();
         await carregarListasIniciais();
       }
+    }
+
+    function editarFuncionario(id, nome, whatsapp, diaria, pin) {
+      document.getElementById('func-id-edit').value = id;
+      document.getElementById('func-nome').value = nome;
+      document.getElementById('func-whatsapp').value = whatsapp !== 'null' ? whatsapp : '';
+      document.getElementById('func-diaria').value = diaria || 0;
+      document.getElementById('func-pin').value = pin !== 'null' ? pin : '';
+      
+      document.getElementById('titulo-form-func').innerText = "Editar Funcionário";
+      document.getElementById('btn-salvar-func').innerText = "Atualizar Funcionário";
+      document.getElementById('btn-cancelar-edit').classList.remove('hidden');
+    }
+
+    function cancelarEdicaoFuncionario() {
+      document.getElementById('func-id-edit').value = '';
+      document.getElementById('func-nome').value = '';
+      document.getElementById('func-whatsapp').value = '';
+      document.getElementById('func-diaria').value = '';
+      document.getElementById('func-pin').value = '';
+
+      document.getElementById('titulo-form-func').innerText = "Cadastrar / Editar Funcionário";
+      document.getElementById('btn-salvar-func').innerText = "Salvar Funcionário";
+      document.getElementById('btn-cancelar-edit').classList.add('hidden');
     }
 
     async function carregarFuncionarios() {
@@ -1028,7 +1059,10 @@
             <strong class="text-blue-950 font-bold">${f.nome}</strong>
             <p class="text-xs text-gray-500">WhatsApp: ${f.whatsapp || 'Não informado'} | Diária: R$ ${(f.valor_diaria || 0).toFixed(2)} | PIN: ${f.pin || 'Sem PIN'}</p>
           </div>
-          <button onclick="deletarFuncionario(${f.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1 rounded bg-red-50">Excluir</button>
+          <div class="flex items-center gap-2">
+            <button onclick="editarFuncionario(${f.id}, '${f.nome.replace(/'/g, "\\'")}', '${f.whatsapp}', ${f.valor_diaria}, '${f.pin}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold px-2.5 py-1 rounded bg-blue-50">Editar</button>
+            <button onclick="deletarFuncionario(${f.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold px-2.5 py-1 rounded bg-red-50">Excluir</button>
+          </div>
         </li>
       `).join('');
     }
