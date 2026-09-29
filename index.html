@@ -127,8 +127,8 @@
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">Link da Foto / Comprovante (URL):</label>
-        <input type="url" id="vale-comprovante-url" placeholder="https://..." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none">
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Foto / Comprovante (Galeria ou Câmera):</label>
+        <input type="file" id="vale-comprovante-file" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer">
       </div>
 
       <div>
@@ -168,8 +168,8 @@
       </div>
 
       <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">Link da Foto (URL):</label>
-        <input type="url" id="foto-url" placeholder="https://..." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+        <label class="block text-sm font-semibold mb-1 text-gray-700">Foto da Obra (Galeria ou Câmera):</label>
+        <input type="file" id="foto-file" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
       </div>
 
       <div>
@@ -360,6 +360,20 @@
       }
     });
 
+    // Função para converter arquivo de imagem para Base64
+    function converterArquivoParaBase64(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          resolve('');
+          return;
+        }
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
+
     function mostrarVisao(tipo) {
       document.getElementById('pantalla-login').classList.add('hidden');
       if(tipo === 'funcionario') {
@@ -467,7 +481,7 @@
       const valorInput = document.getElementById('vale-valor').value;
       const data = document.getElementById('vale-data').value;
       const descricao = document.getElementById('vale-descricao').value.trim();
-      const comprovanteUrl = document.getElementById('vale-comprovante-url').value.trim();
+      const fileInput = document.getElementById('vale-comprovante-file');
       const pin = document.getElementById('vale-pin').value;
 
       if(!funcId || !obraId) return alert("Selecione o seu nome e a obra!");
@@ -475,6 +489,11 @@
 
       const pinValido = await validarPinFuncionario(funcId, pin);
       if(!pinValido) return alert("PIN / Senha incorreta!");
+
+      let comprovanteUrl = '';
+      if (fileInput.files && fileInput.files[0]) {
+        comprovanteUrl = await converterArquivoParaBase64(fileInput.files[0]);
+      }
 
       const { error } = await supabaseClient.from('vales').insert([{
         funcionario_id: funcId,
@@ -491,26 +510,28 @@
         alert("Vale/Comprovante enviado com sucesso!");
         document.getElementById('vale-valor').value = '';
         document.getElementById('vale-descricao').value = '';
-        document.getElementById('vale-comprovante-url').value = '';
+        document.getElementById('vale-comprovante-file').value = '';
         document.getElementById('vale-pin').value = '';
       }
     }
 
-    // NOVO: REGISTRAR FOTO DA OBRA (GALERIA/FINALIZAÇÃO)
+    // REGISTRAR FOTO DA OBRA (GALERIA/FINALIZAÇÃO)
     async function enviarFotoObra() {
       if(!supabaseClient) return alert("Erro na conexão!");
       const funcId = document.getElementById('foto-funcionario').value;
       const obraId = document.getElementById('foto-obra').value;
       const tipo = document.getElementById('foto-tipo').value;
-      const fotoUrl = document.getElementById('foto-url').value.trim();
+      const fileInput = document.getElementById('foto-file');
       const observacao = document.getElementById('foto-observacao').value.trim();
       const pin = document.getElementById('foto-pin').value;
 
       if(!funcId || !obraId) return alert("Selecione o seu nome e a obra!");
-      if(!fotoUrl) return alert("Insira o link (URL) da foto!");
+      if(!fileInput.files || !fileInput.files[0]) return alert("Selecione ou tire uma foto para enviar!");
 
       const pinValido = await validarPinFuncionario(funcId, pin);
       if(!pinValido) return alert("PIN / Senha incorreta!");
+
+      const fotoUrl = await converterArquivoParaBase64(fileInput.files[0]);
 
       const { error } = await supabaseClient.from('fotos_obra').insert([{
         funcionario_id: funcId,
@@ -525,7 +546,7 @@
         alert("Erro ao enviar foto para a galeria: " + error.message + "\n\n(Verifique se a tabela 'fotos_obra' foi criada no Supabase)");
       } else {
         alert("Foto enviada com sucesso para a galeria da obra!");
-        document.getElementById('foto-url').value = '';
+        document.getElementById('foto-file').value = '';
         document.getElementById('foto-observacao').value = '';
         document.getElementById('foto-pin').value = '';
       }
