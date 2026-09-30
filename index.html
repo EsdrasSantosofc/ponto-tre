@@ -695,12 +695,20 @@
 
               </div>
 
-              <button
-                onclick="fecharModalGaleria()"
-                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm"
-              >
-                ✕ Fechar
-              </button>
+              <div class="flex items-center gap-2">
+                <button
+                  onclick="exportarGaleriaZip()"
+                  class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition"
+                >
+                  📥 Exportar Fotos (ZIP)
+                </button>
+                <button
+                  onclick="fecharModalGaleria()"
+                  class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm"
+                >
+                  ✕ Fechar
+                </button>
+              </div>
 
             </div>
 
@@ -1129,12 +1137,20 @@
               Vales, Ressarcimentos e Comprovantes Recebidos
             </h3>
 
-            <button
-              onclick="carregarValesAdmin()"
-              class="text-xs bg-orange-100 text-orange-900 px-3 py-1 rounded-lg font-bold hover:bg-orange-200"
-            >
-              Atualizar
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                onclick="exportarComprovantesZip()"
+                class="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-700 transition"
+              >
+                📥 Exportar Comprovantes (ZIP)
+              </button>
+              <button
+                onclick="carregarValesAdmin()"
+                class="text-xs bg-orange-100 text-orange-900 px-3 py-1.5 rounded-lg font-bold hover:bg-orange-200"
+              >
+                Atualizar
+              </button>
+            </div>
 
           </div>
 
@@ -1304,6 +1320,8 @@
   <!-- =========================================================
        JAVASCRIPT
        ========================================================= -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script>
 
     /* =========================================================
@@ -2543,7 +2561,9 @@
               new Date()
                 .toLocaleDateString(
                   'pt-BR'
-                )
+                ),
+
+            fileName: file.name
 
           };
 
@@ -3240,9 +3260,13 @@
        GALERIA
        ========================================================= */
 
+    let obraGaleriaAtualId = null;
+
     function abrirGaleriaObra(
       obraId
     ) {
+
+      obraGaleriaAtualId = obraId;
 
       const obra =
         obras.find(
@@ -3339,7 +3363,14 @@
                     "${f.observacao || 'Sem observações'}"
                   </p>
 
-                  <div class="pt-2 text-right">
+                  <div class="pt-2 flex justify-between items-center">
+                    <a
+                      href="${f.imagem}"
+                      download="obra-foto-${f.id}.${f.isVideo ? 'mp4' : 'jpg'}"
+                      class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded hover:bg-emerald-200 transition"
+                    >
+                      💾 Salvar Foto
+                    </a>
 
                     <button
                       onclick="excluirFotoObra('${f.id}', '${obraId}')"
@@ -3347,7 +3378,6 @@
                     >
                       Excluir Arquivo
                     </button>
-
                   </div>
 
                 </div>
@@ -3369,6 +3399,51 @@
           'hidden'
         );
 
+    }
+
+
+    async function exportarGaleriaZip() {
+      if (!obraGaleriaAtualId) return;
+
+      const obra = obras.find(o => o.id === obraGaleriaAtualId);
+      const fotos = fotosObra.filter(f => f.obraId === obraGaleriaAtualId);
+
+      if (fotos.length === 0) {
+        alert("Não há fotos para exportar nesta obra.");
+        return;
+      }
+
+      if (typeof JSZip === 'undefined') {
+        alert("Biblioteca JSZip não carregada.");
+        return;
+      }
+
+      const zip = new JSZip();
+      const pastaFotos = zip.folder("fotos_obra");
+
+      fotos.forEach((f, index) => {
+        if (f.imagem && f.imagem.includes(',')) {
+          const arr = f.imagem.split(',');
+          const mime = arr[0].match(/:(.*?);/)[1];
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          const ext = mime.includes('video') ? 'mp4' : 'jpg';
+          const nomeArquivo = `foto_${index + 1}_${f.tipo}.${ext}`;
+          pastaFotos.file(nomeArquivo, u8arr);
+        }
+      });
+
+      try {
+        const content = await zip.generateAsync({ type: "blob" });
+        saveAs(content, `Galeria_Obra_${obra ? obra.nome.replace(/\s+/g, '_') : 'Export'}.zip`);
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao gerar arquivo ZIP.");
+      }
     }
 
 
@@ -4347,7 +4422,7 @@
               ${
                 v.comprovante
                   ? `
-                    <div class="pt-2">
+                    <div class="pt-2 flex items-center gap-2">
 
                       <a
                         href="${v.comprovante}"
@@ -4356,6 +4431,14 @@
                         class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-3 py-1.5 rounded-lg border inline-flex items-center gap-1"
                       >
                         🖼️ Ver Comprovante / Foto
+                      </a>
+
+                      <a
+                        href="${v.comprovante}"
+                        download="comprovante-${v.id}.jpg"
+                        class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-lg border inline-flex items-center gap-1"
+                      >
+                        💾 Salvar Comprovante
                       </a>
 
                     </div>
@@ -4381,6 +4464,49 @@
 
         }).join('');
 
+    }
+
+
+    async function exportarComprovantesZip() {
+      const valesComComprovante = vales.filter(v => v.comprovante);
+
+      if (valesComComprovante.length === 0) {
+        alert("Não há comprovantes com imagem para exportar.");
+        return;
+      }
+
+      if (typeof JSZip === 'undefined') {
+        alert("Biblioteca JSZip não carregada.");
+        return;
+      }
+
+      const zip = new JSZip();
+      const pastaComprovantes = zip.folder("comprovantes_vales");
+
+      valesComComprovante.forEach((v, index) => {
+        const func = equipe.find(f => f.id === v.funcionarioId);
+        const nomeFunc = func ? func.nome.replace(/\s+/g, '_') : 'colaborador';
+        if (v.comprovante && v.comprovante.includes(',')) {
+          const arr = v.comprovante.split(',');
+          const mime = arr[0].match(/:(.*?);/)[1];
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          const nomeArquivo = `${index + 1}_${nomeFunc}_${v.tipo}_${v.data}.jpg`;
+          pastaComprovantes.file(nomeArquivo, u8arr);
+        }
+      });
+
+      try {
+        const content = await zip.generateAsync({ type: "blob" });
+        saveAs(content, "Comprovantes_Vales_T_R_E.zip");
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao gerar arquivo ZIP de comprovantes.");
+      }
     }
 
 
@@ -4681,40 +4807,21 @@
         XLSX.utils.table_to_book(
           table,
           {
-            sheet:
-              "Fechamento T.R.E"
+            sheet: "Fechamento Mensal"
           }
         );
 
 
-      const mesSelect =
-        document.getElementById(
-          'fechamento-mes'
-        );
-
-
-      const mesTxt =
-        mesSelect.options[
-          mesSelect.selectedIndex
-        ].text;
-
-
-      const anoTxt =
-        document.getElementById(
-          'fechamento-ano'
-        ).value;
-
-
       XLSX.writeFile(
         wb,
-        `Fechamento_TRE_${mesTxt}_${anoTxt}.xlsx`
+        "Fechamento_TRE_Montagens.xlsx"
       );
 
     }
 
 
     /* =========================================================
-       PDF
+       PDF FECHAMENTO
        ========================================================= */
 
     function exportarPdfFechamento() {
@@ -4739,297 +4846,28 @@
         );
 
 
-      const mesSelect =
-        document.getElementById(
-          'fechamento-mes'
-        );
-
-
-      const mesTxt =
-        mesSelect.options[
-          mesSelect.selectedIndex
-        ].text;
-
-
-      const anoTxt =
-        document.getElementById(
-          'fechamento-ano'
-        ).value;
-
-
       const opt = {
 
-        margin: 0.5,
+        margin:       10,
 
-        filename:
-          `Fechamento_TRE_${mesTxt}_${anoTxt}.pdf`,
+        filename:     'Fechamento_TRE_Montagens.pdf',
 
-        image: {
-          type: 'jpeg',
-          quality: 0.98
-        },
+        image:        { type: 'jpeg', quality: 0.98 },
 
-        html2canvas: {
-          scale: 2
-        },
+        html2canvas:  { scale: 2, useCORS: true },
 
-        jsPDF: {
-          unit: 'in',
-          format: 'letter',
-          orientation: 'landscape'
-        }
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
 
       };
 
 
       html2pdf()
-        .set(opt)
         .from(element)
+        .set(opt)
         .save();
 
     }
 
   </script>
-
 </body>
-<!-- =========================================================
-     MÓDULO DE EFEITOS SONOROS (NÃO MODIFICA O APP ORIGINAL)
-     ========================================================= -->
-<script>
-  // Criação do contexto de áudio para efeitos sonoros profissionais e imersivos
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-
-  function iniciarAudioContext() {
-    if (!audioCtx) {
-      audioCtx = new AudioContext();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  }
-
-  // Som de Clique / Confirmação padrão (Estilo Botão Premium)
-  function tocarSomClique() {
-    try {
-      iniciarAudioContext();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Dó agudo agradável (D5)
-      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-
-      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.08);
-    } catch (e) {
-      console.log("Áudio pendente de interação do usuário");
-    }
-  }
-
-  // Som de Ação de Obra / Parafusadeira / Ferramenta Elétrica
-  function tocarSomParafusadeira() {
-    try {
-      iniciarAudioContext();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      
-      // Simula o ronco mecânico de uma parafusadeira/furadeira de obra
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-      osc.frequency.linearRampToValueAtTime(320, audioCtx.currentTime + 0.15);
-      osc.frequency.setValueAtTime(280, audioCtx.currentTime + 0.2);
-      osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.35);
-
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.35);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  // Som de Confirmação de Sucesso (Bateu Ponto / Enviou Vale)
-  function tocarSomSucessoObra() {
-    try {
-      iniciarAudioContext();
-      const agora = audioCtx.currentTime;
-
-      // Acorde duplo de confirmação
-      [523.25, 659.25, 783.99].forEach((freq, index) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, agora + (index * 0.08));
-
-        gain.gain.setValueAtTime(0.12, agora + (index * 0.08));
-        gain.gain.exponentialRampToValueAtTime(0.001, agora + (index * 0.08) + 0.2);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start(agora + (index * 0.08));
-        osc.stop(agora + (index * 0.08) + 0.2);
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  // Identifica automaticamente os botões e aplica os sons corretos baseados no contexto da obra
-  document.addEventListener('DOMContentLoaded', () => {
-    document.addEventListener('click', (e) => {
-      const target = e.target.closest('button');
-      if (!target) return;
-
-      const textoBotao = target.innerText.toLowerCase();
-
-      // Se for botão de bater ponto, enviar vale, designar ou salvar (ações principais de obra)
-      if (
-        textoBotao.includes('ponto') || 
-        textoBotao.includes('enviar') || 
-        textoBotao.includes('cadastrar') || 
-        textoBotao.includes('designar')
-      ) {
-        tocarSomParafusadeira();
-        setTimeout(tocarSomSucessoObra, 350);
-      } 
-      // Demais botões (navegação, abas, fechar modais) ganham o som de clique tátil refinado
-      else {
-        tocarSomClique();
-      }
-    });
-  });
-</script>
-<!-- =========================================================
-     MÓDULO DE ÁUDIO E UPLOAD DE FOTOS PARA A ABA DO PATRÃO
-     ========================================================= -->
-<script>
-  // 1. SISTEMA DE ÁUDIOS DE OBRA
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-
-  function iniciarAudioContext() {
-    if (!audioCtx) audioCtx = new AudioContext();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  }
-
-  function tocarSomClique() {
-    try {
-      iniciarAudioContext();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.08);
-    } catch (e) {}
-  }
-
-  function tocarSomParafusadeira() {
-    try {
-      iniciarAudioContext();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-      osc.frequency.linearRampToValueAtTime(320, audioCtx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.35);
-    } catch (e) {}
-  }
-
-  function tocarSomSucessoObra() {
-    try {
-      iniciarAudioContext();
-      const agora = audioCtx.currentTime;
-      [523.25, 659.25, 783.99].forEach((freq, index) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, agora + (index * 0.08));
-        gain.gain.setValueAtTime(0.12, agora + (index * 0.08));
-        gain.gain.exponentialRampToValueAtTime(0.001, agora + (index * 0.08) + 0.2);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(agora + (index * 0.08));
-        osc.stop(agora + (index * 0.08) + 0.2);
-      });
-    } catch (e) {}
-  }
-
-  // 2. INJEÇÃO AUTOMÁTICA DO BOTÃO E UPLOAD DE FOTOS NA ABA DO PATRÃO
-  document.addEventListener('DOMContentLoaded', () => {
-    // Monitor de cliques para os sons
-    document.addEventListener('click', (e) => {
-      const target = e.target.closest('button');
-      if (!target) return;
-      const texto = target.innerText.toLowerCase();
-      if (texto.includes('ponto') || texto.includes('enviar') || texto.includes('cadastrar') || texto.includes('designar')) {
-        tocarSomParafusadeira();
-        setTimeout(tocarSomSucessoObra, 350);
-      } else {
-        tocarSomClique();
-      }
-    });
-
-    // Tenta injetar o campo de foto na aba do patrão de forma inteligente
-    setTimeout(() => {
-      // Procura por elementos que costumam ser a aba do patrão (ajuste o seletor se necessário)
-      const abaPatrao = document.querySelector('#patrao, .patrao, [id*="patrao"], [class*="patrao"]');
-      
-      if (abaPatrao && !document.getElementById('blocoFotoObraAuto')) {
-        const containerDiv = document.createElement('div');
-        containerDiv.id = 'blocoFotoObraAuto';
-        containerDiv.style.cssText = 'margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; border: 1px dashed #ccc;';
-        
-        containerDiv.innerHTML = `
-          <label style="display:block; margin-bottom: 8px; font-weight: bold; font-size: 14px;">📸 Enviar Foto da Obra (Galeria):</label>
-          <input type="file" id="inputFotoObraGaleria" accept="image/*" style="width: 100%; margin-bottom: 8px;">
-          <button type="button" id="btnSalvarFotoObra" style="padding: 8px 12px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Salvar Foto da Obra</button>
-        `;
-        
-        abaPatrao.appendChild(containerDiv);
-
-        // Lógica de processamento da foto ao clicar no botão criado
-        document.getElementById('btnSalvarFotoObra').addEventListener('click', () => {
-          const fileInput = document.getElementById('inputFotoObraGaleria');
-          if (fileInput.files && fileInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-              localStorage.setItem('fotoUltimaObraPatrao', evt.target.result);
-              tocarSomSucessoObra();
-              alert('Foto da galeria salva com sucesso no sistema!');
-            };
-            reader.readAsDataURL(fileInput.files[0]);
-          } else {
-            alert('Escolha uma foto da galeria primeiro.');
-          }
-        });
-      }
-    }, 1000);
-  });
-</script>
-
 </html>
