@@ -711,7 +711,7 @@
     }
 
     /* =========================================================================
-       REGRAS DA VISÃO DO FUNCIONÁRIO (COM TRAVA ANTI-DUPLICAÇÃO E GPS)
+       REGRAS DA VISÃO DO FUNCIONÁRIO
        ========================================================================= */
 
     function validarPin(funcId, pinDigitado) {
@@ -736,7 +736,6 @@
         return;
       }
 
-      // TRAVA DE BOTÃO
       btn.disabled = true;
       btn.innerText = "🌐 OBTENDO GPS E REGISTRANDO...";
 
@@ -1334,12 +1333,12 @@
 
         return `
           <tr class="hover:bg-gray-50">
-            <td class="p-3 font-semibold text-gray-800">${p.data} <span class="text-xs text-gray-400">(${p.hora || ''})</span></td>
-            <td class="p-3 font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
-            <td class="p-3 text-gray-600">${obra ? obra.nome : 'Obra Desconhecida'}</td>
-            <td class="p-3">${gpsHtml}</td>
-            <td class="p-3 text-right">
-              <button onclick="excluirPonto('${p.id}')" class="text-red-600 hover:text-red-800 font-bold text-xs">Excluir</button>
+            <td class="p-3 border-b text-xs font-semibold text-gray-700">${p.data} ${p.hora ? `(${p.hora})` : ''}</td>
+            <td class="p-3 border-b text-xs font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
+            <td class="p-3 border-b text-xs text-gray-600">${obra ? obra.nome : 'Desconhecida'}</td>
+            <td class="p-3 border-b">${gpsHtml}</td>
+            <td class="p-3 border-b text-right">
+              <button onclick="excluirPonto('${p.id}')" class="text-xs text-red-600 font-bold hover:underline">Excluir</button>
             </td>
           </tr>
         `;
@@ -1347,7 +1346,7 @@
     }
 
     function excluirPonto(id) {
-      if (confirm("Excluir este ponto?")) {
+      if (confirm("Deseja excluir este registro de ponto?")) {
         pontos = pontos.filter(p => p.id !== id);
         salvarTudo();
         carregarPresencas();
@@ -1357,41 +1356,43 @@
     function carregarValesAdmin() {
       const container = document.getElementById('container-vales-admin');
       if (vales.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4">Nenhum vale ou ressarcimento recebido.</p>';
+        container.innerHTML = '<p class="col-span-2 text-xs text-gray-500 py-4 text-center">Nenhum vale ou ressarcimento cadastrado.</p>';
         return;
       }
 
       container.innerHTML = vales.map(v => {
         const func = equipe.find(f => f.id === v.funcionarioId);
         const obra = obras.find(o => o.id === v.obraId);
-        const tipoItem = v.tipo || 'Vale';
-        const isRessarcimento = tipoItem === 'Ressarcimento';
+        const isRessarcimento = v.tipo === 'Ressarcimento';
 
         return `
-          <div class="card-acustico-blur p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex justify-between items-start mb-2">
-                <div>
-                  <h4 class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</h4>
-                  <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'N/A'}</p>
-                </div>
-                <div class="text-right">
-                  <span class="text-xs font-bold px-2 py-0.5 rounded-full ${isRessarcimento ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}">${tipoItem}</span>
-                  <p class="text-sm font-extrabold ${isRessarcimento ? 'text-blue-700' : 'text-orange-600'} mt-1">R$ ${v.valor.toFixed(2)}</p>
-                </div>
+          <div class="card-acustico-blur p-4 rounded-xl border-l-4 ${isRessarcimento ? 'border-blue-600' : 'border-red-500'} shadow-sm space-y-2">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full ${isRessarcimento ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
+                  ${v.tipo || 'Vale'}
+                </span>
+                <h4 class="font-bold text-blue-950 text-base mt-1">${func ? func.nome : 'Ex-colaborador'}</h4>
+                <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Obra Desconhecida'}</p>
               </div>
-              <p class="text-xs text-gray-700 font-medium mb-1">Motivo: ${v.descricao || 'Sem descrição'}</p>
-              <p class="text-[10px] text-gray-400 mb-3">Data: ${v.data}</p>
-
-              ${v.comprovante ? `
-                <a href="${v.comprovante}" target="_blank" class="block mb-2">
-                  <img src="${v.comprovante}" class="w-full h-32 object-cover rounded-lg border hover:opacity-90 transition" alt="Comprovante">
-                </a>
-              ` : '<p class="text-xs text-gray-400 italic mb-2">Sem foto anexada</p>'}
+              <div class="text-right">
+                <p class="font-extrabold text-lg ${isRessarcimento ? 'text-blue-700' : 'text-red-600'}">R$ ${v.valor.toFixed(2)}</p>
+                <p class="text-[10px] text-gray-400">${v.data}</p>
+              </div>
             </div>
+            
+            ${v.descricao ? `<p class="text-xs text-gray-700 bg-gray-50 p-2 rounded-lg border"><strong>Motivo:</strong> ${v.descricao}</p>` : ''}
+            
+            ${v.comprovante ? `
+              <div class="pt-2">
+                <a href="${v.comprovante}" target="_blank" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-3 py-1.5 rounded-lg border inline-flex items-center gap-1">
+                  🖼️ Ver Comprovante / Foto
+                </a>
+              </div>
+            ` : ''}
 
-            <div class="text-right pt-2 border-t">
-              <button onclick="excluirVale('${v.id}')" class="text-xs text-red-600 hover:text-red-800 font-bold">Excluir Registro</button>
+            <div class="pt-2 text-right">
+              <button onclick="excluirVale('${v.id}')" class="text-xs text-red-600 font-bold hover:underline">Remover Lançamento</button>
             </div>
           </div>
         `;
@@ -1399,7 +1400,7 @@
     }
 
     function excluirVale(id) {
-      if (confirm("Deseja excluir este registro?")) {
+      if (confirm("Deseja remover este registro financeiro?")) {
         vales = vales.filter(v => v.id !== id);
         salvarTudo();
         carregarValesAdmin();
@@ -1407,106 +1408,84 @@
     }
 
     function calcularFechamentoMensal() {
-      const mesSelecionado = parseInt(document.getElementById('fechamento-mes').value);
-      const anoSelecionado = parseInt(document.getElementById('fechamento-ano').value);
+      const mes = parseInt(document.getElementById('fechamento-mes').value);
+      const ano = parseInt(document.getElementById('fechamento-ano').value);
       const tabela = document.getElementById('tabela-fechamento');
 
-      const pontosDoMes = pontos.filter(p => {
-        if (!p.data) return false;
-        const partes = p.data.split('-');
-        if (partes.length === 3) {
-          return parseInt(partes[0]) === anoSelecionado && (parseInt(partes[1]) - 1) === mesSelecionado;
-        }
-        return false;
-      });
+      tabela.innerHTML = '';
 
-      const valesDoMes = vales.filter(v => {
-        if (!v.data) return false;
-        const partes = v.data.split('-');
-        if (partes.length === 3) {
-          return parseInt(partes[0]) === anoSelecionado && (parseInt(partes[1]) - 1) === mesSelecionado;
-        }
-        return false;
-      });
+      equipe.forEach(func => {
+        // Filtrar pontos do mês/ano
+        const pontosMes = pontos.filter(p => {
+          if (p.funcionarioId !== func.id) return false;
+          const [pAno, pMes] = p.data.split('-').map(Number);
+          return pAno === ano && (pMes - 1) === mes;
+        });
 
-      if (equipe.length === 0) {
-        tabela.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum funcionário cadastrado.</td></tr>';
-        return;
-      }
-
-      let totalGeralBruto = 0, totalGeralRessarcimentos = 0, totalGeralVales = 0, totalGeralLiquido = 0;
-
-      const linhasHtml = equipe.map(func => {
-        const diasTrabalhados = pontosDoMes.filter(p => p.funcionarioId === func.id).length;
-        
-        const lancamentosFunc = valesDoMes.filter(v => v.funcionarioId === func.id);
-
-        const totalValesFunc = lancamentosFunc
-          .filter(v => (v.tipo || 'Vale') === 'Vale')
-          .reduce((sum, v) => sum + parseFloat(v.valor || 0), 0);
-
-        const totalRessarcimentosFunc = lancamentosFunc
-          .filter(v => v.tipo === 'Ressarcimento')
-          .reduce((sum, v) => sum + parseFloat(v.valor || 0), 0);
-
+        // Contar dias únicos trabalhados
+        const diasTrabalhados = new Set(pontosMes.map(p => p.data)).size;
         const totalBruto = diasTrabalhados * func.diaria;
-        const saldoLiquido = (totalBruto + totalRessarcimentosFunc) - totalValesFunc;
 
-        totalGeralBruto += totalBruto;
-        totalGeralRessarcimentos += totalRessarcimentosFunc;
-        totalGeralVales += totalValesFunc;
-        totalGeralLiquido += saldoLiquido;
+        // Filtrar vales e ressarcimentos do mês/ano
+        const lancamentosMes = vales.filter(v => {
+          if (v.funcionarioId !== func.id) return false;
+          const [vAno, vMes] = v.data.split('-').map(Number);
+          return vAno === ano && (vMes - 1) === mes;
+        });
 
-        return `
-          <tr class="hover:bg-gray-50">
-            <td class="p-3 font-bold text-blue-950">${func.nome} ${func.ativo === false ? '<span class="text-[10px] text-red-500 font-normal">(Inativo)</span>' : ''}</td>
-            <td class="p-3 text-center text-gray-600">R$ ${func.diaria.toFixed(2)}</td>
-            <td class="p-3 text-center font-bold text-gray-800">${diasTrabalhados}</td>
-            <td class="p-3 text-right font-semibold text-gray-800">R$ ${totalBruto.toFixed(2)}</td>
-            <td class="p-3 text-right font-semibold text-blue-700">R$ ${totalRessarcimentosFunc.toFixed(2)}</td>
-            <td class="p-3 text-right font-semibold text-red-600">R$ ${totalValesFunc.toFixed(2)}</td>
-            <td class="p-3 text-right font-extrabold ${saldoLiquido >= 0 ? 'text-emerald-700' : 'text-red-700'}">R$ ${saldoLiquido.toFixed(2)}</td>
-          </tr>
-        `;
-      }).join('');
+        const totalVales = lancamentosMes
+          .filter(v => v.tipo !== 'Ressarcimento')
+          .reduce((acc, v) => acc + v.valor, 0);
 
-      const linhaTotal = `
-        <tr class="bg-blue-950 text-white font-bold text-sm">
-          <td class="p-3">TOTAL GERAL</td>
-          <td class="p-3 text-center">-</td>
-          <td class="p-3 text-center">-</td>
-          <td class="p-3 text-right text-emerald-400">R$ ${totalGeralBruto.toFixed(2)}</td>
-          <td class="p-3 text-right text-blue-300">R$ ${totalGeralRessarcimentos.toFixed(2)}</td>
-          <td class="p-3 text-right text-red-300">R$ ${totalGeralVales.toFixed(2)}</td>
-          <td class="p-3 text-right text-orange-400">R$ ${totalGeralLiquido.toFixed(2)}</td>
-        </tr>
-      `;
+        const totalRessarcimentos = lancamentosMes
+          .filter(v => v.tipo === 'Ressarcimento')
+          .reduce((acc, v) => acc + v.valor, 0);
 
-      tabela.innerHTML = linhasHtml + linhaTotal;
+        const saldoAPagar = totalBruto + totalRessarcimentos - totalVales;
+
+        if (diasTrabalhados > 0 || totalVales > 0 || totalRessarcimentos > 0) {
+          const row = document.createElement('tr');
+          row.className = "hover:bg-gray-50 border-b";
+          row.innerHTML = `
+            <td class="p-3 font-bold text-blue-950">${func.nome}</td>
+            <td class="p-3 text-center text-xs">R$ ${func.diaria.toFixed(2)}</td>
+            <td class="p-3 text-center font-bold text-gray-700">${diasTrabalhados}</td>
+            <td class="p-3 text-right font-semibold">R$ ${totalBruto.toFixed(2)}</td>
+            <td class="p-3 text-right font-semibold text-blue-700">+ R$ ${totalRessarcimentos.toFixed(2)}</td>
+            <td class="p-3 text-right font-semibold text-red-600">- R$ ${totalVales.toFixed(2)}</td>
+            <td class="p-3 text-right font-extrabold text-emerald-700 text-base">R$ ${saldoAPagar.toFixed(2)}</td>
+          `;
+          tabela.appendChild(row);
+        }
+      });
+
+      if (tabela.children.length === 0) {
+        tabela.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum registro encontrado para este mês/ano.</td></tr>';
+      }
     }
 
     function exportarExcelFechamento() {
-      const tabela = document.getElementById('tabela-fechamento-export');
-      const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento Mensal" });
-      const mes = document.getElementById('fechamento-mes').selectedOptions[0].text;
-      const ano = document.getElementById('fechamento-ano').value;
-      XLSX.writeFile(wb, `Fechamento_TRE_Montagens_${mes}_${ano}.xlsx`);
+      const table = document.getElementById("tabela-fechamento-export");
+      const wb = XLSX.utils.table_to_book(table, { sheet: "Fechamento T.R.E" });
+      const mesTxt = document.getElementById('fechamento-mes').options[document.getElementById('fechamento-mes').selectedIndex].text;
+      const anoTxt = document.getElementById('fechamento-ano').value;
+      XLSX.writeFile(wb, `Fechamento_TRE_${mesTxt}_${anoTxt}.xlsx`);
     }
 
     function exportarPdfFechamento() {
-      const elemento = document.getElementById('area-impressao-fechamento');
-      const mes = document.getElementById('fechamento-mes').selectedOptions[0].text;
-      const ano = document.getElementById('fechamento-ano').value;
+      const element = document.getElementById('area-impressao-fechamento');
+      const mesTxt = document.getElementById('fechamento-mes').options[document.getElementById('fechamento-mes').selectedIndex].text;
+      const anoTxt = document.getElementById('fechamento-ano').value;
 
       const opt = {
-        margin:       0.3,
-        filename:     `Fechamento_TRE_Montagens_${mes}_${ano}.pdf`,
+        margin:       0.5,
+        filename:     `Fechamento_TRE_${mesTxt}_${anoTxt}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
       };
 
-      html2pdf().set(opt).from(elemento).save();
+      html2pdf().set(opt).from(element).save();
     }
   </script>
 </body>
