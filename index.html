@@ -14,6 +14,10 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Bibliotecas para Exportação (Excel & PDF) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <style>
     /* Papel de Parede Temático: Acabamento Acústico de Alto Padrão */
     .bg-acustico-premium {
@@ -423,6 +427,7 @@
                   <th class="p-3 border-b">Data</th>
                   <th class="p-3 border-b">Funcionário</th>
                   <th class="p-3 border-b">Obra</th>
+                  <th class="p-3 border-b">GPS / Localização</th>
                   <th class="p-3 border-b text-right">Ações</th>
                 </tr>
               </thead>
@@ -445,14 +450,14 @@
 
       <!-- ABA FECHAMENTO -->
       <div id="aba-fechamento" class="aba-content hidden space-y-6">
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600">
+        <div id="area-impressao-fechamento" class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b pb-4">
             <div>
               <h3 class="text-xl font-bold text-blue-950">📊 Fechamento Mensal e Balanço de Diárias</h3>
               <p class="text-xs text-gray-500">Histórico de pagamentos, vales, ressarcimentos e saldos calculados por período</p>
             </div>
             
-            <div class="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded-xl border">
+            <div class="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded-xl border" data-html2pdf-ignore="true">
               <div>
                 <label class="block text-[10px] font-bold uppercase text-gray-500">Mês:</label>
                 <select id="fechamento-mes" onchange="calcularFechamentoMensal()" class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500">
@@ -482,8 +487,18 @@
             </div>
           </div>
 
+          <!-- BOTÕES DE EXPORTAÇÃO (PDF / EXCEL) -->
+          <div class="flex flex-wrap gap-2 mb-4 justify-end" data-html2pdf-ignore="true">
+            <button onclick="exportarExcelFechamento()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 transition">
+              <span>📗</span> Exportar para Excel
+            </button>
+            <button onclick="exportarPdfFechamento()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 transition">
+              <span>📕</span> Salvar em PDF
+            </button>
+          </div>
+
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table id="tabela-fechamento-export" class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
                   <th class="p-3 border-b">Funcionário</th>
@@ -575,6 +590,21 @@
           img.src = e.target.result;
         };
         reader.readAsDataURL(file);
+      });
+    }
+
+    // CAPTURA DE GPS AUTOMÁTICA
+    function obterCoordenadasGPS() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          resolve(null);
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => resolve(null),
+          { timeout: 8000, enableHighAccuracy: true }
+        );
       });
     }
 
@@ -672,7 +702,7 @@
     }
 
     /* =========================================================================
-       REGRAS DA VISÃO DO FUNCIONÁRIO (COM TRAVA ANTI-DUPLICAÇÃO)
+       REGRAS DA VISÃO DO FUNCIONÁRIO (COM TRAVA ANTI-DUPLICAÇÃO E GPS)
        ========================================================================= */
 
     function validarPin(funcId, pinDigitado) {
@@ -680,7 +710,7 @@
       return func && func.pin === pinDigitado;
     }
 
-    function registrarPonto() {
+    async function registrarPonto() {
       const btn = document.getElementById('btn-ponto');
       const funcId = document.getElementById('ponto-funcionario').value;
       const obraId = document.getElementById('ponto-obra').value;
@@ -699,26 +729,27 @@
 
       // TRAVA DE BOTÃO
       btn.disabled = true;
-      btn.innerText = "⏳ REGISTRANDO...";
+      btn.innerText = "🌐 OBTENDO GPS E REGISTRANDO...";
 
-      setTimeout(() => {
-        const novoPonto = {
-          id: Date.now().toString(),
-          funcionarioId: funcId,
-          obraId: obraId,
-          data: data,
-          hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-        };
+      const coords = await obterCoordenadasGPS();
 
-        pontos.unshift(novoPonto);
-        salvarTudo();
-        alert("📍 Ponto registrado com sucesso!");
-        document.getElementById('ponto-pin').value = '';
-        carregarHistoricoPontosFuncionario();
+      const novoPonto = {
+        id: Date.now().toString(),
+        funcionarioId: funcId,
+        obraId: obraId,
+        data: data,
+        hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        gps: coords
+      };
 
-        btn.disabled = false;
-        btn.innerText = "📍 BATER PONTO HOJE";
-      }, 100);
+      pontos.unshift(novoPonto);
+      salvarTudo();
+      alert("📍 Ponto e geolocalização registrados com sucesso!");
+      document.getElementById('ponto-pin').value = '';
+      carregarHistoricoPontosFuncionario();
+
+      btn.disabled = false;
+      btn.innerText = "📍 BATER PONTO HOJE";
     }
 
     function carregarHistoricoPontosFuncionario() {
@@ -1278,18 +1309,26 @@
     function carregarPresencas() {
       const tabela = document.getElementById('tabela-presencas');
       if (pontos.length === 0) {
-        tabela.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500 text-xs">Nenhum ponto registrado.</td></tr>';
+        tabela.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500 text-xs">Nenhum ponto registrado.</td></tr>';
         return;
       }
 
       tabela.innerHTML = pontos.map(p => {
         const func = equipe.find(f => f.id === p.funcionarioId);
         const obra = obras.find(o => o.id === p.obraId);
+
+        let gpsHtml = '<span class="text-xs text-gray-400">Sem GPS</span>';
+        if (p.gps) {
+          const mapUrl = `https://www.google.com/maps?q=${p.gps.lat},${p.gps.lng}`;
+          gpsHtml = `<a href="${mapUrl}" target="_blank" class="text-xs text-blue-600 underline font-semibold flex items-center gap-1">📍 Ver Localização</a>`;
+        }
+
         return `
           <tr class="hover:bg-gray-50">
             <td class="p-3 font-semibold text-gray-800">${p.data} <span class="text-xs text-gray-400">(${p.hora || ''})</span></td>
             <td class="p-3 font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
             <td class="p-3 text-gray-600">${obra ? obra.nome : 'Obra Desconhecida'}</td>
+            <td class="p-3">${gpsHtml}</td>
             <td class="p-3 text-right">
               <button onclick="excluirPonto('${p.id}')" class="text-red-600 hover:text-red-800 font-bold text-xs">Excluir</button>
             </td>
@@ -1443,6 +1482,35 @@
           <td class="p-3 text-right text-emerald-800 text-base">R$ ${totalGeralLiquido.toFixed(2)}</td>
         </tr>
       `;
+    }
+
+    /* =========================================================================
+       NOVAS FUNÇÕES: EXPORTAÇÃO EXCEL E PDF
+       ========================================================================= */
+
+    function exportarExcelFechamento() {
+      const mesTexto = document.getElementById('fechamento-mes').selectedOptions[0].text;
+      const anoTexto = document.getElementById('fechamento-ano').value;
+      const tabela = document.getElementById('tabela-fechamento-export');
+
+      const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento Mensal" });
+      XLSX.writeFile(wb, `Fechamento_TRE_Montagens_${mesTexto}_${anoTexto}.xlsx`);
+    }
+
+    function exportarPdfFechamento() {
+      const mesTexto = document.getElementById('fechamento-mes').selectedOptions[0].text;
+      const anoTexto = document.getElementById('fechamento-ano').value;
+      const elemento = document.getElementById('area-impressao-fechamento');
+
+      const opt = {
+        margin:       [10, 10, 10, 10],
+        filename:     `Fechamento_TRE_Montagens_${mesTexto}_${anoTexto}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      };
+
+      html2pdf().set(opt).from(elemento).save();
     }
   </script>
 </body>
