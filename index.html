@@ -5,16 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>T.R.E. - Gestão de Obras e Equipe</title>
   
-  <!-- Configurações PWA & Ícone de APK / Web App -->
+  <!-- Configurações PWA e Ícone do App -->
   <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1Bf2R7WJ_2vG8Gz4fT_K9f-T_N-1N_2V3">
+  <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1Bf2R7WJ_2vG8Gz4fT_K9f-T_N-1N_2V3">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="T.R.E. Obras">
-  
-  <!-- Ícones do Aplicativo / APK / Favicon -->
-  <link rel="icon" type="image/jpeg" href="watermarked_img_3926287053720683885.jpg">
-  <link rel="apple-touch-icon" href="watermarked_img_3926287053720683885.jpg">
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -46,9 +44,9 @@
   <div id="pantalla-login" class="flex flex-col items-center justify-center min-h-screen p-4">
     <div class="card-acustico-blur p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border-t-4 border-orange-500">
       
-      <!-- LOGO CENTRALIZADA -->
-      <div class="flex justify-center mb-4">
-        <img src="watermarked_img_3926287053720683885.jpg" alt="Logo T.R.E. Montagens" class="w-24 h-24 rounded-2xl shadow-lg border-2 border-orange-500 object-cover">
+      <!-- LOGO T.R.E. MONTAGENS -->
+      <div class="mb-4 flex justify-center">
+        <img src="https://lh3.googleusercontent.com/d/1Bf2R7WJ_2vG8Gz4fT_K9f-T_N-1N_2V3" alt="Logo T.R.E. Montagens" class="w-24 h-24 rounded-full object-cover shadow-lg border-2 border-orange-500">
       </div>
       
       <h1 class="text-3xl font-extrabold text-blue-950 tracking-tight mb-1">T.R.E. Montagens</h1>
@@ -70,7 +68,7 @@
   <div id="visao-funcionario" class="hidden p-4 max-w-lg mx-auto min-h-screen pb-12 w-full">
     <div class="flex justify-between items-center mb-6 bg-blue-950 p-4 rounded-2xl border-b-2 border-orange-500 shadow-md">
       <div class="flex items-center gap-3">
-        <img src="watermarked_img_3926287053720683885.jpg" alt="Logo T.R.E." class="w-10 h-10 rounded-xl border border-orange-500 object-cover">
+        <img src="https://lh3.googleusercontent.com/d/1Bf2R7WJ_2vG8Gz4fT_K9f-T_N-1N_2V3" alt="Logo" class="w-10 h-10 rounded-full object-cover border border-orange-500">
         <h2 class="text-xl font-bold text-white flex items-center gap-2">
           <span>👷</span> Área do Colaborador
         </h2>
@@ -242,7 +240,7 @@
   <div id="visao-admin" class="hidden min-h-screen flex flex-col w-full">
     <nav class="bg-blue-950 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-2 border-orange-500 shadow-md">
       <div class="flex items-center gap-3">
-        <img src="watermarked_img_3926287053720683885.jpg" alt="Logo T.R.E." class="w-10 h-10 rounded-xl border border-orange-500 object-cover">
+        <img src="https://lh3.googleusercontent.com/d/1Bf2R7WJ_2vG8Gz4fT_K9f-T_N-1N_2V3" alt="Logo" class="w-8 h-8 rounded-full object-cover border border-orange-500">
         <h1 class="text-xl font-bold tracking-tight">T.R.E. | Painel do Patrão</h1>
       </div>
       <button onclick="sair()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">Sair</button>
@@ -269,11 +267,1247 @@
       </button>
     </div>
 
-    <!-- Restante das abas e modais permanecem sem alteração -->
+    <div class="p-4 max-w-5xl mx-auto w-full flex-grow">
+
+      <!-- ABA OBRAS -->
+      <div id="aba-obras" class="aba-content space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Nova Obra</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" id="obra-nome" placeholder="Nome da Obra (ex: Avanço RJ)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="obra-local" placeholder="Localização / Endereço" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+          </div>
+          <button onclick="cadastrarObra()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Cadastrar Obra</button>
+        </div>
+
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Obras Cadastradas, PDFs de Projeto & Galerias</h3>
+          <ul id="lista-obras" class="divide-y text-gray-700"></ul>
+        </div>
+
+        <!-- MODAL DE GALERIA DA OBRA -->
+        <div id="modal-galeria-obra" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl relative border-t-4 border-orange-500">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+              <div>
+                <h3 id="modal-obra-titulo" class="text-xl font-bold text-blue-950"></h3>
+                <p class="text-xs text-gray-500">Galeria de Fotos, Vídeos, Finalizações e Observações</p>
+              </div>
+              <button onclick="fecharModalGaleria()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕ Fechar</button>
+            </div>
+            
+            <div id="modal-galeria-conteudo" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+          </div>
+        </div>
+
+        <!-- MODAL PARA ANEXAR VÁRIOS PDFS À OBRA -->
+        <div id="modal-anexar-pdf" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+              <div>
+                <h3 class="text-lg font-bold text-blue-950">Projetos & PDFs da Obra</h3>
+                <p id="modal-pdf-obra-nome" class="text-xs text-purple-700 font-semibold"></p>
+              </div>
+              <button onclick="fecharModalPdf()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕</button>
+            </div>
+
+            <input type="hidden" id="modal-pdf-obra-id">
+            
+            <div class="space-y-4">
+              <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
+                <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wide">Anexar Novo Projeto / PDF</h4>
+                <input type="text" id="pdf-titulo-input" placeholder="Nome/Prefixo do Documento (Ex: Planta Baixa)" class="w-full p-2.5 border rounded-xl bg-white text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                <input type="file" id="pdf-file-input" accept="application/pdf" multiple class="w-full p-2 border rounded-xl bg-white text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
+                <button id="btn-pdf-salvar" onclick="salvarPdfObra()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2 disabled:opacity-50">
+                  <span>📎</span> Adicionar PDF(s) à Obra
+                </button>
+              </div>
+
+              <div>
+                <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Arquivos Já Anexados:</h4>
+                <div id="lista-pdfs-existentes" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL PARA ENVIAR AVISO DE OBRA VIA WHATSAPP -->
+        <div id="modal-whatsapp-obra" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-t-4 border-emerald-500">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+              <div>
+                <h3 class="text-lg font-bold text-blue-950 flex items-center gap-1.5">📲 Enviar Aviso por WhatsApp</h3>
+                <p id="modal-whatsapp-obra-nome" class="text-xs text-emerald-700 font-semibold"></p>
+              </div>
+              <button onclick="fecharModalWhatsapp()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">✕</button>
+            </div>
+
+            <input type="hidden" id="modal-whatsapp-obra-id">
+            <input type="hidden" id="modal-whatsapp-obra-local">
+
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o Funcionário:</label>
+                <select id="modal-whatsapp-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-700">Instrução / Orientação Adicional:</label>
+                <textarea id="modal-whatsapp-mensagem" rows="3" placeholder="Ex: Favor estar na obra às 07:30." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+              </div>
+
+              <button onclick="enviarMensagemWhatsapp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2">
+                <span>💬</span> Abrir WhatsApp com Mensagem
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA EQUIPE -->
+      <div id="aba-equipe" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Cadastrar Novo Colaborador</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" id="func-nome" placeholder="Nome Completo" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="func-whatsapp" placeholder="WhatsApp (ex: 77999998888)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="number" step="0.01" id="func-diaria" placeholder="Valor Diária (R$)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            <input type="text" id="func-pin" placeholder="PIN Individual (4 dígitos)" class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+          </div>
+          <button onclick="cadastrarFuncionario()" class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md">Cadastrar Funcionário</button>
+        </div>
+
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Equipe Cadastrada</h3>
+          <p class="text-xs text-gray-500 mb-3">Nota: O histórico permanecerá salvo mesmo desativando colaboradores.</p>
+          <ul id="lista-equipe" class="divide-y text-gray-700"></ul>
+        </div>
+      </div>
+
+      <!-- ABA DESIGNAR OBRA -->
+      <div id="aba-designar" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600 space-y-4">
+          <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center gap-2">
+            <span>📲 Designar Funcionário para Obra</span>
+          </h3>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione o Colaborador:</label>
+            <select id="designar-funcionario" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Selecione a Obra:</label>
+            <select id="designar-obra" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Data de Início / Presença:</label>
+            <input type="date" id="designar-data" class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-gray-700">Instruções do Projeto:</label>
+            <textarea id="designar-instrucao" rows="3" placeholder="Ex: Comparecer às 07h30 com os EPIs completos." class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+          </div>
+
+          <button id="btn-designar" onclick="confirmarEEnviarDesignacao()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50">
+            <span>💬</span> DESIGNAR E ENVIAR CONVOCAÇÃO VIA WHATSAPP
+          </button>
+        </div>
+
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <h3 class="text-lg font-bold text-blue-950 mb-4">Histórico de Convocações / Designações</h3>
+          <div id="lista-designacoes" class="space-y-2 text-sm divide-y"></div>
+        </div>
+      </div>
+
+      <!-- ABA PRESENÇAS -->
+      <div id="aba-presencas" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-blue-950">Registro Geral de Presenças</h3>
+            <button onclick="carregarPresencas()" class="text-xs bg-blue-100 text-blue-900 px-3 py-1 rounded-lg font-bold hover:bg-blue-200">Atualizar</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
+                  <th class="p-3 border-b">Data</th>
+                  <th class="p-3 border-b">Funcionário</th>
+                  <th class="p-3 border-b">Obra</th>
+                  <th class="p-3 border-b">GPS / Localização</th>
+                  <th class="p-3 border-b text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-presencas" class="text-sm divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA COMPROVANTES VALES E RESSARCIMENTOS -->
+      <div id="aba-comprovantes" class="aba-content hidden space-y-6">
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-blue-950">Vales, Ressarcimentos e Comprovantes Recebidos</h3>
+            <button onclick="carregarValesAdmin()" class="text-xs bg-orange-100 text-orange-900 px-3 py-1 rounded-lg font-bold hover:bg-orange-200">Atualizar</button>
+          </div>
+          <div id="container-vales-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+
+      <!-- ABA FECHAMENTO -->
+      <div id="aba-fechamento" class="aba-content hidden space-y-6">
+        <div id="area-impressao-fechamento" class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b pb-4">
+            <div>
+              <h3 class="text-xl font-bold text-blue-950">📊 Fechamento Mensal e Balanço de Diárias</h3>
+              <p class="text-xs text-gray-500">Histórico de pagamentos, vales, ressarcimentos e saldos calculados por período</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded-xl border" data-html2pdf-ignore="true">
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-gray-500">Mês:</label>
+                <select id="fechamento-mes" onchange="calcularFechamentoMensal()" class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500">
+                  <option value="0">Janeiro</option>
+                  <option value="1">Fevereiro</option>
+                  <option value="2">Março</option>
+                  <option value="3">Abril</option>
+                  <option value="4">Maio</option>
+                  <option value="5">Junho</option>
+                  <option value="6">Julho</option>
+                  <option value="7">Agosto</option>
+                  <option value="8">Setembro</option>
+                  <option value="9">Outubro</option>
+                  <option value="10">Novembro</option>
+                  <option value="11">Dezembro</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[10px] font-bold uppercase text-gray-500">Ano:</label>
+                <select id="fechamento-ano" onchange="calcularFechamentoMensal()" class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500"></select>
+              </div>
+
+              <button onclick="calcularFechamentoMensal()" class="mt-3 bg-emerald-600 text-white font-bold px-3 py-2 rounded-lg text-xs hover:bg-emerald-700 transition">
+                Recalcular
+              </button>
+            </div>
+          </div>
+
+          <!-- BOTÕES DE EXPORTAÇÃO (PDF / EXCEL) -->
+          <div class="flex flex-wrap gap-2 mb-4 justify-end" data-html2pdf-ignore="true">
+            <button onclick="exportarExcelFechamento()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 transition">
+              <span>📗</span> Exportar para Excel
+            </button>
+            <button onclick="exportarPdfFechamento()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 transition">
+              <span>📕</span> Salvar em PDF
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table id="tabela-fechamento-export" class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
+                  <th class="p-3 border-b">Funcionário</th>
+                  <th class="p-3 border-b text-center">Valor Diária</th>
+                  <th class="p-3 border-b text-center">Dias Trabalhados</th>
+                  <th class="p-3 border-b text-right">Total Bruto</th>
+                  <th class="p-3 border-b text-right text-blue-700">Ressarcimentos</th>
+                  <th class="p-3 border-b text-right text-red-600">Total Vales</th>
+                  <th class="p-3 border-b text-right text-emerald-700">Saldo a Pagar</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-fechamento" class="text-sm divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <script>
-    // ... Mantém a lógica JS enviada no seu código ...
+    /* =========================================================================
+       CONFIGURAÇÃO LOCAL E PERSISTÊNCIA OTIMIZADA
+       ========================================================================= */
+
+    const DEFAULT_OBRAS = [
+      { id: '1', nome: 'Avanço RJ', local: 'Rio de Janeiro / RJ' },
+      { id: '2', nome: 'Sede T.R.E. Acústica', local: 'São Paulo / SP' }
+    ];
+
+    const DEFAULT_EQUIPE = [
+      { id: '1', nome: 'Carlos Silva', diaria: 220.00, pin: '1234', whatsapp: '5511999998888', ativo: true },
+      { id: '2', nome: 'Marcos Oliveira', diaria: 250.00, pin: '5678', whatsapp: '5577999997777', ativo: true }
+    ];
+
+    let obras = JSON.parse(localStorage.getItem('tre_obras')) || DEFAULT_OBRAS;
+    let equipe = JSON.parse(localStorage.getItem('tre_equipe')) || DEFAULT_EQUIPE;
+    let pontos = JSON.parse(localStorage.getItem('tre_pontos')) || [];
+    let vales = JSON.parse(localStorage.getItem('tre_vales')) || [];
+    let fotosObra = JSON.parse(localStorage.getItem('tre_fotos_obra')) || [];
+    let pdfsObra = JSON.parse(localStorage.getItem('tre_pdfs_obra')) || [];
+    let designacoes = JSON.parse(localStorage.getItem('tre_designacoes')) || [];
+
+    function salvarTudo() {
+      try {
+        localStorage.setItem('tre_obras', JSON.stringify(obras));
+        localStorage.setItem('tre_equipe', JSON.stringify(equipe));
+        localStorage.setItem('tre_pontos', JSON.stringify(pontos));
+        localStorage.setItem('tre_vales', JSON.stringify(vales));
+        localStorage.setItem('tre_fotos_obra', JSON.stringify(fotosObra));
+        localStorage.setItem('tre_pdfs_obra', JSON.stringify(pdfsObra));
+        localStorage.setItem('tre_designacoes', JSON.stringify(designacoes));
+      } catch (e) {
+        alert("⚠️ O armazenamento local está cheio! Apague alguns arquivos antigos na galeria do administrador.");
+      }
+    }
+
+    // UTILITÁRIO: COMPRESSÃO DE IMAGENS AUTOMÁTICA
+    function comprimirImagem(file, maxLargura = 1000, qualidade = 0.7) {
+      return new Promise((resolve) => {
+        if (!file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(file);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let largura = img.width;
+            let altura = img.height;
+
+            if (largura > maxLargura) {
+              altura = Math.round((altura * maxLargura) / largura);
+              largura = maxLargura;
+            }
+
+            canvas.width = largura;
+            canvas.height = altura;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, largura, altura);
+
+            resolve(canvas.toDataURL('image/jpeg', qualidade));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // CAPTURA DE GPS AUTOMÁTICA
+    function obterCoordenadasGPS() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          resolve(null);
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => resolve(null),
+          { timeout: 8000, enableHighAccuracy: true }
+        );
+      });
+    }
+
+    // Inicialização da Página
+    document.addEventListener("DOMContentLoaded", () => {
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('ponto-data').value = hoje;
+      document.getElementById('vale-data').value = hoje;
+      document.getElementById('designar-data').value = hoje;
+
+      const anoSelect = document.getElementById('fechamento-ano');
+      const anoAtual = new Date().getFullYear();
+      for (let ano = anoAtual - 2; ano <= anoAtual + 3; ano++) {
+        const option = document.createElement('option');
+        option.value = ano;
+        option.textContent = ano;
+        if (ano === anoAtual) option.selected = true;
+        anoSelect.appendChild(option);
+      }
+
+      document.getElementById('fechamento-mes').value = new Date().getMonth();
+      populardropdowns();
+    });
+
+    function populardropdowns() {
+      const funcSelects = ['ponto-funcionario', 'vale-funcionario', 'foto-funcionario', 'modal-whatsapp-funcionario', 'designar-funcionario'];
+      const funcionariosAtivos = equipe.filter(e => e.ativo !== false);
+
+      funcSelects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '<option value="">Selecione o Funcionário...</option>';
+        funcionariosAtivos.forEach(f => {
+          const zapInfo = f.whatsapp ? ` (${f.whatsapp})` : '';
+          el.innerHTML += `<option value="${f.id}">${f.nome}${zapInfo}</option>`;
+        });
+      });
+
+      const obraSelects = ['ponto-obra', 'consulta-pdf-obra', 'vale-obra', 'foto-obra', 'designar-obra'];
+      obraSelects.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '<option value="">Selecione a Obra...</option>';
+        obras.forEach(o => {
+          el.innerHTML += `<option value="${o.id}">${o.nome} (${o.local})</option>`;
+        });
+      });
+    }
+
+    function mostrarVisao(visao) {
+      document.getElementById('pantalla-login').classList.add('hidden');
+      if (visao === 'funcionario') {
+        document.getElementById('visao-funcionario').classList.remove('hidden');
+        carregarHistoricoPontosFuncionario();
+      } else if (visao === 'admin') {
+        document.getElementById('visao-admin').classList.remove('hidden');
+        mudarAbaAdmin('obras');
+      }
+    }
+
+    function solicitarSenhaAdmin() {
+      const senha = prompt("Digite a senha do Administrador / Patrão:");
+      if (senha === "1234" || senha === "admin") {
+        mostrarVisao('admin');
+      } else if (senha !== null) {
+        alert("Senha incorreta!");
+      }
+    }
+
+    function sair() {
+      document.getElementById('visao-funcionario').classList.add('hidden');
+      document.getElementById('visao-admin').classList.add('hidden');
+      document.getElementById('pantalla-login').classList.remove('hidden');
+    }
+
+    function mudarAbaAdmin(aba) {
+      document.querySelectorAll('.aba-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`aba-${aba}`).classList.remove('hidden');
+
+      const abas = ['obras', 'equipe', 'designar', 'presencas', 'comprovantes', 'fechamento'];
+      abas.forEach(a => {
+        const btn = document.getElementById(`tab-btn-${a}`);
+        if (!btn) return;
+        btn.className = (a === aba) 
+          ? "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5"
+          : "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
+      });
+
+      if (aba === 'obras') renderizarObras();
+      if (aba === 'equipe') renderizarEquipe();
+      if (aba === 'designar') renderizarDesignacoes();
+      if (aba === 'presencas') carregarPresencas();
+      if (aba === 'comprovantes') carregarValesAdmin();
+      if (aba === 'fechamento') calcularFechamentoMensal();
+    }
+
+    /* =========================================================================
+       REGRAS DA VISÃO DO FUNCIONÁRIO (COM TRAVA ANTI-DUPLICAÇÃO E GPS)
+       ========================================================================= */
+
+    function validarPin(funcId, pinDigitado) {
+      const func = equipe.find(f => f.id === funcId);
+      return func && func.pin === pinDigitado;
+    }
+
+    async function registrarPonto() {
+      const btn = document.getElementById('btn-ponto');
+      const funcId = document.getElementById('ponto-funcionario').value;
+      const obraId = document.getElementById('ponto-obra').value;
+      const data = document.getElementById('ponto-data').value;
+      const pin = document.getElementById('ponto-pin').value;
+
+      if (!funcId || !obraId || !data || !pin) {
+        alert("Preencha todos os campos do ponto!");
+        return;
+      }
+
+      if (!validarPin(funcId, pin)) {
+        alert("PIN incorreto!");
+        return;
+      }
+
+      // TRAVA DE BOTÃO
+      btn.disabled = true;
+      btn.innerText = "🌐 OBTENDO GPS E REGISTRANDO...";
+
+      const coords = await obterCoordenadasGPS();
+
+      const novoPonto = {
+        id: Date.now().toString(),
+        funcionarioId: funcId,
+        obraId: obraId,
+        data: data,
+        hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        gps: coords
+      };
+
+      pontos.unshift(novoPonto);
+      salvarTudo();
+      alert("📍 Ponto e geolocalização registrados com sucesso!");
+      document.getElementById('ponto-pin').value = '';
+      carregarHistoricoPontosFuncionario();
+
+      btn.disabled = false;
+      btn.innerText = "📍 BATER PONTO HOJE";
+    }
+
+    function carregarHistoricoPontosFuncionario() {
+      const container = document.getElementById('lista-ponto-recentes');
+      const ultimosPontos = pontos.slice(0, 5);
+
+      if (ultimosPontos.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 py-2">Nenhum ponto registrado ainda.</p>';
+        return;
+      }
+
+      container.innerHTML = ultimosPontos.map(p => {
+        const func = equipe.find(f => f.id === p.funcionarioId);
+        const obra = obras.find(o => o.id === p.obraId);
+        return `
+          <div class="py-2 flex justify-between items-center">
+            <div>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</p>
+              <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Obra Desconhecida'}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-semibold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full">${p.data}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function registrarVale() {
+      const btn = document.getElementById('btn-vale');
+      const tipoLancamento = document.getElementById('vale-tipo-lacamento').value;
+      const funcId = document.getElementById('vale-funcionario').value;
+      const obraId = document.getElementById('vale-obra').value;
+      const valor = parseFloat(document.getElementById('vale-valor').value);
+      const data = document.getElementById('vale-data').value;
+      const descricao = document.getElementById('vale-descricao').value;
+      const pin = document.getElementById('vale-pin').value;
+      const fileInput = document.getElementById('vale-comprovante-file');
+
+      if (!funcId || !obraId || !valor || !data || !pin) {
+        alert("Preencha todos os campos obrigatórios!");
+        return;
+      }
+
+      if (!validarPin(funcId, pin)) {
+        alert("PIN incorreto!");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "⏳ ENVIANDO...";
+
+      let fotoDataUrl = null;
+      if (fileInput.files && fileInput.files[0]) {
+        fotoDataUrl = await comprimirImagem(fileInput.files[0]);
+      }
+
+      const novoVale = {
+        id: Date.now().toString(),
+        tipo: tipoLancamento || 'Vale',
+        funcionarioId: funcId,
+        obraId: obraId,
+        valor: valor,
+        data: data,
+        descricao: descricao,
+        comprovante: fotoDataUrl
+      };
+
+      vales.unshift(novoVale);
+      salvarTudo();
+      alert(`💸 ${tipoLancamento}/Comprovante enviado com sucesso!`);
+      document.getElementById('vale-valor').value = '';
+      document.getElementById('vale-descricao').value = '';
+      document.getElementById('vale-pin').value = '';
+      document.getElementById('vale-comprovante-file').value = '';
+
+      btn.disabled = false;
+      btn.innerText = "💸 ENVIAR VALE / RESSARCIMENTO";
+    }
+
+    async function enviarFotoObra() {
+      const btn = document.getElementById('btn-foto');
+      const funcId = document.getElementById('foto-funcionario').value;
+      const obraId = document.getElementById('foto-obra').value;
+      const tipo = document.getElementById('foto-tipo').value;
+      const observacao = document.getElementById('foto-observacao').value;
+      const pin = document.getElementById('foto-pin').value;
+      const fileInput = document.getElementById('foto-file');
+
+      if (!funcId || !obraId || !pin || !fileInput.files || fileInput.files.length === 0) {
+        alert("Selecione o funcionário, a obra, informe o PIN e escolha os arquivos!");
+        return;
+      }
+
+      if (!validarPin(funcId, pin)) {
+        alert("PIN incorreto!");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "⏳ PROCESSANDO E ENVIANDO...";
+
+      const files = Array.from(fileInput.files);
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const isVideo = file.type.startsWith('video/');
+        const imagemProcessada = await comprimirImagem(file);
+
+        const novaFoto = {
+          id: (Date.now() + i).toString(),
+          funcionarioId: funcId,
+          obraId: obraId,
+          tipo: tipo,
+          observacao: observacao,
+          imagem: imagemProcessada,
+          isVideo: isVideo,
+          data: new Date().toLocaleDateString('pt-BR')
+        };
+
+        fotosObra.unshift(novaFoto);
+      }
+
+      salvarTudo();
+      alert(`📸 ${files.length} arquivo(s) enviado(s) com sucesso!`);
+      document.getElementById('foto-observacao').value = '';
+      document.getElementById('foto-pin').value = '';
+      document.getElementById('foto-file').value = '';
+
+      btn.disabled = false;
+      btn.innerText = "📤 ENVIAR PARA A GALERIA DA OBRA";
+    }
+
+    function buscarPdfsObra() {
+      const obraId = document.getElementById('consulta-pdf-obra').value;
+      const container = document.getElementById('container-pdf-obra');
+
+      if (!obraId) {
+        container.innerHTML = '<p class="text-xs text-gray-500 italic">Selecione uma obra acima.</p>';
+        return;
+      }
+
+      const pdfs = pdfsObra.filter(p => p.obraId === obraId);
+
+      if (pdfs.length === 0) {
+        container.innerHTML = '<p class="text-xs text-orange-600 bg-orange-50 p-3 rounded-xl border border-orange-200">Nenhum PDF anexado a esta obra.</p>';
+        return;
+      }
+
+      container.innerHTML = pdfs.map(pdf => `
+        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-sm text-purple-950">📄 ${pdf.titulo || 'Projeto da Obra'}</p>
+            <p class="text-xs text-purple-700">Adicionado em: ${pdf.data}</p>
+          </div>
+          <a href="${pdf.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">
+            Abrir PDF ↗
+          </a>
+        </div>
+      `).join('');
+    }
+
+    /* =========================================================================
+       REGRAS DA VISÃO DO ADMINISTRADOR
+       ========================================================================= */
+
+    function cadastrarObra() {
+      const nome = document.getElementById('obra-nome').value.trim();
+      const local = document.getElementById('obra-local').value.trim();
+
+      if (!nome || !local) {
+        alert("Preencha o nome e o local da obra!");
+        return;
+      }
+
+      const novaObra = { id: Date.now().toString(), nome, local };
+      obras.push(novaObra);
+      salvarTudo();
+      populardropdowns();
+      renderizarObras();
+      document.getElementById('obra-nome').value = '';
+      document.getElementById('obra-local').value = '';
+    }
+
+    function renderizarObras() {
+      const lista = document.getElementById('lista-obras');
+      if (obras.length === 0) {
+        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenhuma obra cadastrada.</li>';
+        return;
+      }
+
+      lista.innerHTML = obras.map(o => {
+        const qtdPdfs = pdfsObra.filter(p => p.obraId === o.id).length;
+        const qtdFotos = fotosObra.filter(f => f.obraId === o.id).length;
+
+        return `
+          <li class="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+            <div>
+              <p class="font-bold text-blue-950 text-base">${o.nome}</p>
+              <p class="text-xs text-gray-500">📍 ${o.local}</p>
+              <div class="flex gap-2 mt-1">
+                <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full">${qtdPdfs} PDF(s)</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">${qtdFotos} Mídia(s)</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="abrirModalPdf('${o.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">📄 Projetos PDFs</button>
+              <button onclick="abrirGaleriaObra('${o.id}')" class="bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">📸 Ver Galeria</button>
+              <button onclick="abrirModalWhatsapp('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">💬 Aviso Whats</button>
+              <button onclick="excluirObra('${o.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition">🗑</button>
+            </div>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function excluirObra(id) {
+      if (confirm("Deseja excluir esta obra?")) {
+        obras = obras.filter(o => o.id !== id);
+        salvarTudo();
+        populardropdowns();
+        renderizarObras();
+      }
+    }
+
+    function abrirModalPdf(obraId) {
+      const obra = obras.find(o => o.id === obraId);
+      if (!obra) return;
+
+      document.getElementById('modal-pdf-obra-id').value = obraId;
+      document.getElementById('modal-pdf-obra-nome').textContent = `Obra: ${obra.nome}`;
+      document.getElementById('pdf-titulo-input').value = '';
+      document.getElementById('pdf-file-input').value = '';
+
+      renderizarListaPdfsModal(obraId);
+      document.getElementById('modal-anexar-pdf').classList.remove('hidden');
+    }
+
+    function renderizarListaPdfsModal(obraId) {
+      const container = document.getElementById('lista-pdfs-existentes');
+      const pdfs = pdfsObra.filter(p => p.obraId === obraId);
+
+      if (pdfs.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 italic py-2">Nenhum PDF cadastrado.</p>';
+        return;
+      }
+
+      container.innerHTML = pdfs.map(p => `
+        <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl border text-xs">
+          <div>
+            <p class="font-bold text-gray-800">${p.titulo || 'Projeto PDF'}</p>
+            <p class="text-[10px] text-gray-500">${p.data}</p>
+          </div>
+          <div class="flex items-center gap-1">
+            <a href="${p.url}" target="_blank" class="bg-purple-100 text-purple-800 font-bold px-2 py-1 rounded hover:bg-purple-200">Ver</a>
+            <button onclick="excluirPdf('${p.id}', '${obraId}')" class="bg-red-100 text-red-700 font-bold px-2 py-1 rounded hover:bg-red-200">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function salvarPdfObra() {
+      const btn = document.getElementById('btn-pdf-salvar');
+      const obraId = document.getElementById('modal-pdf-obra-id').value;
+      const tituloBase = document.getElementById('pdf-titulo-input').value.trim() || 'Projeto PDF';
+      const fileInput = document.getElementById('pdf-file-input');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Selecione pelo menos um arquivo PDF!");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "⏳ ANEXANDO...";
+
+      const files = Array.from(fileInput.files);
+      let processados = 0;
+
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const nomeTitulo = files.length > 1 ? `${tituloBase} (${file.name})` : tituloBase;
+          const novoPdf = {
+            id: (Date.now() + index).toString(),
+            obraId: obraId,
+            titulo: nomeTitulo,
+            url: e.target.result,
+            data: new Date().toLocaleDateString('pt-BR')
+          };
+
+          pdfsObra.push(novoPdf);
+          processados++;
+
+          if (processados === files.length) {
+            salvarTudo();
+            alert(`📄 ${files.length} PDF(s) anexado(s) com sucesso!`);
+            document.getElementById('pdf-titulo-input').value = '';
+            fileInput.value = '';
+            renderizarListaPdfsModal(obraId);
+            renderizarObras();
+
+            btn.disabled = false;
+            btn.innerText = "📎 Adicionar PDF(s) à Obra";
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function excluirPdf(pdfId, obraId) {
+      if (confirm("Deseja remover este PDF?")) {
+        pdfsObra = pdfsObra.filter(p => p.id !== pdfId);
+        salvarTudo();
+        renderizarListaPdfsModal(obraId);
+        renderizarObras();
+      }
+    }
+
+    function fecharModalPdf() {
+      document.getElementById('modal-anexar-pdf').classList.add('hidden');
+    }
+
+    function abrirGaleriaObra(obraId) {
+      const obra = obras.find(o => o.id === obraId);
+      if (!obra) return;
+
+      document.getElementById('modal-obra-titulo').textContent = `Galeria - ${obra.nome}`;
+      const container = document.getElementById('modal-galeria-conteudo');
+      const fotos = fotosObra.filter(f => f.obraId === obraId);
+
+      if (fotos.length === 0) {
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-8 text-center">Nenhuma mídia enviada ainda.</p>';
+      } else {
+        container.innerHTML = fotos.map(f => {
+          const func = equipe.find(eq => eq.id === f.funcionarioId);
+          const midiaElemento = f.isVideo 
+            ? `<video src="${f.imagem}" controls class="w-full h-48 object-cover bg-black rounded-t-2xl"></video>`
+            : `<img src="${f.imagem}" class="w-full h-48 object-cover bg-black" alt="Mídia da Obra">`;
+
+          return `
+            <div class="border rounded-2xl overflow-hidden bg-gray-50 shadow-sm flex flex-col justify-between">
+              ${midiaElemento}
+              <div class="p-3 text-xs space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</span>
+                  <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full font-semibold">${f.data}</span>
+                </div>
+                <p class="font-semibold text-emerald-700">Tipo: ${f.tipo}</p>
+                <p class="text-gray-600 italic">"${f.observacao || 'Sem observações'}"</p>
+                <div class="pt-2 text-right">
+                  <button onclick="excluirFotoObra('${f.id}', '${obraId}')" class="text-xs text-red-600 font-bold hover:underline">Excluir Arquivo</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('modal-galeria-obra').classList.remove('hidden');
+    }
+
+    function excluirFotoObra(fotoId, obraId) {
+      if (confirm("Deseja excluir este arquivo da galeria?")) {
+        fotosObra = fotosObra.filter(f => f.id !== fotoId);
+        salvarTudo();
+        abrirGaleriaObra(obraId);
+        renderizarObras();
+      }
+    }
+
+    function fecharModalGaleria() {
+      document.getElementById('modal-galeria-obra').classList.add('hidden');
+    }
+
+    function abrirModalWhatsapp(obraId) {
+      const obra = obras.find(o => o.id === obraId);
+      if (!obra) return;
+
+      document.getElementById('modal-whatsapp-obra-id').value = obraId;
+      document.getElementById('modal-whatsapp-obra-nome').textContent = `Obra: ${obra.nome}`;
+      document.getElementById('modal-whatsapp-obra-local').value = obra.local;
+      document.getElementById('modal-whatsapp-mensagem').value = '';
+
+      document.getElementById('modal-whatsapp-obra').classList.remove('hidden');
+    }
+
+    function fecharModalWhatsapp() {
+      document.getElementById('modal-whatsapp-obra').classList.add('hidden');
+    }
+
+    function enviarMensagemWhatsapp() {
+      const obraId = document.getElementById('modal-whatsapp-obra-id').value;
+      const funcId = document.getElementById('modal-whatsapp-funcionario').value;
+      const local = document.getElementById('modal-whatsapp-obra-local').value;
+      const instrucao = document.getElementById('modal-whatsapp-mensagem').value;
+
+      const obra = obras.find(o => o.id === obraId);
+      const func = equipe.find(f => f.id === funcId);
+
+      if (!func) {
+        alert("Selecione o funcionário!");
+        return;
+      }
+
+      let texto = `Olá ${func.nome}, tudo bem?\n\n*Aviso de Convocação de Obra - T.R.E. Montagens*\n\n`;
+      texto += `🏗️ *Obra:* ${obra.nome}\n`;
+      texto += `📍 *Local:* ${local}\n`;
+      if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
+      texto += `\nPor favor, confirme o recebimento e não se esqueça de bater o ponto na chegada!`;
+
+      const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
+      const link = numLimpo 
+        ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+
+      window.open(link, '_blank');
+      fecharModalWhatsapp();
+    }
+
+    function cadastrarFuncionario() {
+      const nome = document.getElementById('func-nome').value.trim();
+      const whatsapp = document.getElementById('func-whatsapp').value.trim();
+      const diaria = parseFloat(document.getElementById('func-diaria').value);
+      const pin = document.getElementById('func-pin').value.trim();
+
+      if (!nome || !diaria || !pin) {
+        alert("Preencha o nome, valor da diária e o PIN!");
+        return;
+      }
+
+      const novoFunc = { id: Date.now().toString(), nome, whatsapp, diaria, pin, ativo: true };
+      equipe.push(novoFunc);
+      salvarTudo();
+      populardropdowns();
+      renderizarEquipe();
+      document.getElementById('func-nome').value = '';
+      document.getElementById('func-whatsapp').value = '';
+      document.getElementById('func-diaria').value = '';
+      document.getElementById('func-pin').value = '';
+    }
+
+    function renderizarEquipe() {
+      const lista = document.getElementById('lista-equipe');
+      const ativos = equipe.filter(f => f.ativo !== false);
+
+      if (ativos.length === 0) {
+        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenhum colaborador ativo.</li>';
+        return;
+      }
+
+      lista.innerHTML = ativos.map(f => `
+        <li class="py-3 flex justify-between items-center">
+          <div>
+            <p class="font-bold text-blue-950">${f.nome}</p>
+            <p class="text-xs text-gray-500">📱 ${f.whatsapp || 'Sem Whats'} | Diária: R$ ${f.diaria.toFixed(2)} | PIN: ****</p>
+          </div>
+          <button onclick="desativarFuncionario('${f.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Remover</button>
+        </li>
+      `).join('');
+    }
+
+    function desativarFuncionario(id) {
+      if (confirm("Remover este colaborador da equipe ativa?")) {
+        const index = equipe.findIndex(f => f.id === id);
+        if (index !== -1) {
+          equipe[index].ativo = false;
+          salvarTudo();
+          populardropdowns();
+          renderizarEquipe();
+        }
+      }
+    }
+
+    function confirmarEEnviarDesignacao() {
+      const btn = document.getElementById('btn-designar');
+      const funcId = document.getElementById('designar-funcionario').value;
+      const obraId = document.getElementById('designar-obra').value;
+      const dataInicio = document.getElementById('designar-data').value;
+      const instrucao = document.getElementById('designar-instrucao').value.trim();
+
+      if (!funcId || !obraId || !dataInicio) {
+        alert("Selecione o colaborador, a obra e a data!");
+        return;
+      }
+
+      const func = equipe.find(f => f.id === funcId);
+      const obra = obras.find(o => o.id === obraId);
+      if (!func || !obra) return;
+
+      btn.disabled = true;
+
+      const novaDesignacao = {
+        id: Date.now().toString(),
+        funcionarioId: funcId,
+        obraId: obraId,
+        dataInicio: dataInicio,
+        instrucao: instrucao,
+        dataRegistro: new Date().toLocaleDateString('pt-BR')
+      };
+
+      designacoes.unshift(novaDesignacao);
+      salvarTudo();
+      renderizarDesignacoes();
+
+      let texto = `Olá *${func.nome}*, você foi escalado para uma obra pela *T.R.E. Montagens*!\n\n`;
+      texto += `🏗️ *Obra:* ${obra.nome}\n`;
+      texto += `📍 *Localização:* ${obra.local}\n`;
+      texto += `📅 *Data:* ${dataInicio.split('-').reverse().join('/')}\n`;
+      if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
+      texto += `\nPor favor, confirme o recebimento e lembre-se de bater o ponto no app!`;
+
+      const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
+      const linkZap = numLimpo 
+        ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+
+      window.open(linkZap, '_blank');
+      document.getElementById('designar-instrucao').value = '';
+
+      btn.disabled = false;
+    }
+
+    function renderizarDesignacoes() {
+      const container = document.getElementById('lista-designacoes');
+      if (!container) return;
+
+      if (designacoes.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 py-3">Nenhuma designação realizada.</p>';
+        return;
+      }
+
+      container.innerHTML = designacoes.slice(0, 10).map(d => {
+        const func = equipe.find(f => f.id === d.funcionarioId);
+        const obra = obras.find(o => o.id === d.obraId);
+
+        return `
+          <div class="py-3 flex justify-between items-center">
+            <div>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} ➔ ${obra ? obra.nome : 'Obra Removida'}</p>
+              <p class="text-xs text-gray-500">Data de Início: ${d.dataInicio} | Registrado em: ${d.dataRegistro}</p>
+              ${d.instrucao ? `<p class="text-xs text-emerald-700 italic">"${d.instrucao}"</p>` : ''}
+            </div>
+            <button onclick="removerDesignacao('${d.id}')" class="text-xs text-red-600 font-bold hover:underline">Remover</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function removerDesignacao(id) {
+      if (confirm("Remover este registro?")) {
+        designacoes = designacoes.filter(d => d.id !== id);
+        salvarTudo();
+        renderizarDesignacoes();
+      }
+    }
+
+    function carregarPresencas() {
+      const tabela = document.getElementById('tabela-presencas');
+      if (pontos.length === 0) {
+        tabela.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500 text-xs">Nenhum ponto registrado.</td></tr>';
+        return;
+      }
+
+      tabela.innerHTML = pontos.map(p => {
+        const func = equipe.find(f => f.id === p.funcionarioId);
+        const obra = obras.find(o => o.id === p.obraId);
+
+        let gpsHtml = '<span class="text-xs text-gray-400">Sem GPS</span>';
+        if (p.gps) {
+          const mapUrl = `https://www.google.com/maps?q=${p.gps.lat},${p.gps.lng}`;
+          gpsHtml = `<a href="${mapUrl}" target="_blank" class="text-xs text-blue-600 underline font-semibold flex items-center gap-1">📍 Ver Localização</a>`;
+        }
+
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 font-semibold text-gray-800">${p.data} <span class="text-xs text-gray-400">(${p.hora || ''})</span></td>
+            <td class="p-3 font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
+            <td class="p-3 text-gray-600">${obra ? obra.nome : 'Obra Desconhecida'}</td>
+            <td class="p-3">${gpsHtml}</td>
+            <td class="p-3 text-right">
+              <button onclick="excluirPonto('${p.id}')" class="text-red-600 hover:text-red-800 font-bold text-xs">Excluir</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function excluirPonto(id) {
+      if (confirm("Excluir este ponto?")) {
+        pontos = pontos.filter(p => p.id !== id);
+        salvarTudo();
+        carregarPresencas();
+      }
+    }
+
+    function carregarValesAdmin() {
+      const container = document.getElementById('container-vales-admin');
+      if (vales.length === 0) {
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4">Nenhum vale ou ressarcimento recebido.</p>';
+        return;
+      }
+
+      container.innerHTML = vales.map(v => {
+        const func = equipe.find(f => f.id === v.funcionarioId);
+        const obra = obras.find(o => o.id === v.obraId);
+        const tipoItem = v.tipo || 'Vale';
+        const isRessarcimento = tipoItem === 'Ressarcimento';
+
+        return `
+          <div class="card-acustico-blur p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <h4 class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</h4>
+                  <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'N/A'}</p>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-bold px-2 py-0.5 rounded-full ${isRessarcimento ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}">${tipoItem}</span>
+                  <p class="text-sm font-extrabold ${isRessarcimento ? 'text-blue-700' : 'text-orange-600'} mt-1">R$ ${v.valor.toFixed(2)}</p>
+                </div>
+              </div>
+              <p class="text-xs text-gray-700 font-medium mb-1">Motivo: ${v.descricao || 'Sem descrição'}</p>
+              <p class="text-[10px] text-gray-400 mb-3">Data: ${v.data}</p>
+
+              ${v.comprovante ? `
+                <a href="${v.comprovante}" target="_blank" class="block mb-2">
+                  <img src="${v.comprovante}" class="w-full h-32 object-cover rounded-lg border hover:opacity-90 transition" alt="Comprovante">
+                </a>
+              ` : '<p class="text-xs text-gray-400 italic mb-2">Sem foto anexada</p>'}
+            </div>
+
+            <div class="text-right pt-2 border-t">
+              <button onclick="excluirVale('${v.id}')" class="text-xs text-red-600 hover:text-red-800 font-bold">Excluir Registro</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function excluirVale(id) {
+      if (confirm("Deseja excluir este registro?")) {
+        vales = vales.filter(v => v.id !== id);
+        salvarTudo();
+        carregarValesAdmin();
+      }
+    }
+
+    function calcularFechamentoMensal() {
+      const mesSelecionado = parseInt(document.getElementById('fechamento-mes').value);
+      const anoSelecionado = parseInt(document.getElementById('fechamento-ano').value);
+      const tabela = document.getElementById('tabela-fechamento');
+
+      const pontosDoMes = pontos.filter(p => {
+        if (!p.data) return false;
+        const partes = p.data.split('-');
+        if (partes.length === 3) {
+          return parseInt(partes[0]) === anoSelecionado && (parseInt(partes[1]) - 1) === mesSelecionado;
+        }
+        return false;
+      });
+
+      const valesDoMes = vales.filter(v => {
+        if (!v.data) return false;
+        const partes = v.data.split('-');
+        if (partes.length === 3) {
+          return parseInt(partes[0]) === anoSelecionado && (parseInt(partes[1]) - 1) === mesSelecionado;
+        }
+        return false;
+      });
+
+      if (equipe.length === 0) {
+        tabela.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum funcionário cadastrado.</td></tr>';
+        return;
+      }
+
+      let totalGeralBruto = 0, totalGeralRessarcimentos = 0, totalGeralVales = 0, totalGeralLiquido = 0;
+
+      const linhasHtml = equipe.map(func => {
+        const diasTrabalhados = pontosDoMes.filter(p => p.funcionarioId === func.id).length;
+        
+        const lancamentosFunc = valesDoMes.filter(v => v.funcionarioId === func.id);
+
+        const totalValesFunc = lancamentosFunc
+          .filter(v => (v.tipo || 'Vale') === 'Vale')
+          .reduce((sum, v) => sum + parseFloat(v.valor || 0), 0);
+
+        const totalRessarcimentosFunc = lancamentosFunc
+          .filter(v => v.tipo === 'Ressarcimento')
+          .reduce((sum, v) => sum + parseFloat(v.valor || 0), 0);
+
+        const totalBruto = diasTrabalhados * func.diaria;
+        const saldoLiquido = (totalBruto + totalRessarcimentosFunc) - totalValesFunc;
+
+        totalGeralBruto += totalBruto;
+        totalGeralRessarcimentos += totalRessarcimentosFunc;
+        totalGeralVales += totalValesFunc;
+        totalGeralLiquido += saldoLiquido;
+
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 font-bold text-blue-950">${func.nome} ${func.ativo === false ? '<span class="text-[10px] text-red-500 font-normal">(Inativo)</span>' : ''}</td>
+            <td class="p-3 text-center text-gray-600">R$ ${func.diaria.toFixed(2)}</td>
+            <td class="p-3 text-center font-bold text-gray-800">${diasTrabalhados}</td>
+            <td class="p-3 text-right font-semibold text-gray-800">R$ ${totalBruto.toFixed(2)}</td>
+            <td class="p-3 text-right font-semibold text-blue-700">R$ ${totalRessarcimentosFunc.toFixed(2)}</td>
+            <td class="p-3 text-right font-semibold text-red-600">R$ ${totalValesFunc.toFixed(2)}</td>
+            <td class="p-3 text-right font-extrabold ${saldoLiquido >= 0 ? 'text-emerald-700' : 'text-red-700'}">R$ ${saldoLiquido.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const linhaTotal = `
+        <tr class="bg-blue-950 text-white font-bold text-sm">
+          <td class="p-3">TOTAL GERAL</td>
+          <td class="p-3 text-center">-</td>
+          <td class="p-3 text-center">-</td>
+          <td class="p-3 text-right text-emerald-400">R$ ${totalGeralBruto.toFixed(2)}</td>
+          <td class="p-3 text-right text-blue-300">R$ ${totalGeralRessarcimentos.toFixed(2)}</td>
+          <td class="p-3 text-right text-red-300">R$ ${totalGeralVales.toFixed(2)}</td>
+          <td class="p-3 text-right text-orange-400">R$ ${totalGeralLiquido.toFixed(2)}</td>
+        </tr>
+      `;
+
+      tabela.innerHTML = linhasHtml + linhaTotal;
+    }
+
+    function exportarExcelFechamento() {
+      const tabela = document.getElementById('tabela-fechamento-export');
+      const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento Mensal" });
+      const mes = document.getElementById('fechamento-mes').selectedOptions[0].text;
+      const ano = document.getElementById('fechamento-ano').value;
+      XLSX.writeFile(wb, `Fechamento_TRE_Montagens_${mes}_${ano}.xlsx`);
+    }
+
+    function exportarPdfFechamento() {
+      const elemento = document.getElementById('area-impressao-fechamento');
+      const mes = document.getElementById('fechamento-mes').selectedOptions[0].text;
+      const ano = document.getElementById('fechamento-ano').value;
+
+      const opt = {
+        margin:       0.3,
+        filename:     `Fechamento_TRE_Montagens_${mes}_${ano}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+      };
+
+      html2pdf().set(opt).from(elemento).save();
+    }
   </script>
 </body>
 </html>
