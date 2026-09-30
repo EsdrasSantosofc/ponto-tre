@@ -4792,4 +4792,126 @@
   </script>
 
 </body>
+<!-- =========================================================
+     MÓDULO DE EFEITOS SONOROS (NÃO MODIFICA O APP ORIGINAL)
+     ========================================================= -->
+<script>
+  // Criação do contexto de áudio para efeitos sonoros profissionais e imersivos
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+
+  function iniciarAudioContext() {
+    if (!audioCtx) {
+      audioCtx = new AudioContext();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  // Som de Clique / Confirmação padrão (Estilo Botão Premium)
+  function tocarSomClique() {
+    try {
+      iniciarAudioContext();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Dó agudo agradável (D5)
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    } catch (e) {
+      console.log("Áudio pendente de interação do usuário");
+    }
+  }
+
+  // Som de Ação de Obra / Parafusadeira / Ferramenta Elétrica
+  function tocarSomParafusadeira() {
+    try {
+      iniciarAudioContext();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      // Simula o ronco mecânico de uma parafusadeira/furadeira de obra
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+      osc.frequency.linearRampToValueAtTime(320, audioCtx.currentTime + 0.15);
+      osc.frequency.setValueAtTime(280, audioCtx.currentTime + 0.2);
+      osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.35);
+
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.35);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // Som de Confirmação de Sucesso (Bateu Ponto / Enviou Vale)
+  function tocarSomSucessoObra() {
+    try {
+      iniciarAudioContext();
+      const agora = audioCtx.currentTime;
+
+      // Acorde duplo de confirmação
+      [523.25, 659.25, 783.99].forEach((freq, index) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, agora + (index * 0.08));
+
+        gain.gain.setValueAtTime(0.12, agora + (index * 0.08));
+        gain.gain.exponentialRampToValueAtTime(0.001, agora + (index * 0.08) + 0.2);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(agora + (index * 0.08));
+        osc.stop(agora + (index * 0.08) + 0.2);
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // Identifica automaticamente os botões e aplica os sons corretos baseados no contexto da obra
+  document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('button');
+      if (!target) return;
+
+      const textoBotao = target.innerText.toLowerCase();
+
+      // Se for botão de bater ponto, enviar vale, designar ou salvar (ações principais de obra)
+      if (
+        textoBotao.includes('ponto') || 
+        textoBotao.includes('enviar') || 
+        textoBotao.includes('cadastrar') || 
+        textoBotao.includes('designar')
+      ) {
+        tocarSomParafusadeira();
+        setTimeout(tocarSomSucessoObra, 350);
+      } 
+      // Demais botões (navegação, abas, fechar modais) ganham o som de clique tátil refinado
+      else {
+        tocarSomClique();
+      }
+    });
+  });
+</script>
+
 </html>
