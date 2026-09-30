@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>T.R.E. - Gestão de Obras e Equipe</title>
   
-  <!-- Configurações PWA -->
+  <!-- Configurações PWA e Ícone de APK / Favicon -->
   <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSU2BigAAAAlBMVEUAAAA/X6pBXal/qbR9p7NDXqhCYKlFYKlAXahFYqlAXalAYKhAXakS8851AAAADnRSTlMA8/UQEPHR4fL2y/Lz00s4CjAAAAFiS0dEAIgFHgUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfpChAWDAMgZ9ZlAAACDElEQVR42mNkQAO3L142vXLmzM//jAwr1q26/f+fI44A293z/3///zN8/vv7/98fn1q3L2aA0m/evmRgZ2VjI1Cjmbm5pbm5GfEa/v/7//fnz/f3Hz9mS0lKgO3m42FkZ23z5fOP3+8/v//z5yeKjAInBxenAw8bCwsTMwMTo4SY4L9/f/9++vnt2/s/f/58/IoiA4mLi/v5m929O1vXLRpA6X//GDm5OFk4mJn+/Pn5+/+vP//+fEPl4edn/v/v/5+f399/fnv7/uPPp39/o+nw835m/v/jO9v3zz9+f3/x6/sPlBkY/jNyc7GxMvPyMf778/Pn38+M377+w6kByM7gZmPh5udl+fXj3///3/9//I0uAzGBn4P793e2r8+/fv3+9e/vfyQZAIs9Bg4WFmZmpn//2dh+/mP4/vUrA16N///xMnz5w/Ltx7efLz5++v8D3XxgDfxn5mJiYWJmZWL6+///t0/sD369fYuq9h/DXyZmZmZGNhYWxr+/fn1583sXygwE1pOnb/359fP/n9+Mfxm+sL6f140uA+e/MDFxM3OzMn/++v37y5vv/3+jy4A/D34zsrOxMf///v3t+6dPr29/R5EBcI/8Y+Zl4eRgh3vj19+M/xGmAfg3ftA/jD3L35/v3z+8+YxTAwDMkUnpL2591AAAAABJRU5ErkJggg==">
+  <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSU2BigAAAAlBMVEUAAAA/X6pBXal/qbR9p7NDXqhCYKlFYKlAXahFYqlAXalAYKhAXakS8851AAAADnRSTlMA8/UQEPHR4fL2y/Lz00s4CjAAAAFiS0dEAIgFHgUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfpChAWDAMgZ9ZlAAACDElEQVR42mNkQAO3L142vXLmzM//jAwr1q26/f+fI44A293z/3///zN8/vv7/98fn1q3L2aA0m/evmRgZ2VjI1Cjmbm5pbm5GfEa/v/7//fnz/f3Hz9mS0lKgO3m42FkZ23z5fOP3+8/v//z5yeKjAInBxenAw8bCwsTMwMTo4SY4L9/f/9++vnt2/s/f/58/IoiA4mLi/v5m929O1vXLRpA6X//GDm5OFk4mJn+/Pn5+/+vP//+fEPl4edn/v/v/5+f399/fnv7/uPPp39/o+nw835m/v/jO9v3zz9+f3/x6/sPlBkY/jNyc7GxMvPyMf778/Pn38+M377+w6kByM7gZmPh5udl+fXj3///3/9//I0uAzGBn4P793e2r8+/fv3+9e/vfyQZAIs9Bg4WFmZmpn//2dh+/mP4/vUrA16N///xMnz5w/Ltx7efLz5++v8D3XxgDfxn5mJiYWJmZWL6+///t0/sD369fYuq9h/DXyZmZmZGNhYWxr+/fn1583sXygwE1pOnb/359fP/n9+Mfxm+sL6f140uA+e/MDFxM3OzMn/++v37y5vv/3+jy4A/D34zsrOxMf///v3t+6dPr29/R5EBcI/8Y+Zl4eRgh3vj19+M/xGmAfg3ftA/jD3L35/v3z+8+YxTAwDMkUnpL2591AAAAABJRU5ErkJggg==">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -41,7 +43,9 @@
   <!-- TELA DE SELEÇÃO DE ACESSO (INICIAL) -->
   <div id="pantalla-login" class="flex flex-col items-center justify-center min-h-screen p-4">
     <div class="card-acustico-blur p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border-t-4 border-orange-500">
-      <div class="w-16 h-1 bg-orange-500 mx-auto mb-4 rounded-full"></div>
+      
+      <!-- Logo do PDF no Topo -->
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSU2BigAAAAlBMVEUAAAA/X6pBXal/qbR9p7NDXqhCYKlFYKlAXahFYqlAXalAYKhAXakS8851AAAADnRSTlMA8/UQEPHR4fL2y/Lz00s4CjAAAAFiS0dEAIgFHgUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfpChAWDAMgZ9ZlAAACDElEQVR42mNkQAO3L142vXLmzM//jAwr1q26/f+fI44A293z/3///zN8/vv7/98fn1q3L2aA0m/evmRgZ2VjI1Cjmbm5pbm5GfEa/v/7//fnz/f3Hz9mS0lKgO3m42FkZ23z5fOP3+8/v//z5yeKjAInBxenAw8bCwsTMwMTo4SY4L9/f/9++vnt2/s/f/58/IoiA4mLi/v5m929O1vXLRpA6X//GDm5OFk4mJn+/Pn5+/+vP//+fEPl4edn/v/v/5+f399/fnv7/uPPp39/o+nw835m/v/jO9v3zz9+f3/x6/sPlBkY/jNyc7GxMvPyMf778/Pn38+M377+w6kByM7gZmPh5udl+fXj3///3/9//I0uAzGBn4P793e2r8+/fv3+9e/vfyQZAIs9Bg4WFmZmpn//2dh+/mP4/vUrA16N///xMnz5w/Ltx7efLz5++v8D3XxgDfxn5mJiYWJmZWL6+///t0/sD369fYuq9h/DXyZmZmZGNhYWxr+/fn1583sXygwE1pOnb/359fP/n9+Mfxm+sL6f140uA+e/MDFxM3OzMn/++v37y5vv/3+jy4A/D34zsrOxMf///v3t+6dPr29/R5EBcI/8Y+Zl4eRgh3vj19+M/xGmAfg3ftA/jD3L35/v3z+8+YxTAwDMkUnpL2591AAAAABJRU5ErkJggg==" alt="Logo T.R.E. Montagens" class="w-24 h-24 mx-auto mb-4 object-contain drop-shadow-md">
       
       <h1 class="text-3xl font-extrabold text-blue-950 tracking-tight mb-1">T.R.E. Montagens</h1>
       <p class="text-orange-600 font-medium text-sm tracking-wide uppercase mb-8">Gestão de Equipe e Obras</p>
@@ -62,7 +66,8 @@
   <div id="visao-funcionario" class="hidden p-4 max-w-lg mx-auto min-h-screen pb-12 w-full">
     <div class="flex justify-between items-center mb-6 bg-blue-950 p-4 rounded-2xl border-b-2 border-orange-500 shadow-md">
       <h2 class="text-xl font-bold text-white flex items-center gap-2">
-        <span>👷</span> Área do Colaborador
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSU2BigAAAAlBMVEUAAAA/X6pBXal/qbR9p7NDXqhCYKlFYKlAXahFYqlAXalAYKhAXakS8851AAAADnRSTlMA8/UQEPHR4fL2y/Lz00s4CjAAAAFiS0dEAIgFHgUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfpChAWDAMgZ9ZlAAACDElEQVR42mNkQAO3L142vXLmzM//jAwr1q26/f+fI44A293z/3///zN8/vv7/98fn1q3L2aA0m/evmRgZ2VjI1Cjmbm5pbm5GfEa/v/7//fnz/f3Hz9mS0lKgO3m42FkZ23z5fOP3+8/v//z5yeKjAInBxenAw8bCwsTMwMTo4SY4L9/f/9++vnt2/s/f/58/IoiA4mLi/v5m929O1vXLRpA6X//GDm5OFk4mJn+/Pn5+/+vP//+fEPl4edn/v/v/5+f399/fnv7/uPPp39/o+nw835m/v/jO9v3zz9+f3/x6/sPlBkY/jNyc7GxMvPyMf778/Pn38+M377+w6kByM7gZmPh5udl+fXj3///3/9//I0uAzGBn4P793e2r8+/fv3+9e/vfyQZAIs9Bg4WFmZmpn//2dh+/mP4/vUrA16N///xMnz5w/Ltx7efLz5++v8D3XxgDfxn5mJiYWJmZWL6+///t0/sD369fYuq9h/DXyZmZmZGNhYWxr+/fn1583sXygwE1pOnb/359fP/n9+Mfxm+sL6f140uA+e/MDFxM3OzMn/++v37y5vv/3+jy4A/D34zsrOxMf///v3t+6dPr29/R5EBcI/8Y+Zl4eRgh3vj19+M/xGmAfg3ftA/jD3L35/v3z+8+YxTAwDMkUnpL2591AAAAABJRU5ErkJggg==" class="w-7 h-7 object-contain inline-block">
+        <span>Área do Colaborador</span>
       </h2>
       <button onclick="sair()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">Sair</button>
     </div>
@@ -231,7 +236,7 @@
   <div id="visao-admin" class="hidden min-h-screen flex flex-col w-full">
     <nav class="bg-blue-950 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-2 border-orange-500 shadow-md">
       <div class="flex items-center gap-2">
-        <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSU2BigAAAAlBMVEUAAAA/X6pBXal/qbR9p7NDXqhCYKlFYKlAXahFYqlAXalAYKhAXakS8851AAAADnRSTlMA8/UQEPHR4fL2y/Lz00s4CjAAAAFiS0dEAIgFHgUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfpChAWDAMgZ9ZlAAACDElEQVR42mNkQAO3L142vXLmzM//jAwr1q26/f+fI44A293z/3///zN8/vv7/98fn1q3L2aA0m/evmRgZ2VjI1Cjmbm5pbm5GfEa/v/7//fnz/f3Hz9mS0lKgO3m42FkZ23z5fOP3+8/v//z5yeKjAInBxenAw8bCwsTMwMTo4SY4L9/f/9++vnt2/s/f/58/IoiA4mLi/v5m929O1vXLRpA6X//GDm5OFk4mJn+/Pn5+/+vP//+fEPl4edn/v/v/5+f399/fnv7/uPPp39/o+nw835m/v/jO9v3zz9+f3/x6/sPlBkY/jNyc7GxMvPyMf778/Pn38+M377+w6kByM7gZmPh5udl+fXj3///3/9//I0uAzGBn4P793e2r8+/fv3+9e/vfyQZAIs9Bg4WFmZmpn//2dh+/mP4/vUrA16N///xMnz5w/Ltx7efLz5++v8D3XxgDfxn5mJiYWJmZWL6+///t0/sD369fYuq9h/DXyZmZmZGNhYWxr+/fn1583sXygwE1pOnb/359fP/n9+Mfxm+sL6f140uA+e/MDFxM3OzMn/++v37y5vv/3+jy4A/D34zsrOxMf///v3t+6dPr29/R5EBcI/8Y+Zl4eRgh3vj19+M/xGmAfg3ftA/jD3L35/v3z+8+YxTAwDMkUnpL2591AAAAABJRU5ErkJggg==" class="w-8 h-8 object-contain">
         <h1 class="text-xl font-bold tracking-tight">T.R.E. | Painel do Patrão</h1>
       </div>
       <button onclick="sair()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition">Sair</button>
@@ -1443,7 +1448,9 @@
         const totalBruto = diasTrabalhados * func.diaria;
         const saldoLiquido = (totalBruto + totalRessarcimentosFunc) - totalValesFunc;
 
-        if (func.ativo === false && diasTrabalhados === 0 && totalValesFunc === 0 && totalRessarcimentosFunc === 0) return '';
+        if (func.ativo === false && diasTrabalhados === 0 && totalValesFunc === 0 && totalRessarcimentosFunc === 0) {
+          return '';
+        }
 
         totalGeralBruto += totalBruto;
         totalGeralRessarcimentos += totalRessarcimentosFunc;
@@ -1451,60 +1458,45 @@
         totalGeralLiquido += saldoLiquido;
 
         return `
-          <tr class="hover:bg-gray-50 ${func.ativo === false ? 'bg-red-50/50' : ''}">
-            <td class="p-3 font-bold text-blue-950">
-              ${func.nome}
-              ${func.ativo === false ? '<span class="text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded ml-1 font-semibold">Ex-colaborador</span>' : ''}
-            </td>
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 font-bold text-blue-950">${func.nome} ${func.ativo === false ? '<span class="text-[10px] text-red-500">(Inativo)</span>' : ''}</td>
             <td class="p-3 text-center">R$ ${func.diaria.toFixed(2)}</td>
-            <td class="p-3 text-center font-bold">${diasTrabalhados} dias</td>
-            <td class="p-3 text-right font-semibold">R$ ${totalBruto.toFixed(2)}</td>
-            <td class="p-3 text-right text-blue-700 font-semibold">R$ ${totalRessarcimentosFunc.toFixed(2)}</td>
-            <td class="p-3 text-right text-red-600 font-semibold">R$ ${totalValesFunc.toFixed(2)}</td>
-            <td class="p-3 text-right font-extrabold ${saldoLiquido < 0 ? 'text-red-600' : 'text-emerald-700'}">
-              R$ ${saldoLiquido.toFixed(2)}
-            </td>
+            <td class="p-3 text-center font-bold">${diasTrabalhados}</td>
+            <td class="p-3 text-right">R$ ${totalBruto.toFixed(2)}</td>
+            <td class="p-3 text-right text-blue-700 font-semibold">+ R$ ${totalRessarcimentosFunc.toFixed(2)}</td>
+            <td class="p-3 text-right text-red-600 font-semibold">- R$ ${totalValesFunc.toFixed(2)}</td>
+            <td class="p-3 text-right font-extrabold ${saldoLiquido < 0 ? 'text-red-600' : 'text-emerald-700'}">R$ ${saldoLiquido.toFixed(2)}</td>
           </tr>
         `;
       }).join('');
 
-      if (!linhasHtml.trim()) {
-        tabela.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum registro encontrado para este mês/ano.</td></tr>';
-        return;
-      }
-
       tabela.innerHTML = linhasHtml + `
-        <tr class="bg-gray-100 font-bold border-t-2 border-gray-300 text-gray-900">
-          <td class="p-3" colspan="3">TOTAL GERAL DO MÊS:</td>
-          <td class="p-3 text-right text-blue-950">R$ ${totalGeralBruto.toFixed(2)}</td>
-          <td class="p-3 text-right text-blue-700">R$ ${totalGeralRessarcimentos.toFixed(2)}</td>
-          <td class="p-3 text-right text-red-600">R$ ${totalGeralVales.toFixed(2)}</td>
-          <td class="p-3 text-right text-emerald-800 text-base">R$ ${totalGeralLiquido.toFixed(2)}</td>
+        <tr class="bg-gray-100 font-bold border-t-2 border-gray-300">
+          <td class="p-3 text-blue-950" colspan="3">TOTAL GERAL DO MÊS:</td>
+          <td class="p-3 text-right">R$ ${totalGeralBruto.toFixed(2)}</td>
+          <td class="p-3 text-right text-blue-800">+ R$ ${totalGeralRessarcimentos.toFixed(2)}</td>
+          <td class="p-3 text-right text-red-700">- R$ ${totalGeralVales.toFixed(2)}</td>
+          <td class="p-3 text-right text-emerald-800 text-base font-extrabold">R$ ${totalGeralLiquido.toFixed(2)}</td>
         </tr>
       `;
     }
 
-    /* =========================================================================
-       NOVAS FUNÇÕES: EXPORTAÇÃO EXCEL E PDF
-       ========================================================================= */
-
     function exportarExcelFechamento() {
-      const mesTexto = document.getElementById('fechamento-mes').selectedOptions[0].text;
-      const anoTexto = document.getElementById('fechamento-ano').value;
       const tabela = document.getElementById('tabela-fechamento-export');
-
       const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento Mensal" });
-      XLSX.writeFile(wb, `Fechamento_TRE_Montagens_${mesTexto}_${anoTexto}.xlsx`);
+      const mes = document.getElementById('fechamento-mes').selectedOptions[0].text;
+      const ano = document.getElementById('fechamento-ano').value;
+      XLSX.writeFile(wb, `Fechamento_TRE_Montagens_${mes}_${ano}.xlsx`);
     }
 
     function exportarPdfFechamento() {
-      const mesTexto = document.getElementById('fechamento-mes').selectedOptions[0].text;
-      const anoTexto = document.getElementById('fechamento-ano').value;
       const elemento = document.getElementById('area-impressao-fechamento');
+      const mes = document.getElementById('fechamento-mes').selectedOptions[0].text;
+      const ano = document.getElementById('fechamento-ano').value;
 
       const opt = {
         margin:       [10, 10, 10, 10],
-        filename:     `Fechamento_TRE_Montagens_${mesTexto}_${anoTexto}.pdf`,
+        filename:     `Fechamento_TRE_${mes}_${ano}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
