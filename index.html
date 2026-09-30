@@ -4913,5 +4913,123 @@
     });
   });
 </script>
+<!-- =========================================================
+     MÓDULO DE ÁUDIO E UPLOAD DE FOTOS PARA A ABA DO PATRÃO
+     ========================================================= -->
+<script>
+  // 1. SISTEMA DE ÁUDIOS DE OBRA
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+
+  function iniciarAudioContext() {
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function tocarSomClique() {
+    try {
+      iniciarAudioContext();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    } catch (e) {}
+  }
+
+  function tocarSomParafusadeira() {
+    try {
+      iniciarAudioContext();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+      osc.frequency.linearRampToValueAtTime(320, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.35);
+    } catch (e) {}
+  }
+
+  function tocarSomSucessoObra() {
+    try {
+      iniciarAudioContext();
+      const agora = audioCtx.currentTime;
+      [523.25, 659.25, 783.99].forEach((freq, index) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, agora + (index * 0.08));
+        gain.gain.setValueAtTime(0.12, agora + (index * 0.08));
+        gain.gain.exponentialRampToValueAtTime(0.001, agora + (index * 0.08) + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(agora + (index * 0.08));
+        osc.stop(agora + (index * 0.08) + 0.2);
+      });
+    } catch (e) {}
+  }
+
+  // 2. INJEÇÃO AUTOMÁTICA DO BOTÃO E UPLOAD DE FOTOS NA ABA DO PATRÃO
+  document.addEventListener('DOMContentLoaded', () => {
+    // Monitor de cliques para os sons
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('button');
+      if (!target) return;
+      const texto = target.innerText.toLowerCase();
+      if (texto.includes('ponto') || texto.includes('enviar') || texto.includes('cadastrar') || texto.includes('designar')) {
+        tocarSomParafusadeira();
+        setTimeout(tocarSomSucessoObra, 350);
+      } else {
+        tocarSomClique();
+      }
+    });
+
+    // Tenta injetar o campo de foto na aba do patrão de forma inteligente
+    setTimeout(() => {
+      // Procura por elementos que costumam ser a aba do patrão (ajuste o seletor se necessário)
+      const abaPatrao = document.querySelector('#patrao, .patrao, [id*="patrao"], [class*="patrao"]');
+      
+      if (abaPatrao && !document.getElementById('blocoFotoObraAuto')) {
+        const containerDiv = document.createElement('div');
+        containerDiv.id = 'blocoFotoObraAuto';
+        containerDiv.style.cssText = 'margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; border: 1px dashed #ccc;';
+        
+        containerDiv.innerHTML = `
+          <label style="display:block; margin-bottom: 8px; font-weight: bold; font-size: 14px;">📸 Enviar Foto da Obra (Galeria):</label>
+          <input type="file" id="inputFotoObraGaleria" accept="image/*" style="width: 100%; margin-bottom: 8px;">
+          <button type="button" id="btnSalvarFotoObra" style="padding: 8px 12px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Salvar Foto da Obra</button>
+        `;
+        
+        abaPatrao.appendChild(containerDiv);
+
+        // Lógica de processamento da foto ao clicar no botão criado
+        document.getElementById('btnSalvarFotoObra').addEventListener('click', () => {
+          const fileInput = document.getElementById('inputFotoObraGaleria');
+          if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              localStorage.setItem('fotoUltimaObraPatrao', evt.target.result);
+              tocarSomSucessoObra();
+              alert('Foto da galeria salva com sucesso no sistema!');
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+          } else {
+            alert('Escolha uma foto da galeria primeiro.');
+          }
+        });
+      }
+    }, 1000);
+  });
+</script>
 
 </html>
