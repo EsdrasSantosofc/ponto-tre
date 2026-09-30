@@ -4870,4 +4870,139 @@
 
   </script>
 </body>
+<!-- =========================================================
+     MÓDULO DE SONS REAIS DE OBRA E UPLOAD DE FOTOS NA ABA DO PATRÃO
+     ========================================================= -->
+<script>
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+
+  function iniciarAudioContext() {
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  // 1. Som de Ferramenta / Catraca (Navegação / Abrir Página)
+  function somAbrirPagina() {
+    try {
+      iniciarAudioContext();
+      const agora = audioCtx.currentTime;
+      [400, 600, 800].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, agora + (i * 0.04));
+        gain.gain.setValueAtTime(0.08, agora + (i * 0.04));
+        gain.gain.exponentialRampToValueAtTime(0.001, agora + (i * 0.04) + 0.05);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(agora + (i * 0.04));
+        osc.stop(agora + (i * 0.04) + 0.05);
+      });
+    } catch (e) {}
+  }
+
+  // 2. Som de Parafusadeira Elétrica (Salvar / Bater Ponto / Enviar)
+  function somParafusadeira() {
+    try {
+      iniciarAudioContext();
+      const agora = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, agora);
+      osc.frequency.linearRampToValueAtTime(320, agora + 0.12);
+      osc.frequency.setValueAtTime(290, agora + 0.15);
+      osc.frequency.linearRampToValueAtTime(180, agora + 0.3);
+
+      gain.gain.setValueAtTime(0.1, agora);
+      gain.gain.exponentialRampToValueAtTime(0.01, agora + 0.3);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(agora);
+      osc.stop(agora + 0.3);
+    } catch (e) {}
+  }
+
+  // 3. Som de Martelada Seca (Excluir / Deletar)
+  function somMartelada() {
+    try {
+      iniciarAudioContext();
+      const agora = audioCtx.currentTime;
+      
+      // Impacto grave (batida do martelo)
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(180, agora);
+      osc.frequency.exponentialRampToValueAtTime(40, agora + 0.1);
+
+      gain.gain.setValueAtTime(0.15, agora);
+      gain.gain.exponentialRampToValueAtTime(0.001, agora + 0.1);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(agora);
+      osc.stop(agora + 0.1);
+    } catch (e) {}
+  }
+
+  // Mapeamento inteligente dos cliques baseado na ação do botão
+  document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('button');
+      if (!target) return;
+      const texto = target.innerText.toLowerCase();
+
+      // Deletar ou Excluir (Martelada pesada)
+      if (texto.includes('excluir') || texto.includes('deletar') || texto.includes('remover') || texto.includes('apagar')) {
+        somMartelada();
+      } 
+      // Salvar, Enviar, Cadastrar, Ponto (Parafusadeira elétrica)
+      else if (texto.includes('salvar') || texto.includes('ponto') || texto.includes('enviar') || texto.includes('cadastrar') || texto.includes('designar')) {
+        somParafusadeira();
+      } 
+      // Abrir novas abas / páginas / menus (Giro de ferramenta)
+      else {
+        somAbrirPagina();
+      }
+    });
+
+    // Injeção automática do upload de fotos na aba do patrão
+    setTimeout(() => {
+      const abaPatrao = document.querySelector('#patrao, .patrao, [id*="patrao"], [class*="patrao"]');
+      if (abaPatrao && !document.getElementById('blocoFotoObraAuto')) {
+        const containerDiv = document.createElement('div');
+        containerDiv.id = 'blocoFotoObraAuto';
+        containerDiv.style.cssText = 'margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; border: 1px dashed #ccc;';
+        
+        containerDiv.innerHTML = `
+          <label style="display:block; margin-bottom: 8px; font-weight: bold; font-size: 14px;">📸 Enviar Foto da Obra (Galeria):</label>
+          <input type="file" id="inputFotoObraGaleria" accept="image/*" style="width: 100%; margin-bottom: 8px;">
+          <button type="button" id="btnSalvarFotoObra" style="padding: 8px 12px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Salvar Foto da Obra</button>
+        `;
+        
+        abaPatrao.appendChild(containerDiv);
+
+        document.getElementById('btnSalvarFotoObra').addEventListener('click', () => {
+          const fileInput = document.getElementById('inputFotoObraGaleria');
+          if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              localStorage.setItem('fotoUltimaObraPatrao', evt.target.result);
+              somParafusadeira();
+              alert('Foto da galeria salva com sucesso no sistema!');
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+          } else {
+            alert('Escolha uma foto da galeria primeiro.');
+          }
+        });
+      }
+    }, 1000);
+  });
+</script>
+
 </html>
