@@ -1,2064 +1,88 @@
-l<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>T.R.E. - Gestão de Obras e Equipe</title>
-
-  <!-- Configurações PWA e Ícone do App -->
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/jpeg" href="./logo-tre.jpg">
-  <link rel="shortcut icon" type="image/jpeg" href="./logo-tre.jpg">
-  <link rel="apple-touch-icon" href="./logo-tre.jpg">
-
-  <meta name="theme-color" content="#0f172a">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="T.R.E. Obras">
-
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Bibliotecas para Exportação e Supabase -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    .bg-acustico-premium {
-      background-image:
-        linear-gradient(
-          to bottom,
-          rgba(15, 23, 42, 0.88),
-          rgba(15, 23, 42, 0.94)
-        ),
-        url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1920&auto=format&fit=crop');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-    }
-
-    .card-acustico-blur {
-      background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(8px);
-    }
-
-    img {
-      max-width: 100%;
-    }
-  </style>
-</head>
-
-<body class="bg-acustico-premium text-gray-800 font-sans min-h-screen flex flex-col">
-
-  <!-- =========================================================
-       TELA DE LOGIN
-       ========================================================= -->
-  <div id="pantalla-login" class="flex flex-col items-center justify-center min-h-screen p-4">
-
-    <div class="card-acustico-blur p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border-t-4 border-orange-500">
-
-      <!-- LOGO T.R.E. -->
-      <div class="mb-4 flex justify-center">
-        <img
-          src="./logo-tre.jpg"
-          alt="Logo T.R.E. Montagens"
-          class="w-24 h-24 rounded-full object-cover shadow-lg border-2 border-orange-500"
-        >
-      </div>
-
-      <h1 class="text-3xl font-extrabold text-blue-950 tracking-tight mb-1">
-        T.R.E. Montagens
-      </h1>
-
-      <p class="text-orange-600 font-medium text-sm tracking-wide uppercase mb-8">
-        Gestão de Equipe e Obras
-      </p>
-
-      <div class="space-y-4">
-
-        <button
-          onclick="mostrarVisao('funcionario')"
-          class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 border-l-4 border-orange-500 cursor-pointer flex items-center justify-center gap-2"
-        >
-          <span>👷</span>
-          Acesso Funcionário
-        </button>
-
-        <button
-          onclick="solicitarSenhaAdmin()"
-          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition duration-200 cursor-pointer flex items-center justify-center gap-2"
-        >
-          <span>👑</span>
-          Acesso Administrador
-        </button>
-
-      </div>
-    </div>
-  </div>
-
-
-  <!-- =========================================================
-       VISÃO DO FUNCIONÁRIO
-       ========================================================= -->
-  <div
-    id="visao-funcionario"
-    class="hidden p-4 max-w-lg mx-auto min-h-screen pb-12 w-full"
-  >
-
-    <div class="flex justify-between items-center mb-6 bg-blue-950 p-4 rounded-2xl border-b-2 border-orange-500 shadow-md">
-
-      <div class="flex items-center gap-3">
-
-        <img
-          src="./logo-tre.jpg"
-          alt="Logo T.R.E. Montagens"
-          class="w-10 h-10 rounded-full object-cover border border-orange-500"
-        >
-
-        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-          <span>👷</span>
-          Área do Colaborador
-        </h2>
-
-      </div>
-
-      <button
-        onclick="sair()"
-        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition"
-      >
-        Sair
-      </button>
-
-    </div>
-
-
-    <!-- CARD 1: PONTO -->
-    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 border-t-4 border-blue-900">
-
-      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
-        <span>📍 Registro de Ponto Diário</span>
-        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
-          Obras / Acabamento
-        </span>
-      </h3>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Selecione o seu Nome:
-        </label>
-
-        <select
-          id="ponto-funcionario"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-        ></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Selecione a Obra:
-        </label>
-
-        <select
-          id="ponto-obra"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-        ></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Data:
-        </label>
-
-        <input
-          type="date"
-          id="ponto-data"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-        >
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          PIN / Senha do Colaborador:
-        </label>
-
-        <input
-          type="password"
-          id="ponto-pin"
-          placeholder="Digite seu PIN individual"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-        >
-      </div>
-
-      <button
-        id="btn-ponto"
-        onclick="registrarPonto()"
-        class="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-4 rounded-xl shadow-lg text-lg transition border-b-4 border-orange-500 cursor-pointer disabled:opacity-50"
-      >
-        📍 BATER PONTO HOJE
-      </button>
-
-    </div>
-
-
-    <!-- CARD 1.5: STATUS DA OBRA -->
-    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-amber-600">
-
-      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
-        <span>🏗️ Atualizar Status da Obra</span>
-        <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
-          Controle de Campo
-        </span>
-      </h3>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Selecione a Obra:
-        </label>
-        <select
-          id="func-status-obra"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-amber-600 focus:outline-none"
-        ></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Como está a situação da obra?
-        </label>
-        <select
-          id="func-status-situacao"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-amber-600 focus:outline-none"
-        >
-          <option value="Em Andamento">🔨 Em Andamento (Falta coisa para fazer)</option>
-          <option value="Pronta">✨ Obra Pronta (Ajustes finais concluídos)</option>
-          <option value="Finalizada">🏁 100% Finalizada (Entregue ao cliente)</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Seu Nome (para registro):
-        </label>
-        <select
-          id="func-status-responsavel"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-amber-600 focus:outline-none"
-        ></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          PIN / Senha do Colaborador:
-        </label>
-        <input
-          type="password"
-          id="func-status-pin"
-          placeholder="Digite seu PIN individual"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-amber-600 focus:outline-none"
-        >
-      </div>
-
-      <button
-        onclick="atualizarStatusObraPeloFuncionario()"
-        class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer"
-      >
-        💾 SALVAR STATUS DA OBRA
-      </button>
-
-    </div>
-
-
-    <!-- CARD 2: PDFs -->
-    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-purple-600">
-
-      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
-        <span>📄 PDFs & Projetos das Obras</span>
-        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-semibold">
-          Projetos & Plantas
-        </span>
-      </h3>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Selecione a Obra para ver os Arquivos:
-        </label>
-        <select
-          id="consulta-pdf-obra"
-          onchange="buscarPdfsObra()"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-purple-600 focus:outline-none"
-        ></select>
-      </div>
-
-      <div id="container-pdf-obra" class="space-y-2 pt-2">
-        <p class="text-xs text-gray-500 italic">
-          Selecione uma obra acima para carregar as plantas e relatórios anexados.
-        </p>
-      </div>
-
-    </div>
-
-
-    <!-- CARD 3: VALES -->
-    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-orange-500">
-
-      <h3 class="text-lg font-bold text-blue-950 border-b pb-2">
-        🧾 Enviar Vale, Ressarcimento ou Comprovante
-      </h3>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Tipo de Lançamento:
-        </label>
-        <select
-          id="vale-tipo-lacamento"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
-        >
-          <option value="Vale">💸 Vale / Adiantamento (Desconta do pagamento)</option>
-          <option value="Ressarcimento">🍔 Ressarcimento (Almoço, Estacionamento, Passagem, Material)</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Selecione o seu Nome:
-        </label>
-        <select
-          id="vale-funcionario"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
-        ></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Selecione a Obra:
-        </label>
-        <select
-          id="vale-obra"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
-        ></select>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-sm font-semibold mb-1 text-gray-700">
-            Valor (R$):
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            id="vale-valor"
-            placeholder="0,00"
-            class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
-          >
-        </div>
-        <div>
-          <label class="block text-sm font-semibold mb-1 text-gray-700">
-            Data:
-          </label>
-          <input
-            type="date"
-            id="vale-data"
-            class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
-          >
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Descrição / Motivo:
-        </label>
-        <input
-          type="text"
-          id="vale-descricao"
-          placeholder="Ex: Almoço, Estacionamento, Vale semanal, Pedágio"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
-        >
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Foto / Comprovante:
-        </label>
-        <input
-          type="file"
-          id="vale-comprovante-file"
-          accept="image/*"
-          class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer"
-        >
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          PIN / Senha do Colaborador:
-        </label>
-        <input
-          type="password"
-          id="vale-pin"
-          placeholder="Digite seu PIN individual"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
-        >
-      </div>
-
-      <button
-        id="btn-vale"
-        onclick="registrarVale()"
-        class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-900 cursor-pointer disabled:opacity-50"
-      >
-        💸 ENVIAR VALE / RESSARCIMENTO
-      </button>
-
-    </div>
-
-
-    <!-- CARD 4: FOTOS E VÍDEOS -->
-    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-emerald-600">
-
-      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
-        <span>📸 Diário de Obra (Fotos e Vídeos)</span>
-        <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">
-          Múltiplos Arquivos
-        </span>
-      </h3>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Selecione o seu Nome:
-        </label>
-        <select
-          id="foto-funcionario"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-        ></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Selecione a Obra:
-        </label>
-        <select
-          id="foto-obra"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-        ></select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Tipo de Registro:
-        </label>
-        <select
-          id="foto-tipo"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-        >
-          <option value="Finalização">🏁 Finalização / Conclusão da Obra</option>
-          <option value="Observação">⚠️ Observação / Problema / Ajuste</option>
-          <option value="Andamento">🔨 Registro de Andamento Diário</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Fotos ou Vídeos da Obra:
-        </label>
-        <input
-          type="file"
-          id="foto-file"
-          accept="image/*,video/*"
-          multiple
-          class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer"
-        >
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          Observações / Comentários:
-        </label>
-        <textarea
-          id="foto-observacao"
-          rows="2"
-          placeholder="Ex: Painéis instalados conforme projeto, faltando apenas limpeza."
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-        ></textarea>
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold mb-1 text-gray-700">
-          PIN / Senha do Colaborador:
-        </label>
-        <input
-          type="password"
-          id="foto-pin"
-          placeholder="Digite seu PIN individual"
-          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-        >
-      </div>
-
-      <button
-        id="btn-foto"
-        onclick="enviarFotoObra()"
-        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer disabled:opacity-50"
-      >
-        📤 ENVIAR PARA A GALERIA DA OBRA
-      </button>
-
-    </div>
-
-
-    <!-- HISTÓRICO -->
-    <div class="mt-8 card-acustico-blur p-6 rounded-2xl shadow-xl border-l-4 border-orange-500">
-      <h3 class="font-bold text-blue-950 mb-3 flex items-center justify-between">
-        <span>Seus Pontos Registrados Recentes:</span>
-        <span class="text-xs text-gray-500 font-normal">Últimos 5 registros</span>
-      </h3>
-      <div
-        id="lista-ponto-recentes"
-        class="space-y-2 text-sm text-gray-700 divide-y divide-gray-100"
-      >
-        Carregando...
-      </div>
-    </div>
-
-  </div>
-
-
-  <!-- =========================================================
-       VISÃO ADMINISTRADOR
-       ========================================================= -->
-  <div id="visao-admin" class="hidden min-h-screen flex flex-col w-full">
-
-    <nav class="bg-blue-950 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-2 border-orange-500 shadow-md">
-      <div class="flex items-center gap-3">
-        <img
-          src="./logo-tre.jpg"
-          alt="Logo T.R.E. Montagens"
-          class="w-8 h-8 rounded-full object-cover border border-orange-500"
-        >
-        <h1 class="text-xl font-bold tracking-tight">
-          T.R.E. | Painel do Patrão
-        </h1>
-      </div>
-      <button
-        onclick="sair()"
-        class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition"
-      >
-        Sair
-      </button>
-    </nav>
-
-
-    <!-- MENU ADMIN -->
-    <div class="bg-blue-900 text-white flex overflow-x-auto text-sm font-semibold border-t border-blue-800 shadow-inner">
-      <button
-        id="tab-btn-obras"
-        onclick="mudarAbaAdmin('obras')"
-        class="px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5"
-      >
-        <span>🏗️</span> Obras, Status & Galeria
-      </button>
-
-      <button
-        id="tab-btn-equipe"
-        onclick="mudarAbaAdmin('equipe')"
-        class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5"
-      >
-        <span>👥</span> Equipe
-      </button>
-
-      <button
-        id="tab-btn-designar"
-        onclick="mudarAbaAdmin('designar')"
-        class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5"
-      >
-        <span>📲</span> Designar Obra
-      </button>
-
-      <button
-        id="tab-btn-presencas"
-        onclick="mudarAbaAdmin('presencas')"
-        class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5"
-      >
-        <span>📅</span> Presenças
-      </button>
-
-      <button
-        id="tab-btn-comprovantes"
-        onclick="mudarAbaAdmin('comprovantes')"
-        class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5"
-      >
-        <span>📑</span> Comprovantes
-      </button>
-
-      <button
-        id="tab-btn-fechamento"
-        onclick="mudarAbaAdmin('fechamento')"
-        class="px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5"
-      >
-        <span>📊</span> Fechamento
-      </button>
-    </div>
-
-
-    <div class="p-4 max-w-5xl mx-auto w-full flex-grow">
-
-      <!-- =====================================================
-           ABA OBRAS
-           ===================================================== -->
-      <div id="aba-obras" class="aba-content space-y-6">
-
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">
-            Cadastrar Nova Obra
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              id="obra-nome"
-              placeholder="Nome da Obra (ex: Avanço RJ)"
-              class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            >
-            <input
-              type="text"
-              id="obra-local"
-              placeholder="Localização / Endereço"
-              class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            >
-          </div>
-          <button
-            onclick="cadastrarObra()"
-            class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md"
-          >
-            Cadastrar Obra
-          </button>
-        </div>
-
-
-        <!-- SEÇÃO DE FILTRO / VISUALIZAÇÃO DE OBRAS POR STATUS -->
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900 space-y-6">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-3">
-            <div>
-              <h3 class="text-lg font-bold text-blue-950">
-                🏗️ Histórico e Gestão de Obras
-              </h3>
-              <p class="text-xs text-gray-500">
-                Acompanhe o que está em andamento, pronto ou finalizado (definido pela equipe ou patrão)
-              </p>
-            </div>
-            
-            <div class="flex gap-2">
-              <button onclick="filtrarObrasPatrao('todas')" id="filtro-todas" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-950 text-white transition">Todas</button>
-              <button onclick="filtrarObrasPatrao('Em Andamento')" id="filtro-andamento" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 text-gray-700 transition">Em Andamento</button>
-              <button onclick="filtrarObrasPatrao('Pronta')" id="filtro-pronta" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 text-gray-700 transition">Prontas</button>
-              <button onclick="filtrarObrasPatrao('Finalizada')" id="filtro-finalizada" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 text-gray-700 transition">Finalizadas</button>
-            </div>
-          </div>
-
-          <ul
-            id="lista-obras"
-            class="divide-y text-gray-700 space-y-3"
-          ></ul>
-        </div>
-
-
-        <!-- MODAL GALERIA -->
-        <div
-          id="modal-galeria-obra"
-          class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        >
-          <div class="bg-white rounded-2xl max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl relative border-t-4 border-orange-500">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-              <div>
-                <h3
-                  id="modal-obra-titulo"
-                  class="text-xl font-bold text-blue-950"
-                ></h3>
-                <p class="text-xs text-gray-500">
-                  Galeria de Fotos, Vídeos, Finalizações e Observações
-                </p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <button
-                  onclick="exportarGaleriaZip()"
-                  class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition"
-                >
-                  📥 Exportar Fotos (ZIP)
-                </button>
-                <button
-                  onclick="fecharModalGaleria()"
-                  class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm"
-                >
-                  ✕ Fechar
-                </button>
-              </div>
-            </div>
-
-            <div
-              id="modal-galeria-conteudo"
-              class="grid grid-cols-1 md:grid-cols-2 gap-4"
-            ></div>
-          </div>
-        </div>
-
-
-        <!-- MODAL PDF -->
-        <div
-          id="modal-anexar-pdf"
-          class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        >
-          <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-              <div>
-                <h3 class="text-lg font-bold text-blue-950">
-                  Projetos & PDFs da Obra
-                </h3>
-                <p
-                  id="modal-pdf-obra-nome"
-                  class="text-xs text-purple-700 font-semibold"
-                ></p>
-              </div>
-              <button
-                onclick="fecharModalPdf()"
-                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm"
-              >
-                ✕
+              <button onclick="abrirModalGaleria('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                📸 Galeria
               </button>
-            </div>
-
-            <input
-              type="hidden"
-              id="modal-pdf-obra-id"
-            >
-
-            <div class="space-y-4">
-              <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
-                <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wide">
-                  Anexar Novo Projeto / PDF
-                </h4>
-                <input
-                  type="text"
-                  id="pdf-titulo-input"
-                  placeholder="Nome/Prefixo do Documento"
-                  class="w-full p-2.5 border rounded-xl bg-white text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none"
-                >
-                <input
-                  type="file"
-                  id="pdf-file-input"
-                  accept="application/pdf"
-                  multiple
-                  class="w-full p-2 border rounded-xl bg-white text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer"
-                >
-                <button
-                  id="btn-pdf-salvar"
-                  onclick="salvarPdfObra()"
-                  class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  <span>📎</span>
-                  Adicionar PDF(s) à Obra
-                </button>
-              </div>
-
-              <div>
-                <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">
-                  Arquivos Já Anexados:
-                </h4>
-                <div
-                  id="lista-pdfs-existentes"
-                  class="space-y-2 max-h-48 overflow-y-auto pr-1"
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- MODAL WHATSAPP -->
-        <div
-          id="modal-whatsapp-obra"
-          class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        >
-          <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-t-4 border-emerald-500">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-              <div>
-                <h3 class="text-lg font-bold text-blue-950 flex items-center gap-1.5">
-                  📲 Enviar Aviso por WhatsApp
-                </h3>
-                <p
-                  id="modal-whatsapp-obra-nome"
-                  class="text-xs text-emerald-700 font-semibold"
-                ></p>
-              </div>
-              <button
-                onclick="fecharModalWhatsapp()"
-                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm"
-              >
-                ✕
+              <button onclick="abrirModalPdf('${o.id}', '${o.nome}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                📄 PDFs
               </button>
-            </div>
-
-            <input type="hidden" id="modal-whatsapp-obra-id">
-            <input type="hidden" id="modal-whatsapp-obra-local">
-
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-semibold mb-1 text-gray-700">
-                  Selecione o Funcionário:
-                </label>
-                <select
-                  id="modal-whatsapp-funcionario"
-                  class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                ></select>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold mb-1 text-gray-700">
-                  Instrução / Orientação Adicional:
-                </label>
-                <textarea
-                  id="modal-whatsapp-mensagem"
-                  rows="3"
-                  placeholder="Ex: Favor estar na obra às 07:30."
-                  class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                ></textarea>
-              </div>
-
-              <button
-                onclick="enviarMensagemWhatsapp()"
-                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2"
-              >
-                <span>💬</span>
-                Abrir WhatsApp com Mensagem
+              <button onclick="abrirModalWhatsapp('${o.id}', '${o.nome}', '${o.local}')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                📲 WhatsApp
               </button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           ABA EQUIPE
-           ===================================================== -->
-      <div id="aba-equipe" class="aba-content hidden space-y-6">
-
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-          <h3 class="text-lg font-bold text-blue-950 mb-4" id="titulo-form-func">
-            Cadastrar Novo Colaborador
-          </h3>
-
-          <input type="hidden" id="edit-func-id">
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              id="func-nome"
-              placeholder="Nome Completo"
-              class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            >
-            <input
-              type="text"
-              id="func-whatsapp"
-              placeholder="WhatsApp (ex: 77999998888)"
-              class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            >
-            <input
-              type="number"
-              step="0.01"
-              id="func-diaria"
-              placeholder="Valor Diária Base (R$)"
-              class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            >
-            <input
-              type="text"
-              id="func-pin"
-              placeholder="PIN Individual (4 dígitos)"
-              class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
-            >
-          </div>
-
-          <div class="flex gap-2 mt-4">
-            <button
-              id="btn-salvar-func"
-              onclick="cadastrarFuncionario()"
-              class="bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md"
-            >
-              Cadastrar Funcionário
-            </button>
-            <button
-              id="btn-cancelar-edicao"
-              onclick="cancelarEdicaoFuncionario()"
-              class="hidden bg-gray-400 text-white font-bold px-4 py-2.5 rounded-xl hover:bg-gray-500 transition shadow-md"
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-
-
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">
-            Equipe Cadastrada
-          </h3>
-          <p class="text-xs text-gray-500 mb-3">
-            Nota: O histórico permanecerá salvo mesmo desativando colaboradores.
-          </p>
-          <ul
-            id="lista-equipe"
-            class="divide-y text-gray-700"
-          ></ul>
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           ABA DESIGNAR
-           ===================================================== -->
-      <div id="aba-designar" class="aba-content hidden space-y-6">
-
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600 space-y-4">
-          <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center gap-2">
-            <span>📲 Designar Funcionário para Obra (Diária ou Empreita)</span>
-          </h3>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1 text-gray-700">
-              Selecione o Colaborador:
-            </label>
-            <select
-              id="designar-funcionario"
-              class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-            ></select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1 text-gray-700">
-              Selecione a Obra:
-            </label>
-            <select
-              id="designar-obra"
-              class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-            ></select>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1 text-gray-700">
-                Tipo de Contratação / Pagamento:
-              </label>
-              <select
-                id="designar-tipo"
-                onchange="alternarCamposDesignacao()"
-                class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-              >
-                <option value="Diária">Diária (Valor fixo por dia)</option>
-                <option value="Empreita Global">Empreita (Valor fechado total)</option>
-                <option value="Metro Quadrado">Empreita por Metro Quadrado (m²)</option>
-                <option value="Por Hora">Por Hora (Valor por hora trabalhada)</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-semibold mb-1 text-gray-700" id="label-valor-variavel">
-                Valor Acertado (R$):
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                id="designar-valor"
-                placeholder="Ex: 1500.00"
-                class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-              >
-            </div>
-          </div>
-
-          <div id="bloco-metragem" class="hidden">
-            <label class="block text-sm font-semibold mb-1 text-gray-700">
-              Área Total (m²) ou Quantidade de Horas:
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              id="designar-quantidade"
-              placeholder="Ex: 45.5 (m² ou horas)"
-              class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-            >
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1 text-gray-700">
-              Data de Início / Presença:
-            </label>
-            <input
-              type="date"
-              id="designar-data"
-              class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-            >
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1 text-gray-700">
-              Instruções / Detalhes da Execução ou Empreita:
-            </label>
-            <textarea
-              id="designar-instrucao"
-              rows="3"
-              placeholder="Ex: Instalação de painéis acústicos na sala de reuniões. Serviço de empreita fechado."
-              class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-            ></textarea>
-          </div>
-
-          <button
-            id="btn-designar"
-            onclick="confirmarEEnviarDesignacao()"
-            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            <span>💬</span>
-            DESIGNAR E ENVIAR CONVOCAÇÃO VIA WHATSAPP
-          </button>
-        </div>
-
-
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-          <h3 class="text-lg font-bold text-blue-950 mb-4">
-            Histórico de Convocações e Empreitas
-          </h3>
-          <div
-            id="lista-designacoes"
-            class="space-y-2 text-sm divide-y"
-          ></div>
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           ABA PRESENÇAS
-           ===================================================== -->
-      <div id="aba-presencas" class="aba-content hidden space-y-6">
-
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-blue-950">
-              Registro Geral de Presenças
-            </h3>
-            <button
-              onclick="carregarPresencas()"
-              class="text-xs bg-blue-100 text-blue-900 px-3 py-1 rounded-lg font-bold hover:bg-blue-200"
-            >
-              Atualizar
-            </button>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
-                  <th class="p-3 border-b">Data</th>
-                  <th class="p-3 border-b">Funcionário</th>
-                  <th class="p-3 border-b">Obra</th>
-                  <th class="p-3 border-b">GPS / Localização</th>
-                  <th class="p-3 border-b text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody
-                id="tabela-presencas"
-                class="text-sm divide-y"
-              ></tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           ABA COMPROVANTES
-           ===================================================== -->
-      <div id="aba-comprovantes" class="aba-content hidden space-y-6">
-
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-blue-950">
-              Vales, Ressarcimentos and Comprovantes Recebidos
-            </h3>
-            <div class="flex items-center gap-2">
-              <button
-                onclick="exportarComprovantesZip()"
-                class="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-700 transition"
-              >
-                📥 Exportar Comprovantes (ZIP)
+              <button onclick="excluirObra('${o.id}')" class="text-red-500 hover:text-red-700 font-bold px-2 py-1 text-xs">
+                ✕ Excluir
               </button>
-              <button
-                onclick="carregarValesAdmin()"
-                class="text-xs bg-orange-100 text-orange-900 px-3 py-1.5 rounded-lg font-bold hover:bg-orange-200"
-              >
-                Atualizar
-              </button>
-            </div>
-          </div>
-
-          <div
-            id="container-vales-admin"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4"
-          ></div>
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           ABA FECHAMENTO
-           ===================================================== -->
-      <div id="aba-fechamento" class="aba-content hidden space-y-6">
-
-        <div
-          id="area-impressao-fechamento"
-          class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600"
-        >
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b pb-4">
-            <div>
-              <h3 class="text-xl font-bold text-blue-950">
-                📊 Fechamento Mensal e Balanço de Diárias / Empreitas
-              </h3>
-              <p class="text-xs text-gray-500">
-                Histórico de pagamentos, vales, ressarcimentos e saldos calculados por período (Empreitas somam apenas se a obra estiver 100% Finalizada)
-              </p>
-            </div>
-
-            <div
-              class="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded-xl border"
-              data-html2pdf-ignore="true"
-            >
-              <div>
-                <label class="block text-[10px] font-bold uppercase text-gray-500">
-                  Mês:
-                </label>
-                <select
-                  id="fechamento-mes"
-                  onchange="calcularFechamentoMensal()"
-                  class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value="0">Janeiro</option>
-                  <option value="1">Fevereiro</option>
-                  <option value="2">Março</option>
-                  <option value="3">Abril</option>
-                  <option value="4">Maio</option>
-                  <option value="5">Junho</option>
-                  <option value="6">Julho</option>
-                  <option value="7">Agosto</option>
-                  <option value="8">Setembro</option>
-                  <option value="9">Outubro</option>
-                  <option value="10">Novembro</option>
-                  <option value="11">Dezembro</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-[10px] font-bold uppercase text-gray-500">
-                  Ano:
-                </label>
-                <select
-                  id="fechamento-ano"
-                  onchange="calcularFechamentoMensal()"
-                  class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
-                ></select>
-              </div>
-
-              <button
-                onclick="calcularFechamentoMensal()"
-                class="mt-3 bg-emerald-600 text-white font-bold px-3 py-2 rounded-lg text-xs hover:bg-emerald-700 transition"
-              >
-                Recalcular
-              </button>
-            </div>
-          </div>
-
-
-          <!-- EXPORTAÇÃO -->
-          <div
-            class="flex flex-wrap gap-2 mb-4 justify-end"
-            data-html2pdf-ignore="true"
-          >
-            <button
-              onclick="exportarExcelFechamento()"
-              class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 transition"
-            >
-              <span>📗</span>
-              Exportar para Excel
-            </button>
-
-            <button
-              onclick="exportarPdfFechamento()"
-              class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 transition"
-            >
-              <span>📕</span>
-              Salvar em PDF
-            </button>
-          </div>
-
-
-          <div class="overflow-x-auto">
-            <table
-              id="tabela-fechamento-export"
-              class="w-full text-left border-collapse"
-            >
-              <thead>
-                <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
-                  <th class="p-3 border-b">Funcionário</th>
-                  <th class="p-3 border-b text-center">Diária / Acordo</th>
-                  <th class="p-3 border-b text-center">Dias / Produção</th>
-                  <th class="p-3 border-b text-right">Total Bruto</th>
-                  <th class="p-3 border-b text-right text-blue-700">Ressarcimentos</th>
-                  <th class="p-3 border-b text-right text-red-600">Total Vales</th>
-                  <th class="p-3 border-b text-right text-emerald-700">Saldo a Pagar</th>
-                </tr>
-              </thead>
-              <tbody
-                id="tabela-fechamento"
-                class="text-sm divide-y"
-              ></tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- =========================================================
-       JAVASCRIPT COM SUPABASE & REALTIME
-       ========================================================= -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <script>
-
-    /* =========================================================
-       CONFIGURAÇÃO DO SUPABASE
-       ========================================================= -->
-    const SUPABASE_URL = 'https://vjlppbetuqxxfgusqmxf.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_1fJ58_NZXTgATaISERowTQ_vH7ueeex';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-
-    /* =========================================================
-       SISTEMA DE SOM TEMÁTICO
-       ========================================================= */
-    let audioCtx = null;
-
-    function tocarSomConstrucao(tipo = 'clique') {
-      try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-
-        const agora = audioCtx.currentTime;
-
-        if (tipo === 'sair' || tipo === 'voltar') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(180, agora);
-          osc.frequency.exponentialRampToValueAtTime(50, agora + 0.15);
-          gain.gain.setValueAtTime(0.15, agora);
-          gain.gain.linearRampToValueAtTime(0.01, agora + 0.15);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(agora);
-          osc.stop(agora + 0.15);
-        } else if (tipo === 'confirmar' || tipo === 'entrar') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(320, agora);
-          osc.frequency.exponentialRampToValueAtTime(640, agora + 0.08);
-          gain.gain.setValueAtTime(0.2, agora);
-          gain.gain.linearRampToValueAtTime(0.01, agora + 0.12);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(agora);
-          osc.stop(agora + 0.12);
-        } else {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(400, agora);
-          osc.frequency.exponentialRampToValueAtTime(150, agora + 0.05);
-          gain.gain.setValueAtTime(0.1, agora);
-          gain.gain.linearRampToValueAtTime(0.01, agora + 0.05);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start(agora);
-          osc.stop(agora + 0.05);
-        }
-      } catch (e) {
-        console.log("Áudio bloqueado.", e);
-      }
-    }
-
-    document.addEventListener('click', function(event) {
-      const botao = event.target.closest('button');
-      if (!botao) return;
-
-      const texto = (botao.innerText || "").toLowerCase();
-
-      if (texto.includes('sair') || texto.includes('fechar') || texto.includes('✕') || texto.includes('remover') || texto.includes('excluir')) {
-        tocarSomConstrucao('sair');
-      } else if (texto.includes('confirmar') || texto.includes('entrar') || texto.includes('bater ponto') || texto.includes('salvar') || texto.includes('cadastrar') || texto.includes('enviar') || texto.includes('designar')) {
-        tocarSomConstrucao('confirmar');
-      } else {
-        tocarSomConstrucao('clique');
-      }
-    });
-
-
-    /* =========================================================
-       ESTADOS DO APLICATIVO (ONLINE)
-       ========================================================= */
-
-    let obras = [];
-    let equipe = [];
-    let pontos = [];
-    let vales = [];
-    let fotosObra = [];
-    let pdfsObra = [];
-    let designacoes = [];
-    let filtroStatusAtual = 'todas';
-
-
-    /* =========================================================
-       CARREGAR DADOS DO SUPABASE
-       ========================================================= */
-
-    async function carregarDadosDoSupabase() {
-      try {
-        const [resObras, resEquipe, resPontos, resVales, resFotos, resPdfs, resDesig] = await Promise.all([
-          supabaseClient.from('obras').select('*'),
-          supabaseClient.from('equipe').select('*'),
-          supabaseClient.from('pontos').select('*'),
-          supabaseClient.from('vales').select('*'),
-          supabaseClient.from('fotos_obra').select('*'),
-          supabaseClient.from('pdfs_obra').select('*'),
-          supabaseClient.from('designacoes').select('*')
-        ]);
-
-        if (resObras.data) obras = resObras.data;
-        if (resEquipe.data) equipe = resEquipe.data;
-        if (resPontos.data) pontos = resPontos.data;
-        if (resVales.data) vales = resVales.data;
-        if (resFotos.data) fotosObra = resFotos.data;
-        if (resPdfs.data) pdfsObra = resPdfs.data;
-        if (resDesig.data) designacoes = resDesig.data;
-
-        populardropdowns();
-        carregarHistoricoPontosFuncionario();
-        renderizarObras();
-        renderizarEquipe();
-        renderizarDesignacoes();
-      } catch (e) {
-        console.error("Erro ao sincronizar com Supabase:", e);
-      }
-    }
-
-
-    /* =========================================================
-       CONFIGURAR REALTIME (SINCRONIZAÇÃO EM TEMPO REAL)
-       ========================================================= */
-
-    function configurarRealtimeSupabase() {
-      supabaseClient
-        .channel('public-db-changes')
-        .on('postgres_changes', { event: '*', schema: 'public' }, () => {
-          carregarDadosDoSupabase();
-        })
-        .subscribe();
-    }
-
-
-    /* =========================================================
-       COMPRESSÃO DE IMAGENS
-       ========================================================= */
-
-    function comprimirImagem(file, maxLargura = 1000, qualidade = 0.7) {
-      return new Promise((resolve, reject) => {
-        if (!file) { resolve(null); return; }
-        if (file.type.startsWith('video/')) {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.onerror = () => reject(new Error('Erro ao ler vídeo.'));
-          reader.readAsDataURL(file);
-          return;
-        }
-        if (!file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.onerror = () => reject(new Error('Erro ao ler arquivo.'));
-          reader.readAsDataURL(file);
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            let largura = img.width;
-            let altura = img.height;
-            if (largura > maxLargura) {
-              altura = Math.round((altura * maxLargura) / largura);
-              largura = maxLargura;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = largura;
-            canvas.height = altura;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) { resolve(e.target.result); return; }
-            ctx.drawImage(img, 0, 0, largura, altura);
-            resolve(canvas.toDataURL('image/jpeg', qualidade));
-          };
-          img.onerror = () => resolve(e.target.result);
-          img.src = e.target.result;
-        };
-        reader.onerror = () => reject(new Error('Erro ao ler imagem.'));
-        reader.readAsDataURL(file);
-      });
-    }
-
-
-    /* =========================================================
-       GPS
-       ========================================================= */
-
-    function obterCoordenadasGPS() {
-      return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-          alert("Geolocalização não é suportada pelo seu navegador.");
-          resolve(null);
-          return;
-        }
-        
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-          },
-          (err) => {
-            console.warn("Erro ao obter GPS:", err.message);
-            navigator.geolocation.getCurrentPosition(
-              (pos2) => resolve({ lat: pos2.coords.latitude, lng: pos2.coords.longitude }),
-              () => {
-                alert("⚠️ Não foi possível obter sua localização exata. O ponto será registrado sem GPS.");
-                resolve(null);
-              },
-              { timeout: 10000, enableHighAccuracy: false, maximumAge: 60000 }
-            );
-          },
-          { timeout: 12000, enableHighAccuracy: true, maximumAge: 0 }
-        );
-      });
-    }
-
-
-    /* =========================================================
-       INICIALIZAÇÃO
-       ========================================================= */
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      const hoje = new Date().toISOString().split('T')[0];
-      if (document.getElementById('ponto-data')) document.getElementById('ponto-data').value = hoje;
-      if (document.getElementById('vale-data')) document.getElementById('vale-data').value = hoje;
-      if (document.getElementById('designar-data')) document.getElementById('designar-data').value = hoje;
-
-      const anoSelect = document.getElementById('fechamento-ano');
-      const anoAtual = new Date().getFullYear();
-      if (anoSelect) {
-        for (let ano = anoAtual - 2; ano <= anoAtual + 3; ano++) {
-          const option = document.createElement('option');
-          option.value = ano;
-          option.textContent = ano;
-          if (ano === anoAtual) option.selected = true;
-          anoSelect.appendChild(option);
-        }
-      }
-
-      const mesSelect = document.getElementById('fechamento-mes');
-      if (mesSelect) mesSelect.value = new Date().getMonth();
-
-      await carregarDadosDoSupabase();
-      configurarRealtimeSupabase();
-      alternarCamposDesignacao();
-    });
-
-
-    /* =========================================================
-       DROPDOWNS
-       ========================================================= */
-
-    function populardropdowns() {
-      const funcSelects = [
-        'ponto-funcionario',
-        'vale-funcionario',
-        'foto-funcionario',
-        'modal-whatsapp-funcionario',
-        'designar-funcionario',
-        'func-status-responsavel'
-      ];
-
-      const funcionariosAtivos = equipe.filter(e => e.ativo !== false);
-
-      funcSelects.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.innerHTML = '<option value="">Selecione o Funcionário...</option>';
-        funcionariosAtivos.forEach(f => {
-          const zapInfo = f.whatsapp ? ` (${f.whatsapp})` : '';
-          el.innerHTML += `<option value="${f.id}">${f.nome}${zapInfo}</option>`;
-        });
-      });
-
-      const obraSelects = [
-        'ponto-obra',
-        'consulta-pdf-obra',
-        'vale-obra',
-        'foto-obra',
-        'designar-obra',
-        'func-status-obra'
-      ];
-
-      obraSelects.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.innerHTML = '<option value="">Selecione a Obra...</option>';
-        obras.forEach(o => {
-          const statusTxt = o.status ? ` [${o.status}]` : '';
-          el.innerHTML += `<option value="${o.id}">${o.nome} (${o.local})${statusTxt}</option>`;
-        });
-      });
-    }
-
-
-    /* =========================================================
-       ATUALIZAR STATUS DA OBRA
-       ========================================================= */
-
-    async function atualizarStatusObraPeloFuncionario() {
-      const obraId = document.getElementById('func-status-obra').value;
-      const situacao = document.getElementById('func-status-situacao').value;
-      const funcId = document.getElementById('func-status-responsavel').value;
-      const pin = document.getElementById('func-status-pin').value;
-
-      if (!obraId || !situacao || !funcId || !pin) {
-        alert("Preencha todos os campos e informe seu PIN!");
-        return;
-      }
-
-      if (!validarPin(funcId, pin)) {
-        alert("PIN incorreto!");
-        return;
-      }
-
-      const func = equipe.find(f => f.id === funcId);
-      if (!func) {
-        alert("Colaborador não encontrado.");
-        return;
-      }
-
-      const { error } = await supabaseClient
-        .from('obras')
-        .update({ status: situacao, atualizado_por: func.nome })
-        .eq('id', obraId);
-
-      if (error) {
-        alert("Erro ao atualizar status: " + error.message);
-        return;
-      }
-
-      alert(`✅ Status da obra atualizado com sucesso para: "${situacao}" por ${func.nome}!`);
-      document.getElementById('func-status-pin').value = '';
-      carregarDadosDoSupabase();
-    }
-
-
-    /* =========================================================
-       TROCAR VISÃO
-       ========================================================= */
-
-    function mostrarVisao(visao) {
-      document.getElementById('pantalla-login').classList.add('hidden');
-      if (visao === 'funcionario') {
-        document.getElementById('visao-funcionario').classList.remove('hidden');
-        carregarHistoricoPontosFuncionario();
-      } else if (visao === 'admin') {
-        document.getElementById('visao-admin').classList.remove('hidden');
-        mudarAbaAdmin('obras');
-      }
-    }
-
-
-    /* =========================================================
-       SENHA ADMIN
-       ========================================================= */
-
-    function solicitarSenhaAdmin() {
-      const senha = prompt("Digite a senha do Administrador / Patrão:");
-      if (senha === "1234" || senha === "admin") {
-        mostrarVisao('admin');
-      } else if (senha !== null) {
-        alert("Senha incorreta!");
-      }
-    }
-
-
-    /* =========================================================
-       SAIR
-       ========================================================= */
-
-    function sair() {
-      document.getElementById('visao-funcionario').classList.add('hidden');
-      document.getElementById('visao-admin').classList.add('hidden');
-      document.getElementById('pantalla-login').classList.remove('hidden');
-    }
-
-
-    /* =========================================================
-       ABAS ADMIN
-       ========================================================= */
-
-    function mudarAbaAdmin(aba) {
-      document.querySelectorAll('.aba-content').forEach(el => el.classList.add('hidden'));
-      const abaElement = document.getElementById(`aba-${aba}`);
-      if (abaElement) abaElement.classList.remove('hidden');
-
-      const abas = ['obras', 'equipe', 'designar', 'presencas', 'comprovantes', 'fechamento'];
-      abas.forEach(a => {
-        const btn = document.getElementById(`tab-btn-${a}`);
-        if (!btn) return;
-        btn.className = (a === aba)
-          ? "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5"
-          : "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
-      });
-
-      if (aba === 'obras') renderizarObras();
-      if (aba === 'equipe') renderizarEquipe();
-      if (aba === 'designar') renderizarDesignacoes();
-      if (aba === 'presencas') carregarPresencas();
-      if (aba === 'comprovantes') carregarValesAdmin();
-      if (aba === 'fechamento') calcularFechamentoMensal();
-    }
-
-
-    /* =========================================================
-       PIN
-       ========================================================= */
-
-    function validarPin(funcId, pinDigitado) {
-      const func = equipe.find(f => f.id === funcId);
-      return !!(func && String(func.pin) === String(pinDigitado));
-    }
-
-
-    /* =========================================================
-       REGISTRAR PONTO
-       ========================================================= */
-
-    async function registrarPonto() {
-      const btn = document.getElementById('btn-ponto');
-      const funcId = document.getElementById('ponto-funcionario').value;
-      const obraId = document.getElementById('ponto-obra').value;
-      const data = document.getElementById('ponto-data').value;
-      const pin = document.getElementById('ponto-pin').value;
-
-      if (!funcId || !obraId || !data || !pin) {
-        alert("Preencha todos os campos do ponto!");
-        return;
-      }
-
-      if (!validarPin(funcId, pin)) {
-        alert("PIN incorreto!");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = "🌐 OBTENDO GPS E REGISTRANDO...";
-
-      try {
-        const coords = await obterCoordenadasGPS();
-        const novoPonto = {
-          id: Date.now().toString(),
-          funcionario_id: funcId,
-          obra_id: obraId,
-          data: data,
-          hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-          gps: coords
-        };
-
-        const { error } = await supabaseClient.from('pontos').insert([novoPonto]);
-        if (error) throw error;
-
-        alert("📍 Ponto e geolocalização registrados com sucesso!");
-        document.getElementById('ponto-pin').value = '';
-        carregarDadosDoSupabase();
-      } catch (erro) {
-        console.error(erro);
-        alert("Não foi possível registrar o ponto.");
-      }
-
-      btn.disabled = false;
-      btn.innerText = "📍 BATER PONTO HOJE";
-    }
-
-
-    /* =========================================================
-       HISTÓRICO PONTOS
-       ========================================================= */
-
-    function carregarHistoricoPontosFuncionario() {
-      const container = document.getElementById('lista-ponto-recentes');
-      if (!container) return;
-      const ultimosPontos = pontos.slice(0, 5);
-
-      if (ultimosPontos.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 py-2">Nenhum ponto registrado ainda.</p>';
-        return;
-      }
-
-      container.innerHTML = ultimosPontos.map(p => {
-        const func = equipe.find(f => f.id === p.funcionario_id);
-        const obra = obras.find(o => o.id === p.obra_id);
-        return `
-          <div class="py-2 flex justify-between items-center">
-            <div>
-              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</p>
-              <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Desconhecida'}</p>
-            </div>
-            <div class="text-right">
-              <span class="text-xs font-semibold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full">${p.data}</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-
-    /* =========================================================
-       REGISTRAR VALE
-       ========================================================= */
-
-    async function registrarVale() {
-      const btn = document.getElementById('btn-vale');
-      const tipoLancamento = document.getElementById('vale-tipo-lacamento').value;
-      const funcId = document.getElementById('vale-funcionario').value;
-      const obraId = document.getElementById('vale-obra').value;
-      const valor = parseFloat(document.getElementById('vale-valor').value);
-      const data = document.getElementById('vale-data').value;
-      const descricao = document.getElementById('vale-descricao').value;
-      const pin = document.getElementById('vale-pin').value;
-      const fileInput = document.getElementById('vale-comprovante-file');
-
-      if (!funcId || !obraId || !data || !pin || !Number.isFinite(valor) || valor <= 0) {
-        alert("Preencha todos os campos obrigatórios e informe um valor válido!");
-        return;
-      }
-
-      if (!validarPin(funcId, pin)) {
-        alert("PIN incorreto!");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = "⏳ ENVIANDO...";
-
-      try {
-        let fotoDataUrl = null;
-        if (fileInput.files && fileInput.files[0]) {
-          fotoDataUrl = await comprimirImagem(fileInput.files[0]);
-        }
-
-        const novoVale = {
-          id: Date.now().toString(),
-          tipo: tipoLancamento || 'Vale',
-          funcionario_id: funcId,
-          obra_id: obraId,
-          valor: valor,
-          data: data,
-          descricao: descricao,
-          comprovante: fotoDataUrl
-        };
-
-        const { error } = await supabaseClient.from('vales').insert([novoVale]);
-        if (error) throw error;
-
-        alert(`💸 ${tipoLancamento}/Comprovante enviado com sucesso!`);
-        document.getElementById('vale-valor').value = '';
-        document.getElementById('vale-descricao').value = '';
-        document.getElementById('vale-pin').value = '';
-        document.getElementById('vale-comprovante-file').value = '';
-        carregarDadosDoSupabase();
-      } catch (erro) {
-        console.error(erro);
-        alert("Não foi possível enviar o lançamento.");
-      }
-
-      btn.disabled = false;
-      btn.innerText = "💸 ENVIAR VALE / RESSARCIMENTO";
-    }
-
-
-    /* =========================================================
-       ENVIAR FOTO / VÍDEO
-       ========================================================= */
-
-    async function enviarFotoObra() {
-      const btn = document.getElementById('btn-foto');
-      const funcId = document.getElementById('foto-funcionario').value;
-      const obraId = document.getElementById('foto-obra').value;
-      const tipo = document.getElementById('foto-tipo').value;
-      const observacao = document.getElementById('foto-observacao').value;
-      const pin = document.getElementById('foto-pin').value;
-      const fileInput = document.getElementById('foto-file');
-
-      if (!funcId || !obraId || !pin || !fileInput.files || fileInput.files.length === 0) {
-        alert("Selecione o funcionário, a obra, informe o PIN e escolha os arquivos!");
-        return;
-      }
-
-      if (!validarPin(funcId, pin)) {
-        alert("PIN incorreto!");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = "⏳ PROCESSANDO E ENVIANDO...";
-
-      try {
-        const files = Array.from(fileInput.files);
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const isVideo = file.type.startsWith('video/');
-          const arquivoProcessado = await comprimirImagem(file);
-
-          const novaFoto = {
-            id: (Date.now() + i).toString(),
-            funcionario_id: funcId,
-            obra_id: obraId,
-            tipo: tipo,
-            observacao: observacao,
-            imagem: arquivoProcessado,
-            is_video: isVideo,
-            data: new Date().toLocaleDateString('pt-BR'),
-            file_name: file.name
-          };
-
-          await supabaseClient.from('fotos_obra').insert([novaFoto]);
-        }
-
-        alert(`📸 ${files.length} arquivo(s) enviado(s) com sucesso!`);
-        document.getElementById('foto-observacao').value = '';
-        document.getElementById('foto-pin').value = '';
-        document.getElementById('foto-file').value = '';
-        carregarDadosDoSupabase();
-      } catch (erro) {
-        console.error(erro);
-        alert("Não foi possível processar os arquivos.");
-      }
-
-      btn.disabled = false;
-      btn.innerText = "📤 ENVIAR PARA A GALERIA DA OBRA";
-    }
-
-
-    /* =========================================================
-       BUSCAR PDF
-       ========================================================= */
-
-    function buscarPdfsObra() {
-      const obraId = document.getElementById('consulta-pdf-obra').value;
-      const container = document.getElementById('container-pdf-obra');
-
-      if (!obraId) {
-        container.innerHTML = '<p class="text-xs text-gray-500 italic">Selecione uma obra acima.</p>';
-        return;
-      }
-
-      const pdfs = pdfsObra.filter(p => p.obra_id === obraId);
-
-      if (pdfs.length === 0) {
-        container.innerHTML = '<p class="text-xs text-orange-600 bg-orange-50 p-3 rounded-xl border border-orange-200">Nenhum PDF anexado a esta obra.</p>';
-        return;
-      }
-
-      container.innerHTML = pdfs.map(pdf => `
-        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 flex items-center justify-between">
-          <div>
-            <p class="font-bold text-sm text-purple-950">📄 ${pdf.titulo || 'Projeto da Obra'}</p>
-            <p class="text-xs text-purple-700">Adicionado em: ${pdf.data}</p>
-          </div>
-          <a href="${pdf.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Abrir PDF ↗</a>
-        </div>
-      `).join('');
-    }
-
-
-    /* =========================================================
-       CADASTRAR OBRA
-       ========================================================= */
-
-    async function cadastrarObra() {
-      const nome = document.getElementById('obra-nome').value.trim();
-      const local = document.getElementById('obra-local').value.trim();
-
-      if (!nome || !local) {
-        alert("Preencha o nome e o local da obra!");
-        return;
-      }
-
-      const novaObra = {
-        id: Date.now().toString(),
-        nome: nome,
-        local: local,
-        status: 'Em Andamento',
-        atualizado_por: 'Patrão'
-      };
-
-      const { error } = await supabaseClient.from('obras').insert([novaObra]);
-      if (error) {
-        alert("Erro ao cadastrar obra: " + error.message);
-        return;
-      }
-
-      document.getElementById('obra-nome').value = '';
-      document.getElementById('obra-local').value = '';
-      carregarDadosDoSupabase();
-    }
-
-
-    /* =========================================================
-       RENDER OBRAS & FILTROS POR STATUS
-       ========================================================= */
-
-    function filtrarObrasPatrao(status) {
-      filtroStatusAtual = status;
-      ['todas', 'andamento', 'pronta', 'finalizada'].forEach(s => {
-        const btn = document.getElementById(`filtro-${s}`);
-        if (!btn) return;
-        if ((s === 'todas' && status === 'todas') || s.toLowerCase() === status.toLowerCase()) {
-          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-950 text-white transition";
-        } else {
-          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 text-gray-700 transition";
-        }
-      });
-      renderizarObras();
-    }
-
-    function renderizarObras() {
-      const lista = document.getElementById('lista-obras');
-      if (!lista) return;
-
-      let obrasFiltradas = obras;
-      if (filtroStatusAtual !== 'todas') {
-        obrasFiltradas = obras.filter(o => (o.status || 'Em Andamento') === filtroStatusAtual);
-      }
-
-      if (obrasFiltradas.length === 0) {
-        lista.innerHTML = '<li class="py-4 text-sm text-gray-500 text-center italic">Nenhuma obra encontrada com este status.</li>';
-        return;
-      }
-
-      lista.innerHTML = obrasFiltradas.map(o => {
-        const qtdPdfs = pdfsObra.filter(p => p.obra_id === o.id).length;
-        const qtdFotos = fotosObra.filter(f => f.obra_id === o.id).length;
-        const statusObra = o.status || 'Em Andamento';
-
-        let badgeCor = "bg-amber-100 text-amber-800 border-amber-300";
-        if (statusObra === 'Pronta') badgeCor = "bg-blue-100 text-blue-800 border-blue-300";
-        if (statusObra === 'Finalizada') badgeCor = "bg-emerald-100 text-emerald-800 border-emerald-300";
-
-        return `
-          <li class="py-4 px-3 bg-white/60 rounded-xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-            <div>
-              <div class="flex items-center gap-2">
-                <p class="font-bold text-blue-950 text-base">${o.nome}</p>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeCor}">
-                  ${statusObra}
-                </span>
-              </div>
-              <p class="text-xs text-gray-500 mt-0.5">📍 ${o.local} | Atualizado por: ${o.atualizado_por || 'Geral'}</p>
-              <div class="flex gap-2 mt-1.5">
-                <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full">${qtdPdfs} PDF(s)</span>
-                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">${qtdFotos} Mídia(s)</span>
-              </div>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-2">
-              <select onchange="mudarStatusObraPatrao('${o.id}', this.value)" class="text-xs p-1.5 border rounded-lg bg-gray-50 font-semibold focus:ring-1 focus:ring-orange-500">
-                <option value="Em Andamento" ${statusObra === 'Em Andamento' ? 'selected' : ''}>🔨 Em Andamento</option>
-                <option value="Pronta" ${statusObra === 'Pronta' ? 'selected' : ''}>✨ Obra Pronta</option>
-                <option value="Finalizada" ${statusObra === 'Finalizada' ? 'selected' : ''}>🏁 100% Finalizada</option>
-              </select>
-
-              <button onclick="abrirModalPdf('${o.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">📄 PDFs</button>
-              <button onclick="abrirGaleriaObra('${o.id}')" class="bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">📸 Galeria</button>
-              <button onclick="abrirModalWhatsapp('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">💬 Whats</button>
-              <button onclick="excluirObra('${o.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition">🗑</button>
             </div>
           </li>
         `;
       }).join('');
     }
 
-    async function mudarStatusObraPatrao(id, novoStatus) {
-      await supabaseClient
+    async function mudarStatusObraPatrao(obraId, novoStatus) {
+      const { error } = await supabaseClient
         .from('obras')
         .update({ status: novoStatus, atualizado_por: 'Patrão' })
-        .eq('id', id);
+        .eq('id', obraId);
+
+      if (error) {
+        alert("Erro ao alterar status: " + error.message);
+        return;
+      }
       carregarDadosDoSupabase();
     }
 
     async function excluirObra(id) {
-      if (!confirm("Deseja realmente excluir esta obra?")) return;
-      await supabaseClient.from('obras').delete().eq('id', id);
+      if (!confirm("Tem certeza que deseja excluir esta obra?")) return;
+      const { error } = await supabaseClient.from('obras').delete().eq('id', id);
+      if (error) {
+        alert("Erro ao excluir: " + error.message);
+        return;
+      }
       carregarDadosDoSupabase();
     }
 
 
     /* =========================================================
-       MODAL GALERIA
+       GALERIA MODAL (FOTOS E VÍDEOS)
        ========================================================= */
 
-    let obraGaleriaAtualId = null;
+    let obraAtualGaleriaId = null;
 
-    function abrirGaleriaObra(obraId) {
-      obraGaleriaAtualId = obraId;
+    function abrirModalGaleria(obraId) {
+      obraAtualGaleriaId = obraId;
       const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
 
-      document.getElementById('modal-obra-titulo').textContent = `Galeria: ${obra.nome}`;
-      const conteudo = document.getElementById('modal-galeria-conteudo');
+      document.getElementById('modal-obra-titulo').innerText = `Galeria da Obra: ${obra.nome}`;
       const fotosFiltradas = fotosObra.filter(f => f.obra_id === obraId);
+      const conteudo = document.getElementById('modal-galeria-conteudo');
 
       if (fotosFiltradas.length === 0) {
-        conteudo.innerHTML = '<p class="text-sm text-gray-500 col-span-2 text-center py-6 italic">Nenhuma foto ou vídeo enviado para esta obra.</p>';
+        conteudo.innerHTML = '<p class="text-sm text-gray-500 col-span-2 text-center py-6">Nenhuma foto ou vídeo enviado para esta obra.</p>';
       } else {
         conteudo.innerHTML = fotosFiltradas.map(f => {
-          const func = equipe.find(e => e.id === f.funcionario_id);
-          const nomeFunc = func ? func.nome : 'Desconhecido';
-          let tipoBadge = 'bg-blue-100 text-blue-800';
-          if (f.tipo === 'Finalização') tipoBadge = 'bg-emerald-100 text-emerald-800';
-          if (f.tipo === 'Observação') tipoBadge = 'bg-amber-100 text-amber-800';
+          const func = equipe.find(eq => eq.id === f.funcionario_id);
+          const nomeFunc = func ? func.nome : 'Colaborador';
+          const midiaElemento = f.is_video
+            ? `<video src="${f.imagem}" controls class="w-full h-48 object-cover rounded-xl border"></video>`
+            : `<img src="${f.imagem}" class="w-full h-48 object-cover rounded-xl border cursor-pointer hover:opacity-95" onclick="window.open('${f.imagem}')">`;
 
-          let midiaTag = `<img src="${f.imagem}" class="w-full h-48 object-cover rounded-xl shadow border">`;
-          if (f.is_video) {
-            midiaTag = `<video src="${f.imagem}" controls class="w-full h-48 object-cover rounded-xl shadow border"></video>`;
-          }
+          let tagCor = "bg-emerald-100 text-emerald-800";
+          if (f.tipo === 'Observação') tagCor = "bg-amber-100 text-amber-800";
+          if (f.tipo === 'Finalização') tagCor = "bg-blue-100 text-blue-800";
 
           return `
-            <div class="bg-gray-50 p-3 rounded-2xl border shadow-sm space-y-2 relative">
-              <div class="flex justify-between items-center">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${tipoBadge}">${f.tipo || 'Andamento'}</span>
-                <span class="text-[10px] text-gray-500">${f.data || ''}</span>
+            <div class="bg-gray-50 p-4 rounded-xl border space-y-2 flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${tagCor}">${f.tipo || 'Andamento'}</span>
+                  <span class="text-xs text-gray-500">${f.data || ''}</span>
+                </div>
+                ${midiaElemento}
+                <p class="text-xs font-bold text-blue-950 mt-2">👤 ${nomeFunc}</p>
+                ${f.observacao ? `<p class="text-xs text-gray-600 italic mt-1">"${f.observacao}"</p>` : ''}
               </div>
-              ${midiaTag}
-              <p class="text-xs font-bold text-blue-950">👷 ${nomeFunc}</p>
-              <p class="text-xs text-gray-600">${f.observacao || 'Sem observações.'}</p>
-              <button onclick="excluirFotoObra('${f.id}')" class="absolute top-3 right-3 bg-red-500 text-white w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shadow hover:bg-red-600">✕</button>
+              <div class="flex justify-end pt-2 border-t mt-2">
+                <button onclick="excluirFotoObra('${f.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold">🗑️ Excluir Mídia</button>
+              </div>
             </div>
           `;
         }).join('');
@@ -2069,39 +93,49 @@ l<!DOCTYPE html>
 
     function fecharModalGaleria() {
       document.getElementById('modal-galeria-obra').classList.add('hidden');
-      obraGaleriaAtualId = null;
+      obraAtualGaleriaId = null;
     }
 
-    async function excluirFotoObra(id) {
-      if (!confirm("Deseja excluir esta mídia?")) return;
-      await supabaseClient.from('fotos_obra').delete().eq('id', id);
-      await carregarDadosDoSupabase();
-      if (obraGaleriaAtualId) abrirGaleriaObra(obraGaleriaAtualId);
+    async function excluirFotoObra(fotoId) {
+      if (!confirm("Deseja realmente excluir esta mídia?")) return;
+      const { error } = await supabaseClient.from('fotos_obra').delete().eq('id', fotoId);
+      if (error) {
+        alert("Erro ao excluir mídia: " + error.message);
+        return;
+      }
+      abrirModalGaleria(obraAtualGaleriaId);
+      carregarDadosDoSupabase();
     }
 
     async function exportarGaleriaZip() {
-      if (!obraGaleriaAtualId) return;
-      const obra = obras.find(o => o.id === obraGaleriaAtualId);
-      const fotosFiltradas = fotosObra.filter(f => f.obra_id === obraGaleriaAtualId);
-
+      if (!obraAtualGaleriaId) return;
+      const fotosFiltradas = fotosObra.filter(f => f.obra_id === obraAtualGaleriaId);
       if (fotosFiltradas.length === 0) {
-        alert("Não há mídias para exportar.");
+        alert("Não há fotos para exportar.");
         return;
       }
 
+      const obra = obras.find(o => o.id === obraAtualGaleriaId);
       const zip = new JSZip();
-      const pasta = zip.folder(`Midias_${obra ? obra.nome.replace(/\s+/g, '_') : 'Obra'}`);
+      const pasta = zip.folder(`Midias_${obra ? obra.nome : 'Obra'}`);
 
       fotosFiltradas.forEach((f, index) => {
-        if (f.imagem && f.imagem.includes(',')) {
-          const base64Data = f.imagem.split(',')[1];
-          const ext = f.is_video ? 'mp4' : 'jpg';
-          pasta.file(`registro_${index + 1}_${f.tipo || 'foto'}.${ext}`, base64Data, { base64: true });
+        if (f.imagem && f.imagem.includes('base64,')) {
+          const arr = f.imagem.split(',');
+          const mime = arr[0].match(/:(.*?);/)[1];
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          const extensao = f.is_video ? 'mp4' : (mime.includes('png') ? 'png' : 'jpg');
+          pasta.file(`registro_${index + 1}_${f.tipo || 'foto'}.${extensao}`, u8arr);
         }
       });
 
-      const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, `Galeria_${obra ? obra.nome : 'Obra'}.zip`);
+      const conteudoZip = await zip.generateAsync({ type: "blob" });
+      saveAs(conteudoZip, `Fotos_${obra ? obra.nome : 'Obra'}.zip`);
     }
 
 
@@ -2109,51 +143,50 @@ l<!DOCTYPE html>
        MODAL PDF
        ========================================================= */
 
-    function abrirModalPdf(obraId) {
-      const obra = obras.find(o => o.id === obraId);
-      if (!obra) return;
-
+    function abrirModalPdf(obraId, obraNome) {
       document.getElementById('modal-pdf-obra-id').value = obraId;
-      document.getElementById('modal-pdf-obra-nome').textContent = `Obra: ${obra.nome} (${obra.local})`;
-      document.getElementById('pdf-titulo-input').value = '';
-      document.getElementById('pdf-file-input').value = '';
-      renderizarPdfsModal(obraId);
-
+      document.getElementById('modal-pdf-obra-nome').innerText = obraNome;
+      renderizarListaPdfsModal(obraId);
       document.getElementById('modal-anexar-pdf').classList.remove('hidden');
     }
 
     function fecharModalPdf() {
       document.getElementById('modal-anexar-pdf').classList.add('hidden');
+      document.getElementById('pdf-titulo-input').value = '';
+      document.getElementById('pdf-file-input').value = '';
     }
 
-    function renderizarPdfsModal(obraId) {
+    function renderizarListaPdfsModal(obraId) {
       const container = document.getElementById('lista-pdfs-existentes');
       const pdfs = pdfsObra.filter(p => p.obra_id === obraId);
 
       if (pdfs.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 italic">Nenhum PDF cadastrado.</p>';
+        container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhum PDF cadastrado ainda.</p>';
         return;
       }
 
-      container.innerHTML = pdfs.map(p => `
-        <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border text-xs">
+      container.innerHTML = pdfs.map(pdf => `
+        <div class="bg-gray-50 p-2.5 rounded-xl border flex items-center justify-between text-xs">
           <div>
-            <p class="font-bold text-purple-950">📄 ${p.titulo}</p>
-            <a href="${p.url}" target="_blank" class="text-purple-600 underline">Visualizar PDF ↗</a>
+            <p class="font-bold text-purple-950">📄 ${pdf.titulo}</p>
+            <span class="text-[10px] text-gray-500">${pdf.data}</span>
           </div>
-          <button onclick="excluirPdfObra('${p.id}', '${obraId}')" class="bg-red-500 text-white px-2 py-1 rounded font-bold hover:bg-red-600">Excluir</button>
+          <div class="flex items-center gap-2">
+            <a href="${pdf.url}" target="_blank" class="text-purple-700 font-bold hover:underline">Abrir ↗</a>
+            <button onclick="excluirPdfObra('${pdf.id}', '${obraId}')" class="text-red-500 font-bold hover:text-red-700">✕</button>
+          </div>
         </div>
       `).join('');
     }
 
     async function salvarPdfObra() {
-      const obraId = document.getElementById('modal-pdf-obra-id').value;
-      const titulo = document.getElementById('pdf-titulo-input').value.trim() || 'Projeto Acústico';
-      const fileInput = document.getElementById('pdf-file-input');
       const btn = document.getElementById('btn-pdf-salvar');
+      const obraId = document.getElementById('modal-pdf-obra-id').value;
+      const tituloInput = document.getElementById('pdf-titulo-input').value.trim();
+      const fileInput = document.getElementById('pdf-file-input');
 
       if (!fileInput.files || fileInput.files.length === 0) {
-        alert("Selecione ao menos um arquivo PDF!");
+        alert("Selecione pelo menos um arquivo PDF!");
         return;
       }
 
@@ -2161,28 +194,30 @@ l<!DOCTYPE html>
       btn.innerText = "⏳ SALVANDO PDF(S)...";
 
       try {
-        for (let i = 0; i < fileInput.files.length; i++) {
-          const file = fileInput.files[i];
-          const base64Data = await comprimirImagem(file); // Mantém conversão em base64 segura para armazenamento sem buckets complexos
+        const files = Array.from(fileInput.files);
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const base64 = await comprimirImagem(file);
+          const tituloFinal = files.length > 1 ? `${tituloInput || file.name} (${i + 1})` : (tituloInput || file.name);
 
           const novoPdf = {
             id: (Date.now() + i).toString(),
             obra_id: obraId,
-            titulo: `${titulo} (${i + 1})`,
-            url: base64Data,
+            titulo: tituloFinal,
+            url: base64,
             data: new Date().toLocaleDateString('pt-BR')
           };
 
           await supabaseClient.from('pdfs_obra').insert([novoPdf]);
         }
 
-        alert("✅ PDF(s) adicionado(s) com sucesso!");
+        alert("✅ PDF(s) anexado(s) com sucesso!");
         document.getElementById('pdf-titulo-input').value = '';
         document.getElementById('pdf-file-input').value = '';
         await carregarDadosDoSupabase();
-        renderizarPdfsModal(obraId);
-      } catch (e) {
-        console.error(e);
+        renderizarListaPdfsModal(obraId);
+      } catch (err) {
+        console.error(err);
         alert("Erro ao salvar PDF.");
       }
 
@@ -2192,9 +227,13 @@ l<!DOCTYPE html>
 
     async function excluirPdfObra(pdfId, obraId) {
       if (!confirm("Deseja excluir este PDF?")) return;
-      await supabaseClient.from('pdfs_obra').delete().eq('id', pdfId);
+      const { error } = await supabaseClient.from('pdfs_obra').delete().eq('id', pdfId);
+      if (error) {
+        alert("Erro ao excluir PDF.");
+        return;
+      }
       await carregarDadosDoSupabase();
-      renderizarPdfsModal(obraId);
+      renderizarListaPdfsModal(obraId);
     }
 
 
@@ -2202,15 +241,11 @@ l<!DOCTYPE html>
        MODAL WHATSAPP
        ========================================================= */
 
-    function abrirModalWhatsapp(obraId) {
-      const obra = obras.find(o => o.id === obraId);
-      if (!obra) return;
-
+    function abrirModalWhatsapp(obraId, obraNome, obraLocal) {
       document.getElementById('modal-whatsapp-obra-id').value = obraId;
-      document.getElementById('modal-whatsapp-obra-nome').textContent = `Obra: ${obra.nome} (${obra.local})`;
-      document.getElementById('modal-whatsapp-obra-local').value = obra.local;
+      document.getElementById('modal-whatsapp-obra-local').value = obraLocal;
+      document.getElementById('modal-whatsapp-obra-nome').innerText = `${obraNome} - ${obraLocal}`;
       document.getElementById('modal-whatsapp-mensagem').value = '';
-
       document.getElementById('modal-whatsapp-obra').classList.remove('hidden');
     }
 
@@ -2220,52 +255,59 @@ l<!DOCTYPE html>
 
     function enviarMensagemWhatsapp() {
       const funcId = document.getElementById('modal-whatsapp-funcionario').value;
-      const obraNome = document.getElementById('modal-whatsapp-obra-nome').textContent;
-      const localObra = document.getElementById('modal-whatsapp-obra-local').value;
-      const msgExtra = document.getElementById('modal-whatsapp-mensagem').value.trim();
+      const obraNome = document.getElementById('modal-whatsapp-obra-nome').innerText;
+      const obraLocal = document.getElementById('modal-whatsapp-obra-local').value;
+      const mensagemExtra = document.getElementById('modal-whatsapp-mensagem').value.trim();
 
-      const func = equipe.find(e => e.id === funcId);
-      if (!func || !func.whatsapp) {
-        alert("Selecione um funcionário válido que possua número de WhatsApp cadastrado!");
+      if (!funcId) {
+        alert("Selecione um funcionário!");
         return;
       }
 
-      let numero = func.whatsapp.replace(/\D/g, '');
-      if (!numero.startsWith('55')) numero = '55' + numero;
+      const func = equipe.find(f => f.id === funcId);
+      if (!func || !func.whatsapp) {
+        alert("Este funcionário não possui número de WhatsApp cadastrado.");
+        return;
+      }
 
-      let texto = `Olá *${func.nome}*! Convocaçãou/Aviso da *T.R.E. Montagens*.\n\n`;
-      texto += `🏗️ *${obraNome}*\n`;
-      texto += `📍 Local: ${localObra}\n`;
-      if (msgExtra) texto += `💬 *Instrução:* ${msgExtra}\n`;
-      texto += `\nConfirme o recebimento por gentileza! Bom trabalho!`;
+      let numeroZap = func.whatsapp.replace(/\D/g, '');
+      if (!numeroZap.startsWith('55')) {
+        numeroZap = '55' + numeroZap;
+      }
 
-      const url = `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(texto)}`;
+      let texto = `Olá *${func.nome}*! 👋\n\nVocê está convocado(a) / escalado(a) para a obra:\n🏗️ *${obraNome}*\n📍 Local: *${obraLocal}*`;
+      if (mensagemExtra) {
+        texto += `\n\n📝 *Instrução:* ${mensagemExtra}`;
+      }
+      texto += `\n\nConfirme o recebimento por gentileza! Att, T.R.E. Montagens.`;
+
+      const url = `https://api.whatsapp.com/send?phone=${numeroZap}&text=${encodeURIComponent(texto)}`;
       window.open(url, '_blank');
       fecharModalWhatsapp();
     }
 
 
     /* =========================================================
-       GESTÃO DE EQUIPE
+       EQUIPE
        ========================================================= */
 
     async function cadastrarFuncionario() {
-      const editId = document.getElementById('edit-func-id').value;
+      const idEdit = document.getElementById('edit-func-id').value;
       const nome = document.getElementById('func-nome').value.trim();
       const whatsapp = document.getElementById('func-whatsapp').value.trim();
       const diaria = parseFloat(document.getElementById('func-diaria').value);
       const pin = document.getElementById('func-pin').value.trim();
 
-      if (!nome || !pin || !Number.isFinite(diaria)) {
-        alert("Preencha o Nome, a Diária Base e o PIN de 4 dígitos!");
+      if (!nome || !Number.isFinite(diaria) || !pin) {
+        alert("Preencha todos os campos obrigatórios do funcionário!");
         return;
       }
 
-      if (editId) {
+      if (idEdit) {
         const { error } = await supabaseClient
           .from('equipe')
           .update({ nome, whatsapp, diaria_base: diaria, pin })
-          .eq('id', editId);
+          .eq('id', idEdit);
 
         if (error) {
           alert("Erro ao atualizar funcionário: " + error.message);
@@ -2289,12 +331,12 @@ l<!DOCTYPE html>
           return;
         }
         alert("✅ Colaborador cadastrado com sucesso!");
+        document.getElementById('func-nome').value = '';
+        document.getElementById('func-whatsapp').value = '';
+        document.getElementById('func-diaria').value = '';
+        document.getElementById('func-pin').value = '';
       }
 
-      document.getElementById('func-nome').value = '';
-      document.getElementById('func-whatsapp').value = '';
-      document.getElementById('func-diaria').value = '';
-      document.getElementById('func-pin').value = '';
       carregarDadosDoSupabase();
     }
 
@@ -2311,18 +353,20 @@ l<!DOCTYPE html>
         <li class="py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
           <div>
             <p class="font-bold text-blue-950">${f.nome} ${f.ativo === false ? '<span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Inativo</span>' : ''}</p>
-            <p class="text-xs text-gray-500">📱 WhatsApp: ${f.whatsapp || 'Não informado'} | Diária Base: R$ ${Number(f.diaria_base || 0).toFixed(2)} | PIN: <span class="font-mono bg-gray-100 px-1 rounded">${f.pin}</span></p>
+            <p class="text-xs text-gray-500">WhatsApp: ${f.whatsapp || 'Não informado'} | Diária Base: R$ ${Number(f.diaria_base || 0).toFixed(2)} | PIN: ${f.pin || '****'}</p>
           </div>
           <div class="flex gap-2">
-            <button onclick="prepararEdicaoFuncionario('${f.id}')" class="bg-blue-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-950 transition">✏️ Editar</button>
-            <button onclick="alternarAtivoFuncionario('${f.id}', ${f.ativo !== false})" class="${f.ativo !== false ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'} text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">${f.ativo !== false ? 'Desativar' : 'Ativar'}</button>
+            <button onclick="editarFuncionario('${f.id}')" class="bg-blue-900 text-white font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-blue-950 transition">Editar</button>
+            <button onclick="alternarAtivoFuncionario('${f.id}', ${f.ativo !== false})" class="${f.ativo !== false ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'} text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">
+              ${f.ativo !== false ? 'Desativar' : 'Ativar'}
+            </button>
           </div>
         </li>
       `).join('');
     }
 
-    function prepararEdicaoFuncionario(id) {
-      const f = equipe.find(e => e.id === id);
+    function editarFuncionario(id) {
+      const f = equipe.find(eq => eq.id === id);
       if (!f) return;
 
       document.getElementById('edit-func-id').value = f.id;
@@ -2331,8 +375,8 @@ l<!DOCTYPE html>
       document.getElementById('func-diaria').value = f.diaria_base || '';
       document.getElementById('func-pin').value = f.pin || '';
 
-      document.getElementById('titulo-form-func').textContent = `Editar Colaborador: ${f.nome}`;
-      document.getElementById('btn-salvar-func').textContent = 'Salvar Alterações';
+      document.getElementById('titulo-form-func').innerText = `Editar Colaborador: ${f.nome}`;
+      document.getElementById('btn-salvar-func').innerText = "Salvar Alterações";
       document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -2344,20 +388,24 @@ l<!DOCTYPE html>
       document.getElementById('func-diaria').value = '';
       document.getElementById('func-pin').value = '';
 
-      document.getElementById('titulo-form-func').textContent = 'Cadastrar Novo Colaborador';
-      document.getElementById('btn-salvar-func').textContent = 'Cadastrar Funcionário';
+      document.getElementById('titulo-form-func').innerText = "Cadastrar Novo Colaborador";
+      document.getElementById('btn-salvar-func').innerText = "Cadastrar Funcionário";
       document.getElementById('btn-cancelar-edicao').classList.add('hidden');
     }
 
     async function alternarAtivoFuncionario(id, statusAtual) {
       const novoStatus = !statusAtual;
-      await supabaseClient.from('equipe').update({ ativo: novoStatus }).eq('id', id);
+      const { error } = await supabaseClient.from('equipe').update({ ativo: novoStatus }).eq('id', id);
+      if (error) {
+        alert("Erro ao alterar status do funcionário.");
+        return;
+      }
       carregarDadosDoSupabase();
     }
 
 
     /* =========================================================
-       DESIGNAR OBRA (DIÁRIA OU EMPREITA)
+       DESIGNAR OBRAS & EMPREITAS
        ========================================================= */
 
     function alternarCamposDesignacao() {
@@ -2367,81 +415,79 @@ l<!DOCTYPE html>
 
       if (tipo === 'Metro Quadrado') {
         blocoMetragem.classList.remove('hidden');
-        labelValor.textContent = "Valor por m² (R$):";
+        labelValor.innerText = "Valor por m² (R$):";
       } else if (tipo === 'Por Hora') {
         blocoMetragem.classList.remove('hidden');
-        labelValor.textContent = "Valor por Hora (R$):";
+        labelValor.innerText = "Valor por Hora (R$):";
       } else if (tipo === 'Empreita Global') {
         blocoMetragem.classList.add('hidden');
-        labelValor.textContent = "Valor Fechado Total da Empreita (R$):";
+        labelValor.innerText = "Valor Total da Empreita (R$):";
       } else {
         blocoMetragem.classList.add('hidden');
-        labelValor.textContent = "Valor Diária Acertada (R$):";
+        labelValor.innerText = "Valor da Diária (R$):";
       }
     }
 
     async function confirmarEEnviarDesignacao() {
+      const btn = document.getElementById('btn-designar');
       const funcId = document.getElementById('designar-funcionario').value;
       const obraId = document.getElementById('designar-obra').value;
       const tipo = document.getElementById('designar-tipo').value;
       const valor = parseFloat(document.getElementById('designar-valor').value);
-      const quantidade = parseFloat(document.getElementById('designar-quantidade').value) || 1;
+      const quantidade = parseFloat(document.getElementById('designar-quantidade').value) || 0;
       const data = document.getElementById('designar-data').value;
       const instrucao = document.getElementById('designar-instrucao').value.trim();
 
       if (!funcId || !obraId || !data || !Number.isFinite(valor) || valor <= 0) {
-        alert("Preencha todos os campos obrigatórios corretamente!");
+        alert("Preencha todos os campos obrigatórios da designação!");
         return;
       }
 
-      const func = equipe.find(e => e.id === funcId);
-      const obra = obras.find(o => o.id === obraId);
+      btn.disabled = true;
+      btn.innerText = "⏳ SALVANDO E ABRINDO WHATSAPP...";
 
-      let valorTotalCalculado = valor;
-      if (tipo === 'Metro Quadrado' || tipo === 'Por Hora') {
-        valorTotalCalculado = valor * quantidade;
+      try {
+        const novaDesignacao = {
+          id: Date.now().toString(),
+          funcionario_id: funcId,
+          obra_id: obraId,
+          tipo: tipo,
+          valor: valor,
+          quantidade: quantidade,
+          data: data,
+          instrucao: instrucao
+        };
+
+        const { error } = await supabaseClient.from('designacoes').insert([novaDesignacao]);
+        if (error) throw error;
+
+        const func = equipe.find(f => f.id === funcId);
+        const obra = obras.find(o => o.id === obraId);
+
+        if (func && func.whatsapp) {
+          let numeroZap = func.whatsapp.replace(/\D/g, '');
+          if (!numeroZap.startsWith('55')) numeroZap = '55' + numeroZap;
+
+          let texto = `Olá *${func.nome}*! 👋\n\nNova designação registrada:\n🏗️ *${obra ? obra.nome : 'Obra'}*\n📍 Local: *${obra ? obra.local : ''}*\n💼 Contrato: *${tipo}*\n💰 Valor: *R$ ${valor.toFixed(2)}*`;
+          if (quantidade > 0) texto += `\n📐 Quantidade (m²/h): *${quantidade}*`;
+          if (instrucao) texto += `\n\n📝 *Instruções:* ${instrucao}`;
+          texto += `\n\nBom trabalho! T.R.E. Montagens.`;
+
+          window.open(`https://api.whatsapp.com/send?phone=${numeroZap}&text=${encodeURIComponent(texto)}`, '_blank');
+        }
+
+        alert("✅ Designação registrada com sucesso!");
+        document.getElementById('designar-valor').value = '';
+        document.getElementById('designar-quantidade').value = '';
+        document.getElementById('designar-instrucao').value = '';
+        carregarDadosDoSupabase();
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao registrar designação.");
       }
 
-      const novaDesig = {
-        id: Date.now().toString(),
-        funcionario_id: funcId,
-        obra_id: obraId,
-        tipo_contrato: tipo,
-        valor_unitario: valor,
-        quantidade: quantidade,
-        valor_total: valorTotalCalculado,
-        data: data,
-        instrucao: instrucao
-      };
-
-      const { error } = await supabaseClient.from('designacoes').insert([novaDesig]);
-      if (error) {
-        alert("Erro ao designar: " + error.message);
-        return;
-      }
-
-      if (func && func.whatsapp) {
-        let numero = func.whatsapp.replace(/\D/g, '');
-        if (!numero.startsWith('55')) numero = '55' + numero;
-
-        let texto = `📱 *CONVOCAÇÃO / EMPREITA - T.R.E. MONTAGENS*\n\n`;
-        texto += `Olá *${func.nome}*, você foi escalado(a) para:\n`;
-        texto += `🏗️ Obra: *${obra ? obra.nome : 'Geral'}*\n`;
-        texto += `📍 Local: ${obra ? obra.local : ''}\n`;
-        texto += `📅 Data de Início: ${data}\n`;
-        texto += `💼 Acordo: *${tipo}* (Total: R$ ${valorTotalCalculado.toFixed(2)})\n`;
-        if (instrucao) texto += `💬 Detalhes: ${instrucao}\n`;
-        texto += `\nConfirme sua presença!`;
-
-        const url = `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(texto)}`;
-        window.open(url, '_blank');
-      }
-
-      alert("✅ Designação salva e convocação enviada com sucesso!");
-      document.getElementById('designar-valor').value = '';
-      document.getElementById('designar-quantidade').value = '';
-      document.getElementById('designar-instrucao').value = '';
-      carregarDadosDoSupabase();
+      btn.disabled = false;
+      btn.innerText = "💬 DESIGNAR E ENVIAR CONVOCAÇÃO VIA WHATSAPP";
     }
 
     function renderizarDesignacoes() {
@@ -2449,21 +495,24 @@ l<!DOCTYPE html>
       if (!container) return;
 
       if (designacoes.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 py-2 italic">Nenhuma designação cadastrada.</p>';
+        container.innerHTML = '<p class="text-xs text-gray-500 py-2">Nenhuma designação cadastrada.</p>';
         return;
       }
 
       container.innerHTML = designacoes.map(d => {
-        const func = equipe.find(e => e.id === d.funcionario_id);
+        const func = equipe.find(f => f.id === d.funcionario_id);
         const obra = obras.find(o => o.id === d.obra_id);
         return `
           <div class="py-3 flex justify-between items-center">
             <div>
-              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} → ${obra ? obra.nome : 'Obra'}</p>
-              <p class="text-xs text-gray-600">Tipo: <span class="font-semibold text-emerald-700">${d.tipo_contrato}</span> | Total: R$ ${Number(d.valor_total || 0).toFixed(2)} | Data: ${d.data}</p>
-              ${d.instrucao ? `<p class="text-[11px] text-gray-500 italic">${d.instrucao}</p>` : ''}
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} - <span class="text-orange-600">${d.tipo}</span></p>
+              <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Desconhecida'} | Valor: R$ ${Number(d.valor || 0).toFixed(2)} ${d.quantidade > 0 ? `(Qtd: ${d.quantidade})` : ''}</p>
+              ${d.instrucao ? `<p class="text-xs text-gray-600 italic">"${d.instrucao}"</p>` : ''}
             </div>
-            <button onclick="excluirDesignacao('${d.id}')" class="bg-red-500 text-white font-bold text-xs px-2.5 py-1 rounded hover:bg-red-600">Excluir</button>
+            <div class="text-right flex items-center gap-2">
+              <span class="text-xs font-semibold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">${d.data}</span>
+              <button onclick="excluirDesignacao('${d.id}')" class="text-red-500 hover:text-red-700 font-bold text-xs">✕</button>
+            </div>
           </div>
         `;
       }).join('');
@@ -2471,7 +520,11 @@ l<!DOCTYPE html>
 
     async function excluirDesignacao(id) {
       if (!confirm("Deseja excluir esta designação?")) return;
-      await supabaseClient.from('designacoes').delete().eq('id', id);
+      const { error } = await supabaseClient.from('designacoes').delete().eq('id', id);
+      if (error) {
+        alert("Erro ao excluir.");
+        return;
+      }
       carregarDadosDoSupabase();
     }
 
@@ -2490,22 +543,18 @@ l<!DOCTYPE html>
       }
 
       tbody.innerHTML = pontos.map(p => {
-        const func = equipe.find(e => e.id === p.funcionario_id);
+        const func = equipe.find(f => f.id === p.funcionario_id);
         const obra = obras.find(o => o.id === p.obra_id);
-        let gpsHtml = '<span class="text-xs text-gray-400">Sem GPS</span>';
-        if (p.gps && p.gps.lat) {
-          const mapsUrl = `https://www.google.com/maps?q=${p.gps.lat},${p.gps.lng}`;
-          gpsHtml = `<a href="${mapsUrl}" target="_blank" class="text-xs text-blue-700 underline font-semibold">Ver no Mapa ↗</a>`;
-        }
+        const gpsHtml = p.gps ? `<a href="https://maps.google.com/?q=${p.gps.lat},${p.gps.lng}" target="_blank" class="text-blue-600 font-bold underline hover:text-blue-800">Ver Mapa 🗺️</a>` : '<span class="text-gray-400">Sem GPS</span>';
 
         return `
           <tr class="hover:bg-gray-50">
-            <td class="p-3 border-b">${p.data} às ${p.hora || ''}</td>
+            <td class="p-3 border-b">${p.data} ${p.hora ? `(${p.hora})` : ''}</td>
             <td class="p-3 border-b font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
-            <td class="p-3 border-b">${obra ? obra.nome : 'Obra'}</td>
+            <td class="p-3 border-b">${obra ? obra.nome : 'Desconhecida'}</td>
             <td class="p-3 border-b">${gpsHtml}</td>
             <td class="p-3 border-b text-right">
-              <button onclick="excluirPonto('${p.id}')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">Excluir</button>
+              <button onclick="excluirPonto('${p.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-1 rounded text-xs">Excluir</button>
             </td>
           </tr>
         `;
@@ -2514,14 +563,18 @@ l<!DOCTYPE html>
 
     async function excluirPonto(id) {
       if (!confirm("Deseja excluir este registro de ponto?")) return;
-      await supabaseClient.from('pontos').delete().eq('id', id);
+      const { error } = await supabaseClient.from('pontos').delete().eq('id', id);
+      if (error) {
+        alert("Erro ao excluir ponto.");
+        return;
+      }
       carregarDadosDoSupabase();
       carregarPresencas();
     }
 
 
     /* =========================================================
-       COMPROVANTES E VALES ADMIN
+       COMPROVANTES E VALES
        ========================================================= */
 
     function carregarValesAdmin() {
@@ -2529,76 +582,85 @@ l<!DOCTYPE html>
       if (!container) return;
 
       if (vales.length === 0) {
-        container.innerHTML = '<p class="text-sm text-gray-500 col-span-2 text-center py-6 italic">Nenhum vale ou comprovante registrado.</p>';
+        container.innerHTML = '<p class="text-sm text-gray-500 col-span-2 text-center py-6">Nenhum vale ou comprovante enviado.</p>';
         return;
       }
 
       container.innerHTML = vales.map(v => {
-        const func = equipe.find(e => e.id === v.funcionario_id);
+        const func = equipe.find(f => f.id === v.funcionario_id);
         const obra = obras.find(o => o.id === v.obra_id);
-        const tipoBadge = v.tipo === 'Ressarcimento' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-red-100 text-red-800 border-red-300';
-
-        let comprovanteHtml = '<div class="h-32 bg-gray-100 rounded-xl flex items-center justify-center text-xs text-gray-400 italic">Sem comprovante anexado</div>';
-        if (v.comprovante) {
-          comprovanteHtml = `<a href="${v.comprovante}" target="_blank"><img src="${v.comprovante}" class="w-full h-32 object-cover rounded-xl shadow border hover:opacity-95 transition" title="Clique para ampliar"></a>`;
-        }
+        const tipoBadge = v.tipo === 'Ressarcimento' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800';
 
         return `
-          <div class="card-acustico-blur p-4 rounded-2xl border shadow space-y-3 relative">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${tipoBadge}">${v.tipo || 'Vale'}</span>
-              <span class="text-xs font-bold text-gray-500">${v.data}</span>
-            </div>
+          <div class="bg-gray-50 p-4 rounded-xl border flex flex-col justify-between space-y-3">
             <div>
-              <p class="font-bold text-blue-950 text-base">${func ? func.nome : 'Ex-colaborador'}</p>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${tipoBadge}">${v.tipo || 'Vale'}</span>
+                <span class="text-xs font-bold text-gray-700">${v.data}</span>
+              </div>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</p>
               <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Desconhecida'}</p>
-              <p class="text-sm font-extrabold text-gray-800 mt-1">Valor: R$ ${Number(v.valor || 0).toFixed(2)}</p>
-              <p class="text-xs text-gray-600 mt-0.5">💬 <i>${v.descricao || 'Sem descrição'}</i></p>
+              <p class="text-sm font-extrabold text-blue-900 mt-1">Valor: R$ ${Number(v.valor || 0).toFixed(2)}</p>
+              ${v.descricao ? `<p class="text-xs text-gray-600 mt-1">📝 ${v.descricao}</p>` : ''}
+              ${v.comprovante ? `<div class="mt-2"><img src="${v.comprovante}" class="w-full h-36 object-cover rounded-lg border cursor-pointer" onclick="window.open('${v.comprovante}')"></div>` : '<p class="text-xs text-gray-400 italic mt-2">Sem foto de comprovante.</p>'}
             </div>
-            ${comprovanteHtml}
-            <button onclick="excluirVale('${v.id}')" class="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">Excluir</button>
+            <div class="flex justify-end pt-2 border-t">
+              <button onclick="excluirVale('${v.id}')" class="text-red-500 hover:text-red-700 font-bold text-xs">🗑️ Excluir Registro</button>
+            </div>
           </div>
         `;
       }).join('');
     }
 
     async function excluirVale(id) {
-      if (!confirm("Deseja excluir este lançamento?")) return;
-      await supabaseClient.from('vales').delete().eq('id', id);
+      if (!confirm("Deseja excluir este registro?")) return;
+      const { error } = await supabaseClient.from('vales').delete().eq('id', id);
+      if (error) {
+        alert("Erro ao excluir.");
+        return;
+      }
       carregarDadosDoSupabase();
       carregarValesAdmin();
     }
 
     async function exportarComprovantesZip() {
       if (vales.length === 0) {
-        alert("Nenhum comprovante para exportar.");
+        alert("Não há comprovantes para exportar.");
         return;
       }
 
       const zip = new JSZip();
-      const pasta = zip.folder("Comprovantes_TRE");
+      const pasta = zip.folder("Comprovantes_Vales_TRE");
 
       vales.forEach((v, index) => {
-        if (v.comprovante && v.comprovante.includes(',')) {
-          const base64Data = v.comprovante.split(',')[1];
-          const func = equipe.find(e => e.id === v.funcionario_id);
+        if (v.comprovante && v.comprovante.includes('base64,')) {
+          const arr = v.comprovante.split(',');
+          const mime = arr[0].match(/:(.*?);/)[1];
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          const extensao = mime.includes('png') ? 'png' : 'jpg';
+          const func = equipe.find(f => f.id === v.funcionario_id);
           const nomeFunc = func ? func.nome.replace(/\s+/g, '_') : 'Func';
-          pasta.file(`vale_${index + 1}_${nomeFunc}_R$${v.valor}.${'jpg'}`, base64Data, { base64: true });
+          pasta.file(`vale_${index + 1}_${nomeFunc}_R$${v.valor}.${extensao}`, u8arr);
         }
       });
 
-      const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, "Comprovantes_Vales_Ressarcimentos.zip");
+      const conteudoZip = await zip.generateAsync({ type: "blob" });
+      saveAs(conteudoZip, "Comprovantes_TRE.zip");
     }
 
 
     /* =========================================================
-       FECHAMENTO MENSAL E BALANÇO
+       FECHAMENTO MENSAL
        ========================================================= */
 
     function calcularFechamentoMensal() {
-      const mesSelecionado = parseInt(document.getElementById('fechamento-mes').value);
-      const anoSelecionado = parseInt(document.getElementById('fechamento-ano').value);
+      const mes = parseInt(document.getElementById('fechamento-mes').value);
+      const ano = parseInt(document.getElementById('fechamento-ano').value);
       const tbody = document.getElementById('tabela-fechamento');
       if (!tbody) return;
 
@@ -2608,64 +670,74 @@ l<!DOCTYPE html>
       }
 
       tbody.innerHTML = equipe.map(f => {
-        // Pontos do mês/ano
-        const diasTrabalhados = pontos.filter(p => {
-          if (p.funcionario_id !== f.id) return false;
-          const partes = p.data.split('-'); // YYYY-MM-DD
-          if (partes.length !== 3) return false;
-          const anoP = parseInt(partes[0]);
-          const mesP = parseInt(partes[1]) - 1;
-          return anoP === anoSelecionado && mesP === mesSelecionado;
-        }).length;
-
-        const diariaBase = Number(f.diaria_base || 0);
-        let totalBrutoDiarias = diasTrabalhados * diariaBase;
-
-        // Empreitas / Designações finalizadas ou do período
         const desigFunc = designacoes.filter(d => {
           if (d.funcionario_id !== f.id) return false;
-          const partes = d.data.split('-');
-          if (partes.length !== 3) return false;
-          const anoD = parseInt(partes[0]);
-          const mesD = parseInt(partes[1]) - 1;
-          if (anoD !== anoSelecionado || mesD !== mesSelecionado) return false;
-
-          // Se for empreita, só soma se a obra estiver 100% Finalizada
-          if (d.tipo_contrato === 'Empreita Global' || d.tipo_contrato === 'Metro Quadrado') {
-            const obraObj = obras.find(o => o.id === d.obra_id);
-            return obraObj && obraObj.status === 'Finalizada';
-          }
-          return true;
+          const [anoD, mesD] = d.data.split('-').map(Number);
+          return (anoD === ano && (mesD - 1) === mes);
         });
 
-        let totalBrutoEmpreitas = desigFunc.reduce((acc, cur) => acc + Number(cur.valor_total || 0), 0);
-        let totalBruto = totalBrutoDiarias + totalBrutoEmpreitas;
+        let totalBrutoFunc = 0;
+        let tipoAcordoDesc = "Diária Base";
+        let diasOuProducao = 0;
 
-        // Vales e Ressarcimentos do mês/ano
+        if (desigFunc.length > 0) {
+          const desig = desigFunc[0];
+          tipoAcordoDesc = desig.tipo;
+          if (desig.tipo === 'Empreita Global') {
+            const obraDaEmpreita = obras.find(o => o.id === desig.obra_id);
+            const estaFinalizada = obraDaEmpreita && (obraDaEmpreita.status === 'Finalizada');
+            totalBrutoFunc = estaFinalizada ? Number(desig.valor || 0) : 0;
+            diasOuProducao = estaFinalizada ? '1 (Concluída)' : '0 (Aguardando Finalização)';
+          } else if (desig.tipo === 'Metro Quadrado' || desig.tipo === 'Por Hora') {
+            const obraDaEmpreita = obras.find(o => o.id === desig.obra_id);
+            const estaFinalizada = obraDaEmpreita && (obraDaEmpreita.status === 'Finalizada');
+            totalBrutoFunc = estaFinalizada ? (Number(desig.valor || 0) * Number(desig.quantidade || 0)) : 0;
+            diasOuProducao = `${desig.quantidade} (${estaFinalizada ? 'Finalizada' : 'Aguardando'})`;
+          } else {
+            const pontosFunc = pontos.filter(p => {
+              if (p.funcionario_id !== f.id) return false;
+              const [anoP, mesP] = p.data.split('-').map(Number);
+              return (anoP === ano && (mesP - 1) === mes);
+            });
+            diasOuProducao = pontosFunc.length;
+            const valorDiaria = Number(desig.valor || f.diaria_base || 0);
+            totalBrutoFunc = diasOuProducao * valorDiaria;
+          }
+        } else {
+          const pontosFunc = pontos.filter(p => {
+            if (p.funcionario_id !== f.id) return false;
+            const [anoP, mesP] = p.data.split('-').map(Number);
+            return (anoP === ano && (mesP - 1) === mes);
+          });
+          diasOuProducao = pontosFunc.length;
+          totalBrutoFunc = diasOuProducao * Number(f.diaria_base || 0);
+        }
+
         const valesFunc = vales.filter(v => {
           if (v.funcionario_id !== f.id) return false;
-          const partes = v.data.split('-');
-          if (partes.length !== 3) return false;
-          const anoV = parseInt(partes[0]);
-          const mesV = parseInt(partes[1]) - 1;
-          return anoV === anoSelecionado && mesV === mesV;
+          const [anoV, mesV] = v.data.split('-').map(Number);
+          return (anoV === ano && (mesV - 1) === mes);
         });
 
-        let totalVales = valesFunc.filter(v => v.tipo !== 'Ressarcimento').reduce((acc, cur) => acc + Number(cur.valor || 0), 0);
-        let totalRessarcimentos = valesFunc.filter(v => v.tipo === 'Ressarcimento').reduce((acc, cur) => acc + Number(cur.valor || 0), 0);
+        const totalVales = valesFunc
+          .filter(v => (v.tipo || 'Vale') === 'Vale')
+          .reduce((acc, v) => acc + Number(v.valor || 0), 0);
 
-        let saldoAPagar = totalBruto + totalRessarcimentos - totalVales;
-        let resumoProd = diasTrabalhados > 0 ? `${diasTrabalhados} diária(s)` : `${desigFunc.length} acordo(s)`;
+        const totalRessarcimentos = valesFunc
+          .filter(v => v.tipo === 'Ressarcimento')
+          .reduce((acc, v) => acc + Number(v.valor || 0), 0);
+
+        const saldoAPagar = (totalBrutoFunc + totalRessarcimentos) - totalVales;
 
         return `
           <tr class="hover:bg-gray-50">
-            <td class="p-3 border-b font-bold text-blue-950">${f.nome}</td>
-            <td class="p-3 border-b text-center">R$ ${diariaBase.toFixed(2)}</td>
-            <td class="p-3 border-b text-center font-semibold">${resumoProd}</td>
-            <td class="p-3 border-b text-right font-bold text-gray-800">R$ ${totalBruto.toFixed(2)}</td>
-            <td class="p-3 border-b text-right font-semibold text-blue-700">+ R$ ${totalRessarcimentos.toFixed(2)}</td>
-            <td class="p-3 border-b text-right font-semibold text-red-600">- R$ ${totalVales.toFixed(2)}</td>
-            <td class="p-3 border-b text-right font-extrabold text-emerald-700">R$ ${saldoAPagar.toFixed(2)}</td>
+            <td class="p-3 border-b font-bold text-blue-950">${f.nome}<br><span class="text-[10px] text-gray-500 font-normal">${tipoAcordoDesc}</span></td>
+            <td class="p-3 border-b text-center">R$ ${Number(desigFunc.length > 0 ? desigFunc[0].valor : (f.diaria_base || 0)).toFixed(2)}</td>
+            <td class="p-3 border-b text-center font-semibold">${diasOuProducao}</td>
+            <td class="p-3 border-b text-right font-bold text-blue-900">R$ ${totalBrutoFunc.toFixed(2)}</td>
+            <td class="p-3 border-b text-right text-blue-700 font-semibold">+ R$ ${totalRessarcimentos.toFixed(2)}</td>
+            <td class="p-3 border-b text-right text-red-600 font-semibold">- R$ ${totalVales.toFixed(2)}</td>
+            <td class="p-3 border-b text-right font-extrabold text-emerald-700 text-base">R$ ${saldoAPagar.toFixed(2)}</td>
           </tr>
         `;
       }).join('');
@@ -2673,17 +745,17 @@ l<!DOCTYPE html>
 
     function exportarExcelFechamento() {
       const tabela = document.getElementById('tabela-fechamento-export');
-      const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento Mensal" });
-      XLSX.writeFile(wb, `Fechamento_TRE_Montagens_${document.getElementById('fechamento-mes').value}_${document.getElementById('fechamento-ano').value}.xlsx`);
+      const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento T.R.E." });
+      XLSX.writeFile(wb, "Fechamento_Mensal_TRE.xlsx");
     }
 
     function exportarPdfFechamento() {
       const elemento = document.getElementById('area-impressao-fechamento');
       const opt = {
         margin:       10,
-        filename:     `Fechamento_Mensal_TRE_${document.getElementById('fechamento-ano').value}.pdf`,
+        filename:     'Fechamento_Mensal_TRE.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
+        html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
       html2pdf().from(elemento).set(opt).save();
