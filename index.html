@@ -18,9 +18,10 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Bibliotecas para Exportação -->
+  <!-- Bibliotecas para Exportação e Supabase -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     .bg-acustico-premium {
@@ -1224,11 +1225,19 @@
 
 
   <!-- =========================================================
-       JAVASCRIPT
+       JAVASCRIPT COM SUPABASE & REALTIME
        ========================================================= -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script>
+
+    /* =========================================================
+       CONFIGURAÇÃO DO SUPABASE
+       ========================================================= */
+    const SUPABASE_URL = 'SUA_SUPABASE_URL_AQUI'; // Cole sua URL do Supabase aqui
+    const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY_AQUI'; // Cole sua Anon Key aqui
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
     /* =========================================================
        SISTEMA DE SOM TEMÁTICO
@@ -1305,36 +1314,65 @@
 
 
     /* =========================================================
-       CONFIGURAÇÃO E DADOS (SEM PREDEFINIÇÕES ANTIGAS)
+       ESTADOS DO APLICATIVO (ONLINE)
        ========================================================= */
 
-    let obras = JSON.parse(localStorage.getItem('tre_obras')) || [];
-    let equipe = JSON.parse(localStorage.getItem('tre_equipe')) || [];
-    let pontos = JSON.parse(localStorage.getItem('tre_pontos')) || [];
-    let vales = JSON.parse(localStorage.getItem('tre_vales')) || [];
-    let fotosObra = JSON.parse(localStorage.getItem('tre_fotos_obra')) || [];
-    let pdfsObra = JSON.parse(localStorage.getItem('tre_pdfs_obra')) || [];
-    let designacoes = JSON.parse(localStorage.getItem('tre_designacoes')) || [];
+    let obras = [];
+    let equipe = [];
+    let pontos = [];
+    let vales = [];
+    let fotosObra = [];
+    let pdfsObra = [];
+    let designacoes = [];
     let filtroStatusAtual = 'todas';
 
 
     /* =========================================================
-       SALVAR
+       CARREGAR DADOS DO SUPABASE
        ========================================================= */
 
-    function salvarTudo() {
+    async function carregarDadosDoSupabase() {
       try {
-        localStorage.setItem('tre_obras', JSON.stringify(obras));
-        localStorage.setItem('tre_equipe', JSON.stringify(equipe));
-        localStorage.setItem('tre_pontos', JSON.stringify(pontos));
-        localStorage.setItem('tre_vales', JSON.stringify(vales));
-        localStorage.setItem('tre_fotos_obra', JSON.stringify(fotosObra));
-        localStorage.setItem('tre_pdfs_obra', JSON.stringify(pdfsObra));
-        localStorage.setItem('tre_designacoes', JSON.stringify(designacoes));
+        const [resObras, resEquipe, resPontos, resVales, resFotos, resPdfs, resDesig] = await Promise.all([
+          supabaseClient.from('obras').select('*'),
+          supabaseClient.from('equipe').select('*'),
+          supabaseClient.from('pontos').select('*'),
+          supabaseClient.from('vales').select('*'),
+          supabaseClient.from('fotos_obra').select('*'),
+          supabaseClient.from('pdfs_obra').select('*'),
+          supabaseClient.from('designacoes').select('*')
+        ]);
+
+        if (resObras.data) obras = resObras.data;
+        if (resEquipe.data) equipe = resEquipe.data;
+        if (resPontos.data) pontos = resPontos.data;
+        if (resVales.data) vales = resVales.data;
+        if (resFotos.data) fotosObra = resFotos.data;
+        if (resPdfs.data) pdfsObra = resPdfs.data;
+        if (resDesig.data) designacoes = resDesig.data;
+
+        populardropdowns();
+        carregarHistoricoPontosFuncionario();
+        renderizarObras();
+        renderizarEquipe();
+        renderizarDesignacoes();
       } catch (e) {
-        console.error(e);
-        alert("⚠️ O armazenamento local está cheio!");
+        console.error("Erro ao sincronizar com Supabase:", e);
       }
+    }
+
+
+    /* =========================================================
+       CONFIGURAR REALTIME (SINCRONIZAÇÃO EM TEMPO REAL)
+       ========================================================= */
+
+    function configurarRealtimeSupabase() {
+      supabaseClient
+        .channel('public-db-changes')
+        .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+          carregarDadosDoSupabase();
+        })
+        .subscribe();
     }
 
 
@@ -1423,7 +1461,7 @@
        INICIALIZAÇÃO
        ========================================================= */
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       const hoje = new Date().toISOString().split('T')[0];
       if (document.getElementById('ponto-data')) document.getElementById('ponto-data').value = hoje;
       if (document.getElementById('vale-data')) document.getElementById('vale-data').value = hoje;
@@ -1444,7 +1482,8 @@
       const mesSelect = document.getElementById('fechamento-mes');
       if (mesSelect) mesSelect.value = new Date().getMonth();
 
-      populardropdowns();
+      await carregarDadosDoSupabase();
+      configurarRealtimeSupabase();
       alternarCamposDesignacao();
     });
 
@@ -1500,7 +1539,7 @@
        ATUALIZAR STATUS DA OBRA
        ========================================================= */
 
-    function atualizarStatusObraPeloFuncionario() {
+    async function atualizarStatusObraPeloFuncionario() {
       const obraId = document.getElementById('func-status-obra').value;
       const situacao = document.getElementById('func-status-situacao').value;
       const funcId = document.getElementById('func-status-responsavel').value;
@@ -1516,21 +1555,25 @@
         return;
       }
 
-      const obraIndex = obras.findIndex(o => o.id === obraId);
       const func = equipe.find(f => f.id === funcId);
-
-      if (obraIndex === -1 || !func) {
-        alert("Obra ou colaborador não encontrado.");
+      if (!func) {
+        alert("Colaborador não encontrado.");
         return;
       }
 
-      obras[obraIndex].status = situacao;
-      obras[obraIndex].atualizadoPor = func.nome;
-      salvarTudo();
-      populardropdowns();
+      const { error } = await supabaseClient
+        .from('obras')
+        .update({ status: situacao, atualizado_por: func.nome })
+        .eq('id', obraId);
+
+      if (error) {
+        alert("Erro ao atualizar status: " + error.message);
+        return;
+      }
 
       alert(`✅ Status da obra atualizado com sucesso para: "${situacao}" por ${func.nome}!`);
       document.getElementById('func-status-pin').value = '';
+      carregarDadosDoSupabase();
     }
 
 
@@ -1640,18 +1683,19 @@
         const coords = await obterCoordenadasGPS();
         const novoPonto = {
           id: Date.now().toString(),
-          funcionarioId: funcId,
-          obraId: obraId,
+          funcionario_id: funcId,
+          obra_id: obraId,
           data: data,
           hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           gps: coords
         };
 
-        pontos.unshift(novoPonto);
-        salvarTudo();
+        const { error } = await supabaseClient.from('pontos').insert([novoPonto]);
+        if (error) throw error;
+
         alert("📍 Ponto e geolocalização registrados com sucesso!");
         document.getElementById('ponto-pin').value = '';
-        carregarHistoricoPontosFuncionario();
+        carregarDadosDoSupabase();
       } catch (erro) {
         console.error(erro);
         alert("Não foi possível registrar o ponto.");
@@ -1677,8 +1721,8 @@
       }
 
       container.innerHTML = ultimosPontos.map(p => {
-        const func = equipe.find(f => f.id === p.funcionarioId);
-        const obra = obras.find(o => o.id === p.obraId);
+        const func = equipe.find(f => f.id === p.funcionario_id);
+        const obra = obras.find(o => o.id === p.obra_id);
         return `
           <div class="py-2 flex justify-between items-center">
             <div>
@@ -1731,21 +1775,23 @@
         const novoVale = {
           id: Date.now().toString(),
           tipo: tipoLancamento || 'Vale',
-          funcionarioId: funcId,
-          obraId: obraId,
+          funcionario_id: funcId,
+          obra_id: obraId,
           valor: valor,
           data: data,
           descricao: descricao,
           comprovante: fotoDataUrl
         };
 
-        vales.unshift(novoVale);
-        salvarTudo();
+        const { error } = await supabaseClient.from('vales').insert([novoVale]);
+        if (error) throw error;
+
         alert(`💸 ${tipoLancamento}/Comprovante enviado com sucesso!`);
         document.getElementById('vale-valor').value = '';
         document.getElementById('vale-descricao').value = '';
         document.getElementById('vale-pin').value = '';
         document.getElementById('vale-comprovante-file').value = '';
+        carregarDadosDoSupabase();
       } catch (erro) {
         console.error(erro);
         alert("Não foi possível enviar o lançamento.");
@@ -1791,24 +1837,24 @@
 
           const novaFoto = {
             id: (Date.now() + i).toString(),
-            funcionarioId: funcId,
-            obraId: obraId,
+            funcionario_id: funcId,
+            obra_id: obraId,
             tipo: tipo,
             observacao: observacao,
             imagem: arquivoProcessado,
-            isVideo: isVideo,
+            is_video: isVideo,
             data: new Date().toLocaleDateString('pt-BR'),
-            fileName: file.name
+            file_name: file.name
           };
 
-          fotosObra.unshift(novaFoto);
+          await supabaseClient.from('fotos_obra').insert([novaFoto]);
         }
 
-        salvarTudo();
         alert(`📸 ${files.length} arquivo(s) enviado(s) com sucesso!`);
         document.getElementById('foto-observacao').value = '';
         document.getElementById('foto-pin').value = '';
         document.getElementById('foto-file').value = '';
+        carregarDadosDoSupabase();
       } catch (erro) {
         console.error(erro);
         alert("Não foi possível processar os arquivos.");
@@ -1832,7 +1878,7 @@
         return;
       }
 
-      const pdfs = pdfsObra.filter(p => p.obraId === obraId);
+      const pdfs = pdfsObra.filter(p => p.obra_id === obraId);
 
       if (pdfs.length === 0) {
         container.innerHTML = '<p class="text-xs text-orange-600 bg-orange-50 p-3 rounded-xl border border-orange-200">Nenhum PDF anexado a esta obra.</p>';
@@ -1855,7 +1901,7 @@
        CADASTRAR OBRA
        ========================================================= */
 
-    function cadastrarObra() {
+    async function cadastrarObra() {
       const nome = document.getElementById('obra-nome').value.trim();
       const local = document.getElementById('obra-local').value.trim();
 
@@ -1869,16 +1915,18 @@
         nome: nome,
         local: local,
         status: 'Em Andamento',
-        atualizadoPor: 'Patrão'
+        atualizado_por: 'Patrão'
       };
 
-      obras.push(novaObra);
-      salvarTudo();
-      populardropdowns();
-      renderizarObras();
+      const { error } = await supabaseClient.from('obras').insert([novaObra]);
+      if (error) {
+        alert("Erro ao cadastrar obra: " + error.message);
+        return;
+      }
 
       document.getElementById('obra-nome').value = '';
       document.getElementById('obra-local').value = '';
+      carregarDadosDoSupabase();
     }
 
 
@@ -1915,8 +1963,8 @@
       }
 
       lista.innerHTML = obrasFiltradas.map(o => {
-        const qtdPdfs = pdfsObra.filter(p => p.obraId === o.id).length;
-        const qtdFotos = fotosObra.filter(f => f.obraId === o.id).length;
+        const qtdPdfs = pdfsObra.filter(p => p.obra_id === o.id).length;
+        const qtdFotos = fotosObra.filter(f => f.obra_id === o.id).length;
         const statusObra = o.status || 'Em Andamento';
 
         let badgeCor = "bg-amber-100 text-amber-800 border-amber-300";
@@ -1932,7 +1980,7 @@
                   ${statusObra}
                 </span>
               </div>
-              <p class="text-xs text-gray-500 mt-0.5">📍 ${o.local} | Atualizado por: ${o.atualizadoPor || 'Geral'}</p>
+              <p class="text-xs text-gray-500 mt-0.5">📍 ${o.local} | Atualizado por: ${o.atualizado_por || 'Geral'}</p>
               <div class="flex gap-2 mt-1.5">
                 <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full">${qtdPdfs} PDF(s)</span>
                 <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">${qtdFotos} Mídia(s)</span>
@@ -1956,15 +2004,12 @@
       }).join('');
     }
 
-    function mudarStatusObraPatrao(id, novoStatus) {
-      const index = obras.findIndex(o => o.id === id);
-      if (index !== -1) {
-        obras[index].status = novoStatus;
-        obras[index].atualizadoPor = 'Patrão';
-        salvarTudo();
-        populardropdowns();
-        renderizarObras();
-      }
+    async function mudarStatusObraPatrao(id, novoStatus) {
+      await supabaseClient
+        .from('obras')
+        .update({ status: novoStatus, atualizado_por: 'Patrão' })
+        .eq('id', id);
+      carregarDadosDoSupabase();
     }
 
 
@@ -1972,12 +2017,10 @@
        EXCLUIR OBRA
        ========================================================= */
 
-    function excluirObra(id) {
+    async function excluirObra(id) {
       if (confirm("Deseja excluir esta obra?")) {
-        obras = obras.filter(o => o.id !== id);
-        salvarTudo();
-        populardropdowns();
-        renderizarObras();
+        await supabaseClient.from('obras').delete().eq('id', id);
+        carregarDadosDoSupabase();
       }
     }
 
@@ -2001,7 +2044,7 @@
 
     function renderizarListaPdfsModal(obraId) {
       const container = document.getElementById('lista-pdfs-existentes');
-      const pdfs = pdfsObra.filter(p => p.obraId === obraId);
+      const pdfs = pdfsObra.filter(p => p.obra_id === obraId);
 
       if (pdfs.length === 0) {
         container.innerHTML = '<p class="text-xs text-gray-500 italic py-2">Nenhum PDF cadastrado.</p>';
@@ -2022,7 +2065,7 @@
       `).join('');
     }
 
-    function salvarPdfObra() {
+    async function salvarPdfObra() {
       const btn = document.getElementById('btn-pdf-salvar');
       const obraId = document.getElementById('modal-pdf-obra-id').value;
       const tituloBase = document.getElementById('pdf-titulo-input').value.trim() || 'Projeto PDF';
@@ -2037,58 +2080,42 @@
       btn.innerText = "⏳ ANEXANDO...";
 
       const files = Array.from(fileInput.files);
-      let processados = 0;
+      for (let index = 0; index < files.length; index++) {
+        const file = files[index];
+        if (file.type !== 'application/pdf') continue;
 
-      files.forEach((file, index) => {
-        if (file.type !== 'application/pdf') {
-          processados++;
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const nomeTitulo = files.length > 1 ? `${tituloBase} (${file.name})` : tituloBase;
-          const novoPdf = {
-            id: (Date.now() + index).toString(),
-            obraId: obraId,
-            titulo: nomeTitulo,
-            url: e.target.result,
-            data: new Date().toLocaleDateString('pt-BR')
+        await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = async function(e) {
+            const nomeTitulo = files.length > 1 ? `${tituloBase} (${file.name})` : tituloBase;
+            const novoPdf = {
+              id: (Date.now() + index).toString(),
+              obra_id: obraId,
+              titulo: nomeTitulo,
+              url: e.target.result,
+              data: new Date().toLocaleDateString('pt-BR')
+            };
+            await supabaseClient.from('pdfs_obra').insert([novoPdf]);
+            resolve();
           };
+          reader.readAsDataURL(file);
+        });
+      }
 
-          pdfsObra.push(novoPdf);
-          processados++;
-
-          if (processados === files.length) {
-            salvarTudo();
-            alert(`📄 ${files.length} PDF(s) anexado(s) com sucesso!`);
-            document.getElementById('pdf-titulo-input').value = '';
-            fileInput.value = '';
-            renderizarListaPdfsModal(obraId);
-            renderizarObras();
-            btn.disabled = false;
-            btn.innerText = "📎 Adicionar PDF(s) à Obra";
-          }
-        };
-
-        reader.onerror = function() {
-          processados++;
-          if (processados === files.length) {
-            btn.disabled = false;
-            btn.innerText = "📎 Adicionar PDF(s) à Obra";
-          }
-        };
-
-        reader.readAsDataURL(file);
-      });
+      alert("📄 PDF(s) anexado(s) com sucesso!");
+      document.getElementById('pdf-titulo-input').value = '';
+      fileInput.value = '';
+      btn.disabled = false;
+      btn.innerText = "📎 Adicionar PDF(s) à Obra";
+      carregarDadosDoSupabase();
+      renderizarListaPdfsModal(obraId);
     }
 
-    function excluirPdf(pdfId, obraId) {
+    async function excluirPdf(pdfId, obraId) {
       if (confirm("Deseja remover este PDF?")) {
-        pdfsObra = pdfsObra.filter(p => p.id !== pdfId);
-        salvarTudo();
+        await supabaseClient.from('pdfs_obra').delete().eq('id', pdfId);
+        carregarDadosDoSupabase();
         renderizarListaPdfsModal(obraId);
-        renderizarObras();
       }
     }
 
@@ -2110,14 +2137,14 @@
 
       document.getElementById('modal-obra-titulo').textContent = `Galeria - ${obra.nome}`;
       const container = document.getElementById('modal-galeria-conteudo');
-      const fotos = fotosObra.filter(f => f.obraId === obraId);
+      const fotos = fotosObra.filter(f => f.obra_id === obraId);
 
       if (fotos.length === 0) {
         container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-8 text-center">Nenhuma mídia enviada ainda.</p>';
       } else {
         container.innerHTML = fotos.map(f => {
-          const func = equipe.find(eq => eq.id === f.funcionarioId);
-          const midiaElemento = f.isVideo
+          const func = equipe.find(eq => eq.id === f.funcionario_id);
+          const midiaElemento = f.is_video
             ? `<video src="${f.imagem}" controls class="w-full h-48 object-cover bg-black rounded-t-2xl"></video>`
             : `<img src="${f.imagem}" class="w-full h-48 object-cover bg-black" alt="Mídia">`;
 
@@ -2132,7 +2159,7 @@
                 <p class="font-semibold text-emerald-700">Tipo: ${f.tipo}</p>
                 <p class="text-gray-600 italic">"${f.observacao || 'Sem observações'}"</p>
                 <div class="pt-2 flex justify-between items-center">
-                  <a href="${f.imagem}" download="obra-foto-${f.id}.${f.isVideo ? 'mp4' : 'jpg'}" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded hover:bg-emerald-200 transition">💾 Salvar Foto</a>
+                  <a href="${f.imagem}" download="obra-foto-${f.id}.${f.is_video ? 'mp4' : 'jpg'}" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded hover:bg-emerald-200 transition">💾 Salvar Foto</a>
                   <button onclick="excluirFotoObra('${f.id}', '${obraId}')" class="text-xs text-red-600 font-bold hover:underline">Excluir</button>
                 </div>
               </div>
@@ -2147,7 +2174,7 @@
     async function exportarGaleriaZip() {
       if (!obraGaleriaAtualId) return;
       const obra = obras.find(o => o.id === obraGaleriaAtualId);
-      const fotos = fotosObra.filter(f => f.obraId === obraGaleriaAtualId);
+      const fotos = fotosObra.filter(f => f.obra_id === obraGaleriaAtualId);
 
       if (fotos.length === 0) {
         alert("Não há fotos para exportar.");
@@ -2179,12 +2206,11 @@
       }
     }
 
-    function excluirFotoObra(fotoId, obraId) {
+    async function excluirFotoObra(fotoId, obraId) {
       if (confirm("Deseja excluir este arquivo?")) {
-        fotosObra = fotosObra.filter(f => f.id !== fotoId);
-        salvarTudo();
+        await supabaseClient.from('fotos_obra').delete().eq('id', fotoId);
+        await carregarDadosDoSupabase();
         abrirGaleriaObra(obraId);
-        renderizarObras();
       }
     }
 
@@ -2247,7 +2273,7 @@
        CADASTRAR / EDITAR FUNCIONÁRIO
        ========================================================= */
 
-    function cadastrarFuncionario() {
+    async function cadastrarFuncionario() {
       const editId = document.getElementById('edit-func-id').value;
       const nome = document.getElementById('func-nome').value.trim();
       const whatsapp = document.getElementById('func-whatsapp').value.trim();
@@ -2260,14 +2286,16 @@
       }
 
       if (editId) {
-        const index = equipe.findIndex(f => f.id === editId);
-        if (index !== -1) {
-          equipe[index].nome = nome;
-          equipe[index].whatsapp = whatsapp;
-          equipe[index].diaria = diaria;
-          equipe[index].pin = pin;
-          alert("✅ Funcionário atualizado com sucesso!");
+        const { error } = await supabaseClient
+          .from('equipe')
+          .update({ nome, whatsapp, diaria, pin })
+          .eq('id', editId);
+
+        if (error) {
+          alert("Erro ao atualizar: " + error.message);
+          return;
         }
+        alert("✅ Funcionário atualizado com sucesso!");
       } else {
         const novoFunc = {
           id: Date.now().toString(),
@@ -2277,14 +2305,16 @@
           pin: pin,
           ativo: true
         };
-        equipe.push(novoFunc);
+        const { error } = await supabaseClient.from('equipe').insert([novoFunc]);
+        if (error) {
+          alert("Erro ao cadastrar: " + error.message);
+          return;
+        }
         alert("✅ Funcionário cadastrado com sucesso!");
       }
 
-      salvarTudo();
-      populardropdowns();
-      renderizarEquipe();
       cancelarEdicaoFuncionario();
+      carregarDadosDoSupabase();
     }
 
     function prepararEdicaoFuncionario(id) {
@@ -2323,6 +2353,7 @@
 
     function renderizarEquipe() {
       const lista = document.getElementById('lista-equipe');
+      if (!lista) return;
       const ativos = equipe.filter(f => f.ativo !== false);
 
       if (ativos.length === 0) {
@@ -2344,15 +2375,10 @@
       `).join('');
     }
 
-    function desativarFuncionario(id) {
+    async function desativarFuncionario(id) {
       if (confirm("Remover este colaborador da equipe ativa?")) {
-        const index = equipe.findIndex(f => f.id === id);
-        if (index !== -1) {
-          equipe[index].ativo = false;
-          salvarTudo();
-          populardropdowns();
-          renderizarEquipe();
-        }
+        await supabaseClient.from('equipe').update({ ativo: false }).eq('id', id);
+        carregarDadosDoSupabase();
       }
     }
 
@@ -2386,7 +2412,7 @@
        DESIGNAR OBRA
        ========================================================= */
 
-    function confirmarEEnviarDesignacao() {
+    async function confirmarEEnviarDesignacao() {
       const btn = document.getElementById('btn-designar');
       const funcId = document.getElementById('designar-funcionario').value;
       const obraId = document.getElementById('designar-obra').value;
@@ -2419,20 +2445,19 @@
 
         const novaDesignacao = {
           id: Date.now().toString(),
-          funcionarioId: funcId,
-          obraId: obraId,
-          tipoContratacao: tipo,
-          valorUnitario: valor,
+          funcionario_id: funcId,
+          obra_id: obraId,
+          tipo_contratacao: tipo,
+          valor_unitario: valor,
           quantidade: quantidade,
-          valorTotal: totalCalculado,
-          dataInicio: dataInicio,
+          valor_total: totalCalculado,
+          data_inicio: dataInicio,
           instrucao: instrucao,
-          dataRegistro: new Date().toLocaleDateString('pt-BR')
+          data_registro: new Date().toLocaleDateString('pt-BR')
         };
 
-        designacoes.unshift(novaDesignacao);
-        salvarTudo();
-        renderizarDesignacoes();
+        const { error } = await supabaseClient.from('designacoes').insert([novaDesignacao]);
+        if (error) throw error;
 
         let texto = `Olá *${func.nome}*, você foi escalado para uma obra pela *T.R.E. Montagens*!\n\n`;
         texto += `🏗️ *Obra:* ${obra.nome}\n`;
@@ -2456,6 +2481,7 @@
         document.getElementById('designar-valor').value = '';
         document.getElementById('designar-quantidade').value = '';
         document.getElementById('designar-instrucao').value = '';
+        carregarDadosDoSupabase();
       } catch (err) {
         console.error(err);
         alert("Erro ao designar funcionário.");
@@ -2474,19 +2500,13 @@
       }
 
       container.innerHTML = designacoes.map(d => {
-        const func = equipe.find(f => f.id === d.funcionarioId);
-        const obra = obras.find(o => o.id === d.obraId);
-
-        let infoExtra = '';
-        if (d.tipoContratacao === 'Metro Quadrado') infoExtra = ` (${d.quantidade} m² x R$ ${d.valorUnitario?.toFixed(2)})`;
-        if (d.tipoContratacao === 'Por Hora') infoExtra = ` (${d.quantidade} h x R$ ${d.valorUnitario?.toFixed(2)})`;
-
+        const func = equipe.find(f => f.id === d.funcionario_id);
+        const obra = obras.find(o => o.id === d.obra_id);
         return `
-          <div class="py-3 flex justify-between items-center">
+          <div class="py-2.5 flex justify-between items-center">
             <div>
-              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} ➔ ${obra ? obra.nome : 'Obra'}</p>
-              <p class="text-xs text-gray-500">Tipo: <span class="font-semibold text-orange-600">${d.tipoContratacao}</span>${infoExtra} | Total: R$ ${d.valorTotal?.toFixed(2)}</p>
-              <p class="text-[10px] text-gray-400">Data: ${d.dataInicio}</p>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} $\rightarrow$ ${obra ? obra.nome : 'Obra'}</p>
+              <p class="text-xs text-gray-500">${d.tipo_contratacao} | Total: R$ ${Number(d.valor_total).toFixed(2)} | Início: ${d.data_inicio}</p>
             </div>
             <button onclick="excluirDesignacao('${d.id}')" class="text-xs text-red-600 font-bold hover:underline">Excluir</button>
           </div>
@@ -2494,17 +2514,16 @@
       }).join('');
     }
 
-    function excluirDesignacao(id) {
-      if (confirm("Deseja excluir esta designação?")) {
-        designacoes = designacoes.filter(d => d.id !== id);
-        salvarTudo();
-        renderizarDesignacoes();
+    async function excluirDesignacao(id) {
+      if (confirm("Excluir esta designação?")) {
+        await supabaseClient.from('designacoes').delete().eq('id', id);
+        carregarDadosDoSupabase();
       }
     }
 
 
     /* =========================================================
-       PRESENÇAS
+       PRESENÇAS (ADMIN)
        ========================================================= */
 
     function carregarPresencas() {
@@ -2517,39 +2536,39 @@
       }
 
       tbody.innerHTML = pontos.map(p => {
-        const func = equipe.find(f => f.id === p.funcionarioId);
-        const obra = obras.find(o => o.id === p.obraId);
-        let gpsTxt = 'Sem GPS';
-        let gpsLink = '#';
-
+        const func = equipe.find(f => f.id === p.funcionario_id);
+        const obra = obras.find(o => o.id === p.obra_id);
+        let gpsTxt = '<span class="text-gray-400">Sem GPS</span>';
         if (p.gps && p.gps.lat) {
-          gpsTxt = `${p.gps.lat.toFixed(4)}, ${p.gps.lng.toFixed(4)}`;
-          gpsLink = `https://maps.google.com/?q=${p.gps.lat},${p.gps.lng}`;
+          const mapsLink = `https://www.google.com/maps?q=${p.gps.lat},${p.gps.lng}`;
+          gpsTxt = `<a href="${mapsLink}" target="_blank" class="text-blue-600 font-bold hover:underline">📍 Ver no Mapa</a>`;
         }
 
         return `
           <tr class="hover:bg-gray-50">
-            <td class="p-3 border-b">${p.data} às ${p.hora}</td>
-            <td class="p-3 border-b font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
+            <td class="p-3 border-b font-semibold">${p.data} às ${p.hora}</td>
+            <td class="p-3 border-b">${func ? func.nome : 'Ex-colaborador'}</td>
             <td class="p-3 border-b">${obra ? obra.nome : 'Desconhecida'}</td>
-            <td class="p-3 border-b"><a href="${gpsLink}" target="_blank" class="text-emerald-700 underline font-semibold">${gpsTxt}</a></td>
-            <td class="p-3 border-b text-right"><button onclick="excluirPonto('${p.id}')" class="text-xs bg-red-100 text-red-700 font-bold px-2.5 py-1 rounded hover:bg-red-200">Excluir</button></td>
+            <td class="p-3 border-b">${gpsTxt}</td>
+            <td class="p-3 border-b text-right">
+              <button onclick="excluirPonto('${p.id}')" class="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded hover:bg-red-200">Excluir</button>
+            </td>
           </tr>
         `;
       }).join('');
     }
 
-    function excluirPonto(id) {
-      if (confirm("Excluir este registro de ponto?")) {
-        pontos = pontos.filter(p => p.id !== id);
-        salvarTudo();
-        carregarPresencas();
+    async function excluirPonto(id) {
+      if (confirm("Deseja excluir este registro de ponto?")) {
+        await supabaseClient.from('pontos').delete().eq('id', id);
+        carregarDadosDoSupabase();
+        setTimeout(carregarPresencas, 300);
       }
     }
 
 
     /* =========================================================
-       COMPROVANTES / VALES ADMIN
+       VALES (ADMIN)
        ========================================================= */
 
     function carregarValesAdmin() {
@@ -2557,58 +2576,60 @@
       if (!container) return;
 
       if (vales.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic text-center py-6">Nenhum vale ou ressarcimento registrado.</p>';
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4 text-center">Nenhum vale ou ressarcimento registrado.</p>';
         return;
       }
 
       container.innerHTML = vales.map(v => {
-        const func = equipe.find(f => f.id === v.funcionarioId);
-        const obra = obras.find(o => o.id === v.obraId);
-        const corTipo = v.tipo === 'Ressarcimento' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-red-100 text-red-800 border-red-300';
-        const comprovanteHtml = v.comprovante
-          ? `<a href="${v.comprovante}" target="_blank" class="mt-2 block"><img src="${v.comprovante}" class="w-full h-32 object-cover rounded-xl border hover:opacity-90 transition" alt="Comprovante"></a>`
-          : `<p class="text-xs text-gray-400 italic mt-2">Sem imagem anexada</p>`;
+        const func = equipe.find(f => f.id === v.funcionario_id);
+        const obra = obras.find(o => o.id === v.obra_id);
+        const corTipo = v.tipo === 'Vale' ? 'bg-red-50 border-red-200 text-red-900' : 'bg-blue-50 border-blue-200 text-blue-900';
 
         return `
-          <div class="card-acustico-blur p-4 rounded-2xl border shadow-sm space-y-2 flex flex-col justify-between">
-            <div>
-              <div class="flex justify-between items-center">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${corTipo}">${v.tipo || 'Vale'}</span>
-                <span class="text-xs font-semibold text-gray-500">${v.data}</span>
-              </div>
-              <p class="font-bold text-blue-950 text-base mt-1">${func ? func.nome : 'Ex-colaborador'}</p>
-              <p class="text-xs text-gray-600">Obra: <b>${obra ? obra.nome : 'Geral'}</b></p>
-              <p class="text-sm font-extrabold text-gray-800 mt-1">R$ ${v.valor.toFixed(2)}</p>
-              <p class="text-xs text-gray-500 italic">"${v.descricao || 'Sem descrição'}"</p>
-              ${comprovanteHtml}
+          <div class="border rounded-2xl p-4 ${corTipo} space-y-2 shadow-sm">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-sm uppercase">${v.tipo}</span>
+              <span class="text-xs font-semibold px-2 py-0.5 bg-white/80 rounded-full">${v.data}</span>
             </div>
-            <div class="pt-3 border-t flex justify-end">
-              <button onclick="excluirVale('${v.id}')" class="text-xs bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg transition">Excluir</button>
+            <p class="font-extrabold text-base">${func ? func.nome : 'Colaborador'}</p>
+            <p class="text-xs">Obra: ${obra ? obra.nome : 'Geral'}</p>
+            <p class="text-sm font-bold">Valor: R$ ${Number(v.valor).toFixed(2)}</p>
+            <p class="text-xs italic">Obs: "${v.descricao || 'Sem descrição'}"</p>
+            ${v.comprovante ? `<a href="${v.comprovante}" target="_blank" class="inline-block mt-1 text-xs bg-white text-gray-800 font-bold px-3 py-1 rounded border shadow-sm">📎 Ver Comprovante</a>` : ''}
+            <div class="pt-2 text-right">
+              <button onclick="excluirVale('${v.id}')" class="text-xs bg-red-600 text-white font-bold px-2.5 py-1 rounded hover:bg-red-700">Excluir Lançamento</button>
             </div>
           </div>
         `;
       }).join('');
     }
 
+    async function excluirVale(id) {
+      if (confirm("Deseja excluir este lançamento?")) {
+        await supabaseClient.from('vales').delete().eq('id', id);
+        carregarDadosDoSupabase();
+        setTimeout(carregarValesAdmin, 300);
+      }
+    }
+
     async function exportarComprovantesZip() {
-      if (vales.length === 0) {
-        alert("Não há comprovantes para exportar.");
+      const valesComComprovante = vales.filter(v => v.comprovante);
+      if (valesComComprovante.length === 0) {
+        alert("Não há comprovantes com imagem para exportar.");
         return;
       }
 
       const zip = new JSZip();
       const pasta = zip.folder("comprovantes");
 
-      vales.forEach((v, index) => {
+      valesComComprovante.forEach((v, index) => {
         if (v.comprovante && v.comprovante.includes(',')) {
           const arr = v.comprovante.split(',');
-          const mime = arr[0].match(/:(.*?);/)[1];
           const bstr = atob(arr[1]);
           let n = bstr.length;
           const u8arr = new Uint8Array(n);
           while (n--) { u8arr[n] = bstr.charCodeAt(n); }
-          const ext = mime.includes('png') ? 'png' : 'jpg';
-          pasta.file(`comprovante_${index + 1}_${v.tipo}.${ext}`, u8arr);
+          pasta.file(`comprovante_${index + 1}_${v.tipo}.jpg`, u8arr);
         }
       });
 
@@ -2621,17 +2642,9 @@
       }
     }
 
-    function excluirVale(id) {
-      if (confirm("Deseja excluir este lançamento?")) {
-        vales = vales.filter(v => v.id !== id);
-        salvarTudo();
-        carregarValesAdmin();
-      }
-    }
-
 
     /* =========================================================
-       FECHAMENTO MENSAL (COM CÁLCULO POR HORA AJUSTADO)
+       FECHAMENTO MENSAL
        ========================================================= */
 
     function calcularFechamentoMensal() {
@@ -2640,116 +2653,102 @@
       const tbody = document.getElementById('tabela-fechamento');
       if (!tbody) return;
 
-      const equipeAtiva = equipe;
-      if (equipeAtiva.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Nenhum funcionário cadastrado.</td></tr>';
+      const ativos = equipe.filter(f => f.ativo !== false);
+      if (ativos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Nenhum colaborador cadastrado.</td></tr>';
         return;
       }
 
-      let htmlGeral = '';
-
-      equipeAtiva.forEach(f => {
-        const designacoesFunc = designacoes.filter(d => {
-          if (d.funcionarioId !== f.id) return false;
-          const [anoD, mesD, diaD] = d.dataInicio.split('-').map(Number);
-          return (mesD - 1) === mes && anoD === ano;
+      tbody.innerHTML = ativos.map(f => {
+        const desigsFunc = designacoes.filter(d => {
+          if (d.funcionario_id !== f.id) return false;
+          const partes = d.data_inicio.split('/');
+          if (partes.length === 3) {
+            return parseInt(partes[1]) - 1 === mes && parseInt(partes[2]) === ano;
+          }
+          return false;
         });
 
-        const valesFunc = vales.filter(v => {
-          if (v.funcionarioId !== f.id) return false;
-          const [anoV, mesV, diaV] = v.data.split('-').map(Number);
-          return (mesV - 1) === mes && anoV === ano;
-        });
+        let totalBruto = 0;
+        let tipoDescricao = 'Diária (R$ ' + Number(f.diaria).toFixed(2) + ')';
+        let diasOuProducao = 0;
 
-        const totalVales = valesFunc.filter(v => v.tipo === 'Vale').reduce((acc, v) => acc + v.valor, 0);
-        const totalRessarcimentos = valesFunc.filter(v => v.tipo === 'Ressarcimento').reduce((acc, v) => acc + v.valor, 0);
+        const desigEmpreita = desigsFunc.find(d => d.tipo_contratacao === 'Empreita Global' || d.tipo_contratacao === 'Metro Quadrado' || d.tipo_contratacao === 'Por Hora');
 
-        let totalBrutoFunc = 0;
-        let descricoesAcordo = [];
-        let producaoResumo = [];
+        if (desigEmpreita) {
+          const obraObj = obras.find(o => o.id === desigEmpreita.obra_id);
+          const statusObra = obraObj ? obraObj.status : 'Em Andamento';
+          
+          tipoDescricao = desigEmpreita.tipo_contratacao;
+          diasOuProducao = desigEmpreita.quantidade || 1;
 
-        if (designacoesFunc.length > 0) {
-          designacoesFunc.forEach(d => {
-            descricoesAcordo.push(d.tipoContratacao);
-            if (d.tipoContratacao === 'Diária') {
-              const pontosDiaria = pontos.filter(p => {
-                if (p.funcionarioId !== f.id || p.obraId !== d.obraId) return false;
-                const [anoP, mesP, diaP] = p.data.split('-').map(Number);
-                return (mesP - 1) === mes && anoP === ano;
-              }).length;
-
-              totalBrutoFunc += pontosDiaria * d.valorUnitario;
-              producaoResumo.push(`${pontosDiaria} dia(s)`);
-            } else if (d.tipoContratacao === 'Empreita Global') {
-              const obraObj = obras.find(o => o.id === d.obraId);
-              const obraFinalizada = obraObj && obraObj.status === 'Finalizada';
-              if (obraFinalizada) {
-                totalBrutoFunc += d.valorTotal;
-                producaoResumo.push('Empr. 100%');
-              } else {
-                producaoResumo.push('Empr. (Pendente)');
-              }
-            } else if (d.tipoContratacao === 'Metro Quadrado') {
-              const obraObj = obras.find(o => o.id === d.obraId);
-              const obraFinalizada = obraObj && obraObj.status === 'Finalizada';
-              if (obraFinalizada) {
-                totalBrutoFunc += d.valorTotal;
-                producaoResumo.push(`${d.quantidade} m²`);
-              } else {
-                producaoResumo.push(`${d.quantidade} m² (Pendente)`);
-              }
-            } else if (d.tipoContratacao === 'Por Hora') {
-              // CÁLCULO EXATO SOLICITADO POR HORA
-              const subtotalHora = d.valorTotal || (d.valorUnitario * d.quantidade);
-              totalBrutoFunc += subtotalHora;
-              producaoResumo.push(`${d.quantidade}h (R$ ${d.valorUnitario?.toFixed(2)}/h)`);
-            }
-          });
+          if (statusObra === 'Finalizada') {
+            totalBruto = Number(desigEmpreita.valor_total) || 0;
+          } else {
+            tipoDescricao += ' (Aguardando Obra 100% Finalizada)';
+            totalBruto = 0;
+          }
         } else {
-          const pontosMes = pontos.filter(p => {
-            if (p.funcionarioId !== f.id) return false;
-            const [anoP, mesP, diaP] = p.data.split('-').map(Number);
-            return (mesP - 1) === mes && anoP === ano;
-          }).length;
-
-          totalBrutoFunc += pontosMes * f.diaria;
-          descricoesAcordo.push('Diária Base');
-          producaoResumo.push(`${pontosMes} dia(s)`);
+          const pontosFuncMes = pontos.filter(p => {
+            if (p.funcionario_id !== f.id) return false;
+            const partes = p.data.split('-');
+            if (partes.length === 3) {
+              return parseInt(partes[1]) - 1 === mes && parseInt(partes[0]) === ano;
+            }
+            return false;
+          });
+          diasOuProducao = pontosFuncMes.length;
+          totalBruto = diasOuProducao * (Number(f.diaria) || 0);
         }
 
-        const saldoAPagar = totalBrutoFunc + totalRessarcimentos - totalVales;
-        const acordoTxt = descricoesAcordo.length > 0 ? [...new Set(descricoesAcordo)].join(', ') : 'Diária';
-        const producaoTxt = producaoResumo.length > 0 ? producaoResumo.join(' + ') : '0';
+        const valesFuncMes = vales.filter(v => {
+          if (v.funcionario_id !== f.id) return false;
+          const partes = v.data.split('-');
+          if (partes.length === 3) {
+            return parseInt(partes[1]) - 1 === mes && parseInt(partes[0]) === ano;
+          }
+          return false;
+        });
 
-        htmlGeral += `
-          <tr>
+        let totalVales = 0;
+        let totalRessarcimentos = 0;
+
+        valesFuncMes.forEach(v => {
+          const val = Number(v.valor) || 0;
+          if (v.tipo === 'Ressarcimento') {
+            totalRessarcimentos += val;
+          } else {
+            totalVales += val;
+          }
+        });
+
+        const saldoAPagar = totalBruto + totalRessarcimentos - totalVales;
+
+        return `
+          <tr class="hover:bg-gray-50">
             <td class="p-3 border-b font-bold text-blue-950">${f.nome}</td>
-            <td class="p-3 border-b text-center"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-semibold">${acordoTxt}</span></td>
-            <td class="p-3 border-b text-center text-gray-600">${producaoTxt}</td>
-            <td class="p-3 border-b text-right font-bold text-gray-800">R$ ${totalBrutoFunc.toFixed(2)}</td>
+            <td class="p-3 border-b text-center text-xs">${tipoDescricao}</td>
+            <td class="p-3 border-b text-center font-semibold">${diasOuProducao}</td>
+            <td class="p-3 border-b text-right font-bold text-gray-800">R$ ${totalBruto.toFixed(2)}</td>
             <td class="p-3 border-b text-right font-semibold text-blue-700">+ R$ ${totalRessarcimentos.toFixed(2)}</td>
             <td class="p-3 border-b text-right font-semibold text-red-600">- R$ ${totalVales.toFixed(2)}</td>
             <td class="p-3 border-b text-right font-extrabold text-emerald-700 text-base">R$ ${saldoAPagar.toFixed(2)}</td>
           </tr>
         `;
-      });
-
-      tbody.innerHTML = htmlGeral;
+      }).join('');
     }
 
     function exportarExcelFechamento() {
       const tabela = document.getElementById('tabela-fechamento-export');
-      if (!tabela) return;
       const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento Mensal" });
       XLSX.writeFile(wb, "Fechamento_TRE_Montagens.xlsx");
     }
 
     function exportarPdfFechamento() {
       const elemento = document.getElementById('area-impressao-fechamento');
-      if (!elemento) return;
       const opt = {
         margin:       10,
-        filename:     'Fechamento_Mensal_TRE.pdf',
+        filename:     'Fechamento_TRE_Montagens.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
