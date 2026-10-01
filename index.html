@@ -199,7 +199,7 @@
     </div>
 
 
-    <!-- CARD 1.5: STATUS DA OBRA (ATUALIZADO PELO FUNCIONÁRIO) -->
+    <!-- CARD 1.5: STATUS DA OBRA -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-amber-600">
 
       <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
@@ -269,35 +269,27 @@
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-purple-600">
 
       <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
-
         <span>📄 PDFs & Projetos das Obras</span>
-
         <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-semibold">
           Projetos & Plantas
         </span>
-
       </h3>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Selecione a Obra para ver os Arquivos:
         </label>
-
         <select
           id="consulta-pdf-obra"
           onchange="buscarPdfsObra()"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-purple-600 focus:outline-none"
         ></select>
-
       </div>
 
       <div id="container-pdf-obra" class="space-y-2 pt-2">
-
         <p class="text-xs text-gray-500 italic">
           Selecione uma obra acima para carregar as plantas e relatórios anexados.
         </p>
-
       </div>
 
     </div>
@@ -311,62 +303,43 @@
       </h3>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Tipo de Lançamento:
         </label>
-
         <select
           id="vale-tipo-lacamento"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
         >
-
-          <option value="Vale">
-            💸 Vale / Adiantamento (Desconta do pagamento)
-          </option>
-
-          <option value="Ressarcimento">
-            🍔 Ressarcimento (Almoço, Estacionamento, Passagem, Material)
-          </option>
-
+          <option value="Vale">💸 Vale / Adiantamento (Desconta do pagamento)</option>
+          <option value="Ressarcimento">🍔 Ressarcimento (Almoço, Estacionamento, Passagem, Material)</option>
         </select>
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Selecione o seu Nome:
         </label>
-
         <select
           id="vale-funcionario"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
         ></select>
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Selecione a Obra:
         </label>
-
         <select
           id="vale-obra"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
         ></select>
-
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-
         <div>
-
           <label class="block text-sm font-semibold mb-1 text-gray-700">
             Valor (R$):
           </label>
-
           <input
             type="number"
             step="0.01"
@@ -374,68 +347,53 @@
             placeholder="0,00"
             class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
           >
-
         </div>
-
         <div>
-
           <label class="block text-sm font-semibold mb-1 text-gray-700">
             Data:
           </label>
-
           <input
             type="date"
             id="vale-data"
             class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
           >
-
         </div>
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Descrição / Motivo:
         </label>
-
         <input
           type="text"
           id="vale-descricao"
           placeholder="Ex: Almoço, Estacionamento, Vale semanal, Pedágio"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
         >
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Foto / Comprovante:
         </label>
-
         <input
           type="file"
           id="vale-comprovante-file"
           accept="image/*"
           class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600 cursor-pointer"
         >
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           PIN / Senha do Colaborador:
         </label>
-
         <input
           type="password"
           id="vale-pin"
           placeholder="Digite seu PIN individual"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-900 focus:outline-none"
         >
-
       </div>
 
       <button
@@ -453,74 +411,50 @@
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-emerald-600">
 
       <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
-
         <span>📸 Diário de Obra (Fotos e Vídeos)</span>
-
         <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">
           Múltiplos Arquivos
         </span>
-
       </h3>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Selecione o seu Nome:
         </label>
-
         <select
           id="foto-funcionario"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
         ></select>
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Selecione a Obra:
         </label>
-
         <select
           id="foto-obra"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
         ></select>
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Tipo de Registro:
         </label>
-
         <select
           id="foto-tipo"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
         >
-
-          <option value="Finalização">
-            🏁 Finalização / Conclusão da Obra
-          </option>
-
-          <option value="Observação">
-            ⚠️ Observação / Problema / Ajuste
-          </option>
-
-          <option value="Andamento">
-            🔨 Registro de Andamento Diário
-          </option>
-
+          <option value="Finalização">🏁 Finalização / Conclusão da Obra</option>
+          <option value="Observação">⚠️ Observação / Problema / Ajuste</option>
+          <option value="Andamento">🔨 Registro de Andamento Diário</option>
         </select>
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Fotos ou Vídeos da Obra:
         </label>
-
         <input
           type="file"
           id="foto-file"
@@ -528,37 +462,30 @@
           multiple
           class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer"
         >
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           Observações / Comentários:
         </label>
-
         <textarea
           id="foto-observacao"
           rows="2"
           placeholder="Ex: Painéis instalados conforme projeto, faltando apenas limpeza."
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
         ></textarea>
-
       </div>
 
       <div>
-
         <label class="block text-sm font-semibold mb-1 text-gray-700">
           PIN / Senha do Colaborador:
         </label>
-
         <input
           type="password"
           id="foto-pin"
           placeholder="Digite seu PIN individual"
           class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
         >
-
       </div>
 
       <button
@@ -574,24 +501,16 @@
 
     <!-- HISTÓRICO -->
     <div class="mt-8 card-acustico-blur p-6 rounded-2xl shadow-xl border-l-4 border-orange-500">
-
       <h3 class="font-bold text-blue-950 mb-3 flex items-center justify-between">
-
         <span>Seus Pontos Registrados Recentes:</span>
-
-        <span class="text-xs text-gray-500 font-normal">
-          Últimos 5 registros
-        </span>
-
+        <span class="text-xs text-gray-500 font-normal">Últimos 5 registros</span>
       </h3>
-
       <div
         id="lista-ponto-recentes"
         class="space-y-2 text-sm text-gray-700 divide-y divide-gray-100"
       >
         Carregando...
       </div>
-
     </div>
 
   </div>
@@ -603,34 +522,27 @@
   <div id="visao-admin" class="hidden min-h-screen flex flex-col w-full">
 
     <nav class="bg-blue-950 text-white p-4 flex flex-wrap justify-between items-center gap-2 border-b-2 border-orange-500 shadow-md">
-
       <div class="flex items-center gap-3">
-
         <img
           src="./logo-tre.jpg"
           alt="Logo T.R.E. Montagens"
           class="w-8 h-8 rounded-full object-cover border border-orange-500"
         >
-
         <h1 class="text-xl font-bold tracking-tight">
           T.R.E. | Painel do Patrão
         </h1>
-
       </div>
-
       <button
         onclick="sair()"
         class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition"
       >
         Sair
       </button>
-
     </nav>
 
 
     <!-- MENU ADMIN -->
     <div class="bg-blue-900 text-white flex overflow-x-auto text-sm font-semibold border-t border-blue-800 shadow-inner">
-
       <button
         id="tab-btn-obras"
         onclick="mudarAbaAdmin('obras')"
@@ -678,55 +590,45 @@
       >
         <span>📊</span> Fechamento
       </button>
-
     </div>
 
 
     <div class="p-4 max-w-5xl mx-auto w-full flex-grow">
 
-
       <!-- =====================================================
-           ABA OBRAS (COM HISTÓRICO, SEPARADAS POR STATUS)
+           ABA OBRAS
            ===================================================== -->
       <div id="aba-obras" class="aba-content space-y-6">
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-
           <h3 class="text-lg font-bold text-blue-950 mb-4">
             Cadastrar Nova Obra
           </h3>
-
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
             <input
               type="text"
               id="obra-nome"
               placeholder="Nome da Obra (ex: Avanço RJ)"
               class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             >
-
             <input
               type="text"
               id="obra-local"
               placeholder="Localização / Endereço"
               class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             >
-
           </div>
-
           <button
             onclick="cadastrarObra()"
             class="mt-4 bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-orange-600 transition shadow-md"
           >
             Cadastrar Obra
           </button>
-
         </div>
 
 
         <!-- SEÇÃO DE FILTRO / VISUALIZAÇÃO DE OBRAS POR STATUS -->
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900 space-y-6">
-
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-3">
             <div>
               <h3 class="text-lg font-bold text-blue-950">
@@ -749,7 +651,6 @@
             id="lista-obras"
             class="divide-y text-gray-700 space-y-3"
           ></ul>
-
         </div>
 
 
@@ -758,22 +659,16 @@
           id="modal-galeria-obra"
           class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         >
-
           <div class="bg-white rounded-2xl max-w-3xl w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl relative border-t-4 border-orange-500">
-
             <div class="flex justify-between items-center mb-4 border-b pb-3">
-
               <div>
-
                 <h3
                   id="modal-obra-titulo"
                   class="text-xl font-bold text-blue-950"
                 ></h3>
-
                 <p class="text-xs text-gray-500">
                   Galeria de Fotos, Vídeos, Finalizações e Observações
                 </p>
-
               </div>
 
               <div class="flex items-center gap-2">
@@ -790,16 +685,13 @@
                   ✕ Fechar
                 </button>
               </div>
-
             </div>
 
             <div
               id="modal-galeria-conteudo"
               class="grid grid-cols-1 md:grid-cols-2 gap-4"
             ></div>
-
           </div>
-
         </div>
 
 
@@ -808,31 +700,23 @@
           id="modal-anexar-pdf"
           class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         >
-
           <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative border-t-4 border-purple-600">
-
             <div class="flex justify-between items-center mb-4 border-b pb-3">
-
               <div>
-
                 <h3 class="text-lg font-bold text-blue-950">
                   Projetos & PDFs da Obra
                 </h3>
-
                 <p
                   id="modal-pdf-obra-nome"
                   class="text-xs text-purple-700 font-semibold"
                 ></p>
-
               </div>
-
               <button
                 onclick="fecharModalPdf()"
                 class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm"
               >
                 ✕
               </button>
-
             </div>
 
             <input
@@ -841,20 +725,16 @@
             >
 
             <div class="space-y-4">
-
               <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 space-y-3">
-
                 <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wide">
                   Anexar Novo Projeto / PDF
                 </h4>
-
                 <input
                   type="text"
                   id="pdf-titulo-input"
                   placeholder="Nome/Prefixo do Documento"
                   class="w-full p-2.5 border rounded-xl bg-white text-sm focus:ring-2 focus:ring-purple-600 focus:outline-none"
                 >
-
                 <input
                   type="file"
                   id="pdf-file-input"
@@ -862,7 +742,6 @@
                   multiple
                   class="w-full p-2 border rounded-xl bg-white text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer"
                 >
-
                 <button
                   id="btn-pdf-salvar"
                   onclick="salvarPdfObra()"
@@ -871,26 +750,19 @@
                   <span>📎</span>
                   Adicionar PDF(s) à Obra
                 </button>
-
               </div>
 
               <div>
-
                 <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">
                   Arquivos Já Anexados:
                 </h4>
-
                 <div
                   id="lista-pdfs-existentes"
                   class="space-y-2 max-h-48 overflow-y-auto pr-1"
                 ></div>
-
               </div>
-
             </div>
-
           </div>
-
         </div>
 
 
@@ -899,71 +771,49 @@
           id="modal-whatsapp-obra"
           class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         >
-
           <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-t-4 border-emerald-500">
-
             <div class="flex justify-between items-center mb-4 border-b pb-3">
-
               <div>
-
                 <h3 class="text-lg font-bold text-blue-950 flex items-center gap-1.5">
                   📲 Enviar Aviso por WhatsApp
                 </h3>
-
                 <p
                   id="modal-whatsapp-obra-nome"
                   class="text-xs text-emerald-700 font-semibold"
                 ></p>
-
               </div>
-
               <button
                 onclick="fecharModalWhatsapp()"
                 class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm"
               >
                 ✕
               </button>
-
             </div>
 
-            <input
-              type="hidden"
-              id="modal-whatsapp-obra-id"
-            >
-
-            <input
-              type="hidden"
-              id="modal-whatsapp-obra-local"
-            >
+            <input type="hidden" id="modal-whatsapp-obra-id">
+            <input type="hidden" id="modal-whatsapp-obra-local">
 
             <div class="space-y-4">
-
               <div>
-
                 <label class="block text-sm font-semibold mb-1 text-gray-700">
                   Selecione o Funcionário:
                 </label>
-
                 <select
                   id="modal-whatsapp-funcionario"
                   class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 ></select>
-
               </div>
 
               <div>
-
                 <label class="block text-sm font-semibold mb-1 text-gray-700">
                   Instrução / Orientação Adicional:
                 </label>
-
                 <textarea
                   id="modal-whatsapp-mensagem"
                   rows="3"
                   placeholder="Ex: Favor estar na obra às 07:30."
                   class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 ></textarea>
-
               </div>
 
               <button
@@ -973,11 +823,8 @@
                 <span>💬</span>
                 Abrir WhatsApp com Mensagem
               </button>
-
             </div>
-
           </div>
-
         </div>
 
       </div>
@@ -989,7 +836,6 @@
       <div id="aba-equipe" class="aba-content hidden space-y-6">
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-
           <h3 class="text-lg font-bold text-blue-950 mb-4" id="titulo-form-func">
             Cadastrar Novo Colaborador
           </h3>
@@ -997,21 +843,18 @@
           <input type="hidden" id="edit-func-id">
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
             <input
               type="text"
               id="func-nome"
               placeholder="Nome Completo"
               class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             >
-
             <input
               type="text"
               id="func-whatsapp"
               placeholder="WhatsApp (ex: 77999998888)"
               class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             >
-
             <input
               type="number"
               step="0.01"
@@ -1019,14 +862,12 @@
               placeholder="Valor Diária Base (R$)"
               class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             >
-
             <input
               type="text"
               id="func-pin"
               placeholder="PIN Individual (4 dígitos)"
               class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             >
-
           </div>
 
           <div class="flex gap-2 mt-4">
@@ -1045,69 +886,56 @@
               Cancelar
             </button>
           </div>
-
         </div>
 
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-
           <h3 class="text-lg font-bold text-blue-950 mb-4">
             Equipe Cadastrada
           </h3>
-
           <p class="text-xs text-gray-500 mb-3">
             Nota: O histórico permanecerá salvo mesmo desativando colaboradores.
           </p>
-
           <ul
             id="lista-equipe"
             class="divide-y text-gray-700"
           ></ul>
-
         </div>
 
       </div>
 
 
       <!-- =====================================================
-           ABA DESIGNAR (COM ÁREA, EMPREITA, METRO QUADRADO, HORA)
+           ABA DESIGNAR
            ===================================================== -->
       <div id="aba-designar" class="aba-content hidden space-y-6">
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600 space-y-4">
-
           <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center gap-2">
             <span>📲 Designar Funcionário para Obra (Diária ou Empreita)</span>
           </h3>
 
           <div>
-
             <label class="block text-sm font-semibold mb-1 text-gray-700">
               Selecione o Colaborador:
             </label>
-
             <select
               id="designar-funcionario"
               class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
             ></select>
-
           </div>
 
           <div>
-
             <label class="block text-sm font-semibold mb-1 text-gray-700">
               Selecione a Obra:
             </label>
-
             <select
               id="designar-obra"
               class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
             ></select>
-
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
             <div>
               <label class="block text-sm font-semibold mb-1 text-gray-700">
                 Tipo de Contratação / Pagamento:
@@ -1136,7 +964,6 @@
                 class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
               >
             </div>
-
           </div>
 
           <div id="bloco-metragem" class="hidden">
@@ -1153,32 +980,26 @@
           </div>
 
           <div>
-
             <label class="block text-sm font-semibold mb-1 text-gray-700">
               Data de Início / Presença:
             </label>
-
             <input
               type="date"
               id="designar-data"
               class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
             >
-
           </div>
 
           <div>
-
             <label class="block text-sm font-semibold mb-1 text-gray-700">
               Instruções / Detalhes da Execução ou Empreita:
             </label>
-
             <textarea
               id="designar-instrucao"
               rows="3"
               placeholder="Ex: Instalação de painéis acústicos na sala de reuniões. Serviço de empreita fechado."
               class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
             ></textarea>
-
           </div>
 
           <button
@@ -1189,21 +1010,17 @@
             <span>💬</span>
             DESIGNAR E ENVIAR CONVOCAÇÃO VIA WHATSAPP
           </button>
-
         </div>
 
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-
           <h3 class="text-lg font-bold text-blue-950 mb-4">
             Histórico de Convocações e Empreitas
           </h3>
-
           <div
             id="lista-designacoes"
             class="space-y-2 text-sm divide-y"
           ></div>
-
         </div>
 
       </div>
@@ -1215,49 +1032,35 @@
       <div id="aba-presencas" class="aba-content hidden space-y-6">
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
-
           <div class="flex justify-between items-center mb-4">
-
             <h3 class="text-lg font-bold text-blue-950">
               Registro Geral de Presenças
             </h3>
-
             <button
               onclick="carregarPresencas()"
               class="text-xs bg-blue-100 text-blue-900 px-3 py-1 rounded-lg font-bold hover:bg-blue-200"
             >
               Atualizar
             </button>
-
           </div>
 
           <div class="overflow-x-auto">
-
             <table class="w-full text-left border-collapse">
-
               <thead>
-
                 <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
-
                   <th class="p-3 border-b">Data</th>
                   <th class="p-3 border-b">Funcionário</th>
                   <th class="p-3 border-b">Obra</th>
                   <th class="p-3 border-b">GPS / Localização</th>
                   <th class="p-3 border-b text-right">Ações</th>
-
                 </tr>
-
               </thead>
-
               <tbody
                 id="tabela-presencas"
                 class="text-sm divide-y"
               ></tbody>
-
             </table>
-
           </div>
-
         </div>
 
       </div>
@@ -1269,13 +1072,10 @@
       <div id="aba-comprovantes" class="aba-content hidden space-y-6">
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-orange-500">
-
           <div class="flex justify-between items-center mb-4">
-
             <h3 class="text-lg font-bold text-blue-950">
               Vales, Ressarcimentos and Comprovantes Recebidos
             </h3>
-
             <div class="flex items-center gap-2">
               <button
                 onclick="exportarComprovantesZip()"
@@ -1290,14 +1090,12 @@
                 Atualizar
               </button>
             </div>
-
           </div>
 
           <div
             id="container-vales-admin"
             class="grid grid-cols-1 md:grid-cols-2 gap-4"
           ></div>
-
         </div>
 
       </div>
@@ -1312,39 +1110,29 @@
           id="area-impressao-fechamento"
           class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600"
         >
-
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b pb-4">
-
             <div>
-
               <h3 class="text-xl font-bold text-blue-950">
                 📊 Fechamento Mensal e Balanço de Diárias / Empreitas
               </h3>
-
               <p class="text-xs text-gray-500">
                 Histórico de pagamentos, vales, ressarcimentos e saldos calculados por período (Empreitas somam apenas se a obra estiver 100% Finalizada)
               </p>
-
             </div>
-
 
             <div
               class="flex flex-wrap items-center gap-2 bg-gray-100 p-2 rounded-xl border"
               data-html2pdf-ignore="true"
             >
-
               <div>
-
                 <label class="block text-[10px] font-bold uppercase text-gray-500">
                   Mês:
                 </label>
-
                 <select
                   id="fechamento-mes"
                   onchange="calcularFechamentoMensal()"
                   class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                 >
-
                   <option value="0">Janeiro</option>
                   <option value="1">Fevereiro</option>
                   <option value="2">Março</option>
@@ -1357,26 +1145,19 @@
                   <option value="9">Outubro</option>
                   <option value="10">Novembro</option>
                   <option value="11">Dezembro</option>
-
                 </select>
-
               </div>
 
-
               <div>
-
                 <label class="block text-[10px] font-bold uppercase text-gray-500">
                   Ano:
                 </label>
-
                 <select
                   id="fechamento-ano"
                   onchange="calcularFechamentoMensal()"
                   class="p-2 border rounded-lg bg-white text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
                 ></select>
-
               </div>
-
 
               <button
                 onclick="calcularFechamentoMensal()"
@@ -1384,9 +1165,7 @@
               >
                 Recalcular
               </button>
-
             </div>
-
           </div>
 
 
@@ -1395,7 +1174,6 @@
             class="flex flex-wrap gap-2 mb-4 justify-end"
             data-html2pdf-ignore="true"
           >
-
             <button
               onclick="exportarExcelFechamento()"
               class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl text-xs shadow flex items-center gap-1.5 transition"
@@ -1411,21 +1189,16 @@
               <span>📕</span>
               Salvar em PDF
             </button>
-
           </div>
 
 
           <div class="overflow-x-auto">
-
             <table
               id="tabela-fechamento-export"
               class="w-full text-left border-collapse"
             >
-
               <thead>
-
                 <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
-
                   <th class="p-3 border-b">Funcionário</th>
                   <th class="p-3 border-b text-center">Diária / Acordo</th>
                   <th class="p-3 border-b text-center">Dias / Produção</th>
@@ -1433,20 +1206,14 @@
                   <th class="p-3 border-b text-right text-blue-700">Ressarcimentos</th>
                   <th class="p-3 border-b text-right text-red-600">Total Vales</th>
                   <th class="p-3 border-b text-right text-emerald-700">Saldo a Pagar</th>
-
                 </tr>
-
               </thead>
-
               <tbody
                 id="tabela-fechamento"
                 class="text-sm divide-y"
               ></tbody>
-
             </table>
-
           </div>
-
         </div>
 
       </div>
@@ -1464,7 +1231,7 @@
   <script>
 
     /* =========================================================
-       SISTEMA DE SOM TEMÁTICO (CONSTRUÇÃO CIVIL / FERRAMENTAS)
+       SISTEMA DE SOM TEMÁTICO
        ========================================================= */
     let audioCtx = null;
 
@@ -1538,47 +1305,11 @@
 
 
     /* =========================================================
-       CONFIGURAÇÃO E DADOS
+       CONFIGURAÇÃO E DADOS (SEM PREDEFINIÇÕES ANTIGAS)
        ========================================================= */
 
-    const DEFAULT_OBRAS = [
-      {
-        id: '1',
-        nome: 'Avanço RJ',
-        local: 'Rio de Janeiro / RJ',
-        status: 'Em Andamento',
-        atualizadoPor: 'Sistema'
-      },
-      {
-        id: '2',
-        nome: 'Sede T.R.E. Acústica',
-        local: 'São Paulo / SP',
-        status: 'Pronta',
-        atualizadoPor: 'Sistema'
-      }
-    ];
-
-    const DEFAULT_EQUIPE = [
-      {
-        id: '1',
-        nome: 'Carlos Silva',
-        diaria: 220.00,
-        pin: '1234',
-        whatsapp: '5511999998888',
-        ativo: true
-      },
-      {
-        id: '2',
-        nome: 'Marcos Oliveira',
-        diaria: 250.00,
-        pin: '5678',
-        whatsapp: '5577999997777',
-        ativo: true
-      }
-    ];
-
-    let obras = JSON.parse(localStorage.getItem('tre_obras')) || DEFAULT_OBRAS;
-    let equipe = JSON.parse(localStorage.getItem('tre_equipe')) || DEFAULT_EQUIPE;
+    let obras = JSON.parse(localStorage.getItem('tre_obras')) || [];
+    let equipe = JSON.parse(localStorage.getItem('tre_equipe')) || [];
     let pontos = JSON.parse(localStorage.getItem('tre_pontos')) || [];
     let vales = JSON.parse(localStorage.getItem('tre_vales')) || [];
     let fotosObra = JSON.parse(localStorage.getItem('tre_fotos_obra')) || [];
@@ -1656,7 +1387,7 @@
 
 
     /* =========================================================
-       GPS (CORRIGIDO E ROBUSTO)
+       GPS
        ========================================================= */
 
     function obterCoordenadasGPS() {
@@ -1673,7 +1404,6 @@
           },
           (err) => {
             console.warn("Erro ao obter GPS:", err.message);
-            // Tenta uma segunda vez com baixa precisão se falhar a alta precisão
             navigator.geolocation.getCurrentPosition(
               (pos2) => resolve({ lat: pos2.coords.latitude, lng: pos2.coords.longitude }),
               () => {
@@ -1767,7 +1497,7 @@
 
 
     /* =========================================================
-       ATUALIZAR STATUS DA OBRA (PELO FUNCIONÁRIO)
+       ATUALIZAR STATUS DA OBRA
        ========================================================= */
 
     function atualizarStatusObraPeloFuncionario() {
@@ -2514,7 +2244,7 @@
 
 
     /* =========================================================
-       CADASTRAR / EDITAR FUNCIONÁRIO (ATUALIZADO)
+       CADASTRAR / EDITAR FUNCIONÁRIO
        ========================================================= */
 
     function cadastrarFuncionario() {
@@ -2530,7 +2260,6 @@
       }
 
       if (editId) {
-        // Modo Edição
         const index = equipe.findIndex(f => f.id === editId);
         if (index !== -1) {
           equipe[index].nome = nome;
@@ -2540,7 +2269,6 @@
           alert("✅ Funcionário atualizado com sucesso!");
         }
       } else {
-        // Modo Cadastro Novo
         const novoFunc = {
           id: Date.now().toString(),
           nome: nome,
@@ -2709,80 +2437,65 @@
         let texto = `Olá *${func.nome}*, você foi escalado para uma obra pela *T.R.E. Montagens*!\n\n`;
         texto += `🏗️ *Obra:* ${obra.nome}\n`;
         texto += `📍 *Localização:* ${obra.local}\n`;
-        texto += `📋 *Contrato:* ${tipo}\n`;
-        if (tipo === 'Diária') {
-          texto += `💰 *Valor Diária:* R$ ${valor.toFixed(2)}\n`;
-        } else if (tipo === 'Empreita Global') {
-          texto += `💰 *Valor Empreita:* R$ ${valor.toFixed(2)}\n`;
-        } else if (tipo === 'Metro Quadrado') {
-          texto += `📏 *Metragem:* ${quantidade} m² (R$ ${valor.toFixed(2)}/m²) -> *Total: R$ ${totalCalculado.toFixed(2)}*\n`;
-        } else if (tipo === 'Por Hora') {
-          texto += `⏱ *Horas:* ${quantidade}h (R$ ${valor.toFixed(2)}/h) -> *Total: R$ ${totalCalculado.toFixed(2)}*\n`;
-        }
-        texto += `📅 *Data de Início:* ${dataInicio.split('-').reverse().join('/')}\n`;
+        texto += `💼 *Tipo:* ${tipo}\n`;
+        if (tipo === 'Metro Quadrado') texto += `📐 *Metragem:* ${quantidade} m²\n`;
+        if (tipo === 'Por Hora') texto += `⏱️ *Horas:* ${quantidade} h\n`;
+        texto += `💰 *Valor Acordado:* R$ ${totalCalculado.toFixed(2)}\n`;
+        texto += `📅 *Início:* ${dataInicio}\n`;
         if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
-        texto += `\nConfirme o recebimento e bata o ponto!`;
+        texto += `\nPor favor, confirme a recepção!`;
 
         const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
-        const linkZap = numLimpo
+        const link = numLimpo
           ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
           : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
 
-        window.open(linkZap, '_blank');
+        window.open(link, '_blank');
+        alert("✅ Convocação registrada e WhatsApp aberto com sucesso!");
 
-        document.getElementById('designar-instrucao').value = '';
         document.getElementById('designar-valor').value = '';
         document.getElementById('designar-quantidade').value = '';
-      } catch (erro) {
-        console.error(erro);
-        alert("Erro ao registrar a designação.");
+        document.getElementById('designar-instrucao').value = '';
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao designar funcionário.");
       }
 
       btn.disabled = false;
     }
-
-
-    /* =========================================================
-       HISTÓRICO DESIGNAÇÕES
-       ========================================================= */
 
     function renderizarDesignacoes() {
       const container = document.getElementById('lista-designacoes');
       if (!container) return;
 
       if (designacoes.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 py-3">Nenhuma designação realizada.</p>';
+        container.innerHTML = '<p class="text-xs text-gray-500 py-2">Nenhuma designação registrada.</p>';
         return;
       }
 
-      container.innerHTML = designacoes.slice(0, 10).map(d => {
+      container.innerHTML = designacoes.map(d => {
         const func = equipe.find(f => f.id === d.funcionarioId);
         const obra = obras.find(o => o.id === d.obraId);
 
-        let detalhesValor = `Diária: R$ ${Number(d.valorUnitario || 0).toFixed(2)}`;
-        if (d.tipoContratacao === 'Empreita Global') {
-          detalhesValor = `Empreita: R$ ${Number(d.valorTotal || d.valorUnitario || 0).toFixed(2)}`;
-        } else if (d.tipoContratacao === 'Metro Quadrado') {
-          detalhesValor = `${d.quantidade}m² a R$ ${Number(d.valorUnitario || 0).toFixed(2)}/m² (Tot: R$ ${Number(d.valorTotal || 0).toFixed(2)})`;
-        } else if (d.tipoContratacao === 'Por Hora') {
-          detalhesValor = `${d.quantidade}h a R$ ${Number(d.valorUnitario || 0).toFixed(2)}/h (Tot: R$ ${Number(d.valorTotal || 0).toFixed(2)})`;
-        }
+        let infoExtra = '';
+        if (d.tipoContratacao === 'Metro Quadrado') infoExtra = ` (${d.quantidade} m² x R$ ${d.valorUnitario?.toFixed(2)})`;
+        if (d.tipoContratacao === 'Por Hora') infoExtra = ` (${d.quantidade} h x R$ ${d.valorUnitario?.toFixed(2)})`;
 
         return `
-          <div class="py-3 flex justify-between items-center text-xs">
+          <div class="py-3 flex justify-between items-center">
             <div>
-              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} - <span class="text-emerald-700">${obra ? obra.nome : 'Obra'}</span></p>
-              <p class="text-gray-500">Tipo: ${d.tipoContratacao} | ${detalhesValor}</p>
-              <p class="text-[10px] text-gray-400">Início: ${d.dataInicio ? d.dataInicio.split('-').reverse().join('/') : '-'} | Registrado em: ${d.dataRegistro}</p>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} ➔ ${obra ? obra.nome : 'Obra'}</p>
+              <p class="text-xs text-gray-500">Tipo: <span class="font-semibold text-orange-600">${d.tipoContratacao}</span>${infoExtra} | Total: R$ ${d.valorTotal?.toFixed(2)}</p>
+              <p class="text-[10px] text-gray-400">Data: ${d.dataInicio}</p>
             </div>
-            <button onclick="excluirDesignacao('${d.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2.5 py-1 rounded">Excluir</button>
+            <button onclick="excluirDesignacao('${d.id}')" class="text-xs text-red-600 font-bold hover:underline">Excluir</button>
           </div>
         `;
       }).join('');
     }
 
     function excluirDesignacao(id) {
-      if (confirm("Deseja excluir esta convocação?")) {
+      if (confirm("Deseja excluir esta designação?")) {
         designacoes = designacoes.filter(d => d.id !== id);
         salvarTudo();
         renderizarDesignacoes();
@@ -2795,38 +2508,39 @@
        ========================================================= */
 
     function carregarPresencas() {
-      const tabela = document.getElementById('tabela-presencas');
-      if (!tabela) return;
+      const tbody = document.getElementById('tabela-presencas');
+      if (!tbody) return;
 
       if (pontos.length === 0) {
-        tabela.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">Nenhum ponto registrado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">Nenhum ponto registrado.</td></tr>';
         return;
       }
 
-      tabela.innerHTML = pontos.map(p => {
+      tbody.innerHTML = pontos.map(p => {
         const func = equipe.find(f => f.id === p.funcionarioId);
         const obra = obras.find(o => o.id === p.obraId);
-        const gpsStr = p.gps ? `Lat: ${p.gps.lat.toFixed(4)}, Lng: ${p.gps.lng.toFixed(4)}` : 'Sem GPS';
-        const gpsLink = p.gps ? `https://maps.google.com/?q=${p.gps.lat},${p.gps.lng}` : '#';
+        let gpsTxt = 'Sem GPS';
+        let gpsLink = '#';
+
+        if (p.gps && p.gps.lat) {
+          gpsTxt = `${p.gps.lat.toFixed(4)}, ${p.gps.lng.toFixed(4)}`;
+          gpsLink = `https://maps.google.com/?q=${p.gps.lat},${p.gps.lng}`;
+        }
 
         return `
           <tr class="hover:bg-gray-50">
-            <td class="p-3 border-b font-semibold text-gray-700">${p.data} <span class="text-xs text-gray-400">(${p.hora})</span></td>
+            <td class="p-3 border-b">${p.data} às ${p.hora}</td>
             <td class="p-3 border-b font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
-            <td class="p-3 border-b text-gray-600">${obra ? obra.nome : 'Desconhecida'}</td>
-            <td class="p-3 border-b text-xs">
-              ${p.gps ? `<a href="${gpsLink}" target="_blank" class="text-blue-600 hover:underline font-semibold">📍 Ver no Mapa</a>` : '<span class="text-gray-400">Não disponível</span>'}
-            </td>
-            <td class="p-3 border-b text-right">
-              <button onclick="excluirPonto('${p.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-2.5 py-1 rounded">Excluir</button>
-            </td>
+            <td class="p-3 border-b">${obra ? obra.nome : 'Desconhecida'}</td>
+            <td class="p-3 border-b"><a href="${gpsLink}" target="_blank" class="text-emerald-700 underline font-semibold">${gpsTxt}</a></td>
+            <td class="p-3 border-b text-right"><button onclick="excluirPonto('${p.id}')" class="text-xs bg-red-100 text-red-700 font-bold px-2.5 py-1 rounded hover:bg-red-200">Excluir</button></td>
           </tr>
         `;
       }).join('');
     }
 
     function excluirPonto(id) {
-      if (confirm("Deseja apagar este registro de ponto?")) {
+      if (confirm("Excluir este registro de ponto?")) {
         pontos = pontos.filter(p => p.id !== id);
         salvarTudo();
         carregarPresencas();
@@ -2843,50 +2557,37 @@
       if (!container) return;
 
       if (vales.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4 text-center">Nenhum vale ou ressarcimento enviado.</p>';
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic text-center py-6">Nenhum vale ou ressarcimento registrado.</p>';
         return;
       }
 
       container.innerHTML = vales.map(v => {
         const func = equipe.find(f => f.id === v.funcionarioId);
         const obra = obras.find(o => o.id === v.obraId);
-        const tipoCor = v.tipo === 'Ressarcimento' ? 'bg-emerald-100 text-emerald-800' : 'bg-orange-100 text-orange-800';
+        const corTipo = v.tipo === 'Ressarcimento' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-red-100 text-red-800 border-red-300';
+        const comprovanteHtml = v.comprovante
+          ? `<a href="${v.comprovante}" target="_blank" class="mt-2 block"><img src="${v.comprovante}" class="w-full h-32 object-cover rounded-xl border hover:opacity-90 transition" alt="Comprovante"></a>`
+          : `<p class="text-xs text-gray-400 italic mt-2">Sem imagem anexada</p>`;
 
         return `
-          <div class="bg-white/80 p-4 rounded-2xl border shadow-sm flex flex-col justify-between space-y-3">
+          <div class="card-acustico-blur p-4 rounded-2xl border shadow-sm space-y-2 flex flex-col justify-between">
             <div>
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${tipoCor}">${v.tipo || 'Vale'}</span>
-                <span class="text-xs font-bold text-gray-500">${v.data.split('-').reverse().join('/')}</span>
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${corTipo}">${v.tipo || 'Vale'}</span>
+                <span class="text-xs font-semibold text-gray-500">${v.data}</span>
               </div>
-              <p class="font-bold text-blue-950 text-base">${func ? func.nome : 'Ex-colaborador'}</p>
-              <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Desconhecida'}</p>
-              <p class="text-sm font-extrabold text-red-600 mt-1">Valor: R$ ${Number(v.valor).toFixed(2)}</p>
-              <p class="text-xs text-gray-600 italic mt-1">Obs: ${v.descricao || 'Sem descrição'}</p>
+              <p class="font-bold text-blue-950 text-base mt-1">${func ? func.nome : 'Ex-colaborador'}</p>
+              <p class="text-xs text-gray-600">Obra: <b>${obra ? obra.nome : 'Geral'}</b></p>
+              <p class="text-sm font-extrabold text-gray-800 mt-1">R$ ${v.valor.toFixed(2)}</p>
+              <p class="text-xs text-gray-500 italic">"${v.descricao || 'Sem descrição'}"</p>
+              ${comprovanteHtml}
             </div>
-
-            ${v.comprovante ? `
-              <div class="border rounded-xl overflow-hidden bg-black/5">
-                <a href="${v.comprovante}" target="_blank">
-                  <img src="${v.comprovante}" class="w-full h-32 object-cover hover:opacity-90 transition" alt="Comprovante">
-                </a>
-              </div>
-            ` : '<p class="text-xs text-gray-400 italic">Sem foto de comprovante.</p>'}
-
-            <div class="flex justify-end pt-1">
-              <button onclick="excluirVale('${v.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Excluir Lançamento</button>
+            <div class="pt-3 border-t flex justify-end">
+              <button onclick="excluirVale('${v.id}')" class="text-xs bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg transition">Excluir</button>
             </div>
           </div>
         `;
       }).join('');
-    }
-
-    function excluirVale(id) {
-      if (confirm("Deseja apagar este lançamento?")) {
-        vales = vales.filter(v => v.id !== id);
-        salvarTudo();
-        carregarValesAdmin();
-      }
     }
 
     async function exportarComprovantesZip() {
@@ -2896,12 +2597,10 @@
       }
 
       const zip = new JSZip();
-      const pasta = zip.folder("comprovantes_vales");
-      let contador = 0;
+      const pasta = zip.folder("comprovantes");
 
       vales.forEach((v, index) => {
         if (v.comprovante && v.comprovante.includes(',')) {
-          contador++;
           const arr = v.comprovante.split(',');
           const mime = arr[0].match(/:(.*?);/)[1];
           const bstr = atob(arr[1]);
@@ -2909,14 +2608,9 @@
           const u8arr = new Uint8Array(n);
           while (n--) { u8arr[n] = bstr.charCodeAt(n); }
           const ext = mime.includes('png') ? 'png' : 'jpg';
-          pasta.file(`comprovante_${index + 1}_R$${v.valor}.${ext}`, u8arr);
+          pasta.file(`comprovante_${index + 1}_${v.tipo}.${ext}`, u8arr);
         }
       });
-
-      if (contador === 0) {
-        alert("Nenhum dos lançamentos possui imagem anexada.");
-        return;
-      }
 
       try {
         const content = await zip.generateAsync({ type: "blob" });
@@ -2927,9 +2621,17 @@
       }
     }
 
+    function excluirVale(id) {
+      if (confirm("Deseja excluir este lançamento?")) {
+        vales = vales.filter(v => v.id !== id);
+        salvarTudo();
+        carregarValesAdmin();
+      }
+    }
+
 
     /* =========================================================
-       FECHAMENTO MENSAL
+       FECHAMENTO MENSAL (COM CÁLCULO POR HORA AJUSTADO)
        ========================================================= */
 
     function calcularFechamentoMensal() {
@@ -2938,96 +2640,108 @@
       const tbody = document.getElementById('tabela-fechamento');
       if (!tbody) return;
 
-      const ativos = equipe.filter(f => f.ativo !== false);
-
-      if (ativos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Nenhum colaborador ativo.</td></tr>';
+      const equipeAtiva = equipe;
+      if (equipeAtiva.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Nenhum funcionário cadastrado.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = ativos.map(f => {
-        // Filtrar pontos do mês/ano
-        const pontosFunc = pontos.filter(p => {
-          if (p.funcionarioId !== f.id) return false;
-          const [anoP, mesP] = p.data.split('-').map(Number);
-          return (anoP === ano && (mesP - 1) === mes);
-        });
+      let htmlGeral = '';
 
-        const diasTrabalhados = pontosFunc.length;
-        
-        // Verificar se há designações de empreita ou metro quadrado finalizadas no período
+      equipeAtiva.forEach(f => {
         const designacoesFunc = designacoes.filter(d => {
           if (d.funcionarioId !== f.id) return false;
-          const obraObj = obras.find(o => o.id === d.obraId);
-          // Empreitas e acordos só entram se a obra estiver 100% Finalizada
-          if (!obraObj || obraObj.status !== 'Finalizada') return false;
-          
-          if (d.dataRegistro) {
-            const partes = d.dataRegistro.split('/');
-            if (partes.length === 3) {
-              const [diaD, mesD, anoD] = partes.map(Number);
-              return (anoD === ano && (mesD - 1) === mes);
-            }
-          }
-          return true;
+          const [anoD, mesD, diaD] = d.dataInicio.split('-').map(Number);
+          return (mesD - 1) === mes && anoD === ano;
         });
 
-        let totalBruto = 0;
-        let descricaoAcordo = `Diária (R$ ${Number(f.diaria).toFixed(2)})`;
-        let qtdProducaoOuDias = `${diasTrabalhados} dia(s)`;
-
-        if (designacoesFunc.length > 0) {
-          // Se houver empreita/acordo finalizado
-          const des = designacoesFunc[0];
-          totalBruto = des.valorTotal || des.valorUnitario || 0;
-          descricaoAcordo = `${des.tipoContratacao}`;
-          qtdProducaoOuDias = des.tipoContratacao === 'Metro Quadrado' ? `${des.quantidade} m²` : 'Obra Fechada';
-        } else {
-          // Cálculo padrão por diária
-          totalBruto = diasTrabalhados * Number(f.diaria);
-        }
-
-        // Vales e Ressarcimentos do mês
         const valesFunc = vales.filter(v => {
           if (v.funcionarioId !== f.id) return false;
-          const [anoV, mesV] = v.data.split('-').map(Number);
-          return (anoV === ano && (mesV - 1) === mes);
+          const [anoV, mesV, diaV] = v.data.split('-').map(Number);
+          return (mesV - 1) === mes && anoV === ano;
         });
 
-        let totalVales = 0;
-        let totalRessarcimentos = 0;
+        const totalVales = valesFunc.filter(v => v.tipo === 'Vale').reduce((acc, v) => acc + v.valor, 0);
+        const totalRessarcimentos = valesFunc.filter(v => v.tipo === 'Ressarcimento').reduce((acc, v) => acc + v.valor, 0);
 
-        valesFunc.forEach(v => {
-          const val = Number(v.valor || 0);
-          if (v.tipo === 'Ressarcimento') {
-            totalRessarcimentos += val;
-          } else {
-            totalVales += val;
-          }
-        });
+        let totalBrutoFunc = 0;
+        let descricoesAcordo = [];
+        let producaoResumo = [];
 
-        // Saldo a pagar = Total Bruto + Ressarcimentos - Vales
-        const saldoPagar = totalBruto + totalRessarcimentos - totalVales;
+        if (designacoesFunc.length > 0) {
+          designacoesFunc.forEach(d => {
+            descricoesAcordo.push(d.tipoContratacao);
+            if (d.tipoContratacao === 'Diária') {
+              const pontosDiaria = pontos.filter(p => {
+                if (p.funcionarioId !== f.id || p.obraId !== d.obraId) return false;
+                const [anoP, mesP, diaP] = p.data.split('-').map(Number);
+                return (mesP - 1) === mes && anoP === ano;
+              }).length;
 
-        return `
-          <tr class="hover:bg-gray-50">
+              totalBrutoFunc += pontosDiaria * d.valorUnitario;
+              producaoResumo.push(`${pontosDiaria} dia(s)`);
+            } else if (d.tipoContratacao === 'Empreita Global') {
+              const obraObj = obras.find(o => o.id === d.obraId);
+              const obraFinalizada = obraObj && obraObj.status === 'Finalizada';
+              if (obraFinalizada) {
+                totalBrutoFunc += d.valorTotal;
+                producaoResumo.push('Empr. 100%');
+              } else {
+                producaoResumo.push('Empr. (Pendente)');
+              }
+            } else if (d.tipoContratacao === 'Metro Quadrado') {
+              const obraObj = obras.find(o => o.id === d.obraId);
+              const obraFinalizada = obraObj && obraObj.status === 'Finalizada';
+              if (obraFinalizada) {
+                totalBrutoFunc += d.valorTotal;
+                producaoResumo.push(`${d.quantidade} m²`);
+              } else {
+                producaoResumo.push(`${d.quantidade} m² (Pendente)`);
+              }
+            } else if (d.tipoContratacao === 'Por Hora') {
+              // CÁLCULO EXATO SOLICITADO POR HORA
+              const subtotalHora = d.valorTotal || (d.valorUnitario * d.quantidade);
+              totalBrutoFunc += subtotalHora;
+              producaoResumo.push(`${d.quantidade}h (R$ ${d.valorUnitario?.toFixed(2)}/h)`);
+            }
+          });
+        } else {
+          const pontosMes = pontos.filter(p => {
+            if (p.funcionarioId !== f.id) return false;
+            const [anoP, mesP, diaP] = p.data.split('-').map(Number);
+            return (mesP - 1) === mes && anoP === ano;
+          }).length;
+
+          totalBrutoFunc += pontosMes * f.diaria;
+          descricoesAcordo.push('Diária Base');
+          producaoResumo.push(`${pontosMes} dia(s)`);
+        }
+
+        const saldoAPagar = totalBrutoFunc + totalRessarcimentos - totalVales;
+        const acordoTxt = descricoesAcordo.length > 0 ? [...new Set(descricoesAcordo)].join(', ') : 'Diária';
+        const producaoTxt = producaoResumo.length > 0 ? producaoResumo.join(' + ') : '0';
+
+        htmlGeral += `
+          <tr>
             <td class="p-3 border-b font-bold text-blue-950">${f.nome}</td>
-            <td class="p-3 border-b text-center text-xs font-semibold text-gray-700">${descricaoAcordo}</td>
-            <td class="p-3 border-b text-center text-xs">${qtdProducaoOuDias}</td>
-            <td class="p-3 border-b text-right font-bold text-gray-900">R$ ${totalBruto.toFixed(2)}</td>
-            <td class="p-3 border-b text-right text-blue-700 font-semibold">+ R$ ${totalRessarcimentos.toFixed(2)}</td>
-            <td class="p-3 border-b text-right text-red-600 font-semibold">- R$ ${totalVales.toFixed(2)}</td>
-            <td class="p-3 border-b text-right font-extrabold text-emerald-700 text-base">R$ ${saldoPagar.toFixed(2)}</td>
+            <td class="p-3 border-b text-center"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-semibold">${acordoTxt}</span></td>
+            <td class="p-3 border-b text-center text-gray-600">${producaoTxt}</td>
+            <td class="p-3 border-b text-right font-bold text-gray-800">R$ ${totalBrutoFunc.toFixed(2)}</td>
+            <td class="p-3 border-b text-right font-semibold text-blue-700">+ R$ ${totalRessarcimentos.toFixed(2)}</td>
+            <td class="p-3 border-b text-right font-semibold text-red-600">- R$ ${totalVales.toFixed(2)}</td>
+            <td class="p-3 border-b text-right font-extrabold text-emerald-700 text-base">R$ ${saldoAPagar.toFixed(2)}</td>
           </tr>
         `;
-      }).join('');
+      });
+
+      tbody.innerHTML = htmlGeral;
     }
 
     function exportarExcelFechamento() {
       const tabela = document.getElementById('tabela-fechamento-export');
       if (!tabela) return;
       const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento Mensal" });
-      XLSX.writeFile(wb, `Fechamento_TRE_${document.getElementById('fechamento-mes').value}_${document.getElementById('fechamento-ano').value}.xlsx`);
+      XLSX.writeFile(wb, "Fechamento_TRE_Montagens.xlsx");
     }
 
     function exportarPdfFechamento() {
@@ -3035,7 +2749,7 @@
       if (!elemento) return;
       const opt = {
         margin:       10,
-        filename:     `Fechamento_TRE_${document.getElementById('fechamento-mes').value}_${document.getElementById('fechamento-ano').value}.pdf`,
+        filename:     'Fechamento_Mensal_TRE.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
