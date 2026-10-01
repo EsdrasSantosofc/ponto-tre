@@ -1180,7 +1180,7 @@
           <div class="flex justify-between items-center mb-4">
 
             <h3 class="text-lg font-bold text-blue-950">
-              Vales, Ressarcimentos e Comprovantes Recebidos
+              Vales, Ressarcimentos and Comprovantes Recebidos
             </h3>
 
             <div class="flex items-center gap-2">
@@ -1369,6 +1369,87 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script>
+
+    /* =========================================================
+       SISTEMA DE SOM TEMÁTICO (CONSTRUÇÃO CIVIL / FERRAMENTAS)
+       ========================================================= */
+    let audioCtx = null;
+
+    function tocarSomConstrucao(tipo = 'clique') {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const agora = audioCtx.currentTime;
+
+        if (tipo === 'sair' || tipo === 'voltar') {
+          // Som de porta fechando / estalo grave
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, agora);
+          osc.frequency.exponentialRampToValueAtTime(50, agora + 0.15);
+          gain.gain.setValueAtTime(0.15, agora);
+          gain.gain.linearRampToValueAtTime(0.01, agora + 0.15);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(agora);
+          osc.stop(agora + 0.15);
+
+        } else if (tipo === 'confirmar' || tipo === 'entrar') {
+          // Som de impacto metálico duplo (confirmação / martelada industrial leve)
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, agora);
+          osc.frequency.exponentialRampToValueAtTime(640, agora + 0.08);
+          gain.gain.setValueAtTime(0.2, agora);
+          gain.gain.linearRampToValueAtTime(0.01, agora + 0.12);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(agora);
+          osc.stop(agora + 0.12);
+
+        } else {
+          // Clique padrão (estalo seco de ferramenta / engrenagem)
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(400, agora);
+          osc.frequency.exponentialRampToValueAtTime(150, agora + 0.05);
+          gain.gain.setValueAtTime(0.1, agora);
+          gain.gain.linearRampToValueAtTime(0.01, agora + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(agora);
+          osc.stop(agora + 0.05);
+        }
+      } catch (e) {
+        console.log("Áudio bloqueado ou não suportado pelo navegador ainda.", e);
+      }
+    }
+
+    // Interceptar cliques em todos os botões da página automaticamente
+    document.addEventListener('click', function(event) {
+      const botao = event.target.closest('button');
+      if (!botao) return;
+
+      const texto = (botao.innerText || "").toLowerCase();
+      const idOuClasse = (botao.id || '') + ' ' + (botao.className || '');
+
+      if (texto.includes('sair') || texto.includes('fechar') || texto.includes('✕') || texto.includes('remover') || texto.includes('excluir')) {
+        tocarSomConstrucao('sair');
+      } else if (texto.includes('confirmar') || texto.includes('entrar') || texto.includes('bater ponto') || texto.includes('salvar') || texto.includes('cadastrar') || texto.includes('enviar') || texto.includes('designar')) {
+        tocarSomConstrucao('confirmar');
+      } else {
+        tocarSomConstrucao('clique');
+      }
+    });
+
 
     /* =========================================================
        CONFIGURAÇÃO
