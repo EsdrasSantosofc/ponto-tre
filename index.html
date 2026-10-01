@@ -933,7 +933,7 @@
               type="number"
               step="0.01"
               id="func-diaria"
-              placeholder="Valor Diária (R$)"
+              placeholder="Valor Diária Base (R$)"
               class="p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-orange-500 focus:outline-none"
             >
 
@@ -977,14 +977,14 @@
 
 
       <!-- =====================================================
-           ABA DESIGNAR
+           ABA DESIGNAR (COM ÁREA, EMPREITA, METRO QUADRADO, HORA)
            ===================================================== -->
       <div id="aba-designar" class="aba-content hidden space-y-6">
 
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-emerald-600 space-y-4">
 
           <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center gap-2">
-            <span>📲 Designar Funcionário para Obra</span>
+            <span>📲 Designar Funcionário para Obra (Diária ou Empreita)</span>
           </h3>
 
           <div>
@@ -1013,6 +1013,52 @@
 
           </div>
 
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div>
+              <label class="block text-sm font-semibold mb-1 text-gray-700">
+                Tipo de Contratação / Pagamento:
+              </label>
+              <select
+                id="designar-tipo"
+                onchange="alternarCamposDesignacao()"
+                class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+              >
+                <option value="Diária">Diária (Valor fixo por dia)</option>
+                <option value="Empreita Global">Empreita (Valor fechado total)</option>
+                <option value="Metro Quadrado">Empreita por Metro Quadrado (m²)</option>
+                <option value="Por Hora">Por Hora (Valor por hora trabalhada)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold mb-1 text-gray-700" id="label-valor-variavel">
+                Valor Acertado (R$):
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                id="designar-valor"
+                placeholder="Ex: 1500.00"
+                class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+              >
+            </div>
+
+          </div>
+
+          <div id="bloco-metragem" class="hidden">
+            <label class="block text-sm font-semibold mb-1 text-gray-700">
+              Área Total (m²) ou Quantidade de Horas:
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              id="designar-quantidade"
+              placeholder="Ex: 45.5 (m² ou horas)"
+              class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+            >
+          </div>
+
           <div>
 
             <label class="block text-sm font-semibold mb-1 text-gray-700">
@@ -1030,13 +1076,13 @@
           <div>
 
             <label class="block text-sm font-semibold mb-1 text-gray-700">
-              Instruções do Projeto:
+              Instruções / Detalhes da Execução ou Empreita:
             </label>
 
             <textarea
               id="designar-instrucao"
               rows="3"
-              placeholder="Ex: Comparecer às 07h30 com os EPIs completos."
+              placeholder="Ex: Instalação de painéis acústicos na sala de reuniões. Serviço de empreita fechado."
               class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-emerald-600 focus:outline-none"
             ></textarea>
 
@@ -1057,7 +1103,7 @@
         <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
 
           <h3 class="text-lg font-bold text-blue-950 mb-4">
-            Histórico de Convocações / Designações
+            Histórico de Convocações e Empreitas
           </h3>
 
           <div
@@ -1179,7 +1225,7 @@
             <div>
 
               <h3 class="text-xl font-bold text-blue-950">
-                📊 Fechamento Mensal e Balanço de Diárias
+                📊 Fechamento Mensal e Balanço de Diárias / Empreitas
               </h3>
 
               <p class="text-xs text-gray-500">
@@ -1288,8 +1334,8 @@
                 <tr class="bg-gray-100 text-xs font-bold text-gray-600 uppercase">
 
                   <th class="p-3 border-b">Funcionário</th>
-                  <th class="p-3 border-b text-center">Valor Diária</th>
-                  <th class="p-3 border-b text-center">Dias Trabalhados</th>
+                  <th class="p-3 border-b text-center">Diária / Acordo</th>
+                  <th class="p-3 border-b text-center">Dias / Produção</th>
                   <th class="p-3 border-b text-right">Total Bruto</th>
                   <th class="p-3 border-b text-right text-blue-700">Ressarcimentos</th>
                   <th class="p-3 border-b text-right text-red-600">Total Vales</th>
@@ -1741,6 +1787,7 @@
 
 
         populardropdowns();
+        alternarCamposDesignacao();
 
       }
     );
@@ -3873,6 +3920,31 @@
 
 
     /* =========================================================
+       ALTERNAR CAMPOS DE DESIGNAÇÃO (DIÁRIA vs EMPREITA/M²/HORA)
+       ========================================================= */
+
+    function alternarCamposDesignacao() {
+      const tipo = document.getElementById('designar-tipo').value;
+      const blocoMetragem = document.getElementById('bloco-metragem');
+      const labelValor = document.getElementById('label-valor-variavel');
+
+      if (tipo === 'Diária') {
+        labelValor.textContent = 'Valor da Diária (R$):';
+        blocoMetragem.classList.add('hidden');
+      } else if (tipo === 'Empreita Global') {
+        labelValor.textContent = 'Valor Total da Empreita (R$):';
+        blocoMetragem.classList.add('hidden');
+      } else if (tipo === 'Metro Quadrado') {
+        labelValor.textContent = 'Valor por m² (R$):';
+        blocoMetragem.classList.remove('hidden');
+      } else if (tipo === 'Por Hora') {
+        labelValor.textContent = 'Valor por Hora (R$):';
+        blocoMetragem.classList.remove('hidden');
+      }
+    }
+
+
+    /* =========================================================
        DESIGNAR OBRA
        ========================================================= */
 
@@ -3896,6 +3968,28 @@
         ).value;
 
 
+      const tipo =
+        document.getElementById(
+          'designar-tipo'
+        ).value;
+
+
+      const valor =
+        parseFloat(
+          document.getElementById(
+            'designar-valor'
+          ).value
+        );
+
+
+      const quantidade =
+        parseFloat(
+          document.getElementById(
+            'designar-quantidade'
+          ).value
+        ) || 1;
+
+
       const dataInicio =
         document.getElementById(
           'designar-data'
@@ -3911,11 +4005,13 @@
       if (
         !funcId ||
         !obraId ||
-        !dataInicio
+        !dataInicio ||
+        !Number.isFinite(valor) ||
+        valor <= 0
       ) {
 
         alert(
-          "Selecione o colaborador, a obra e a data!"
+          "Preencha o colaborador, a obra, a data e informe um valor válido!"
         );
 
         return;
@@ -3951,6 +4047,11 @@
 
       try {
 
+        let totalCalculado = valor;
+        if (tipo === 'Metro Quadrado' || tipo === 'Por Hora') {
+          totalCalculado = valor * quantidade;
+        }
+
         const novaDesignacao = {
 
           id:
@@ -3961,6 +4062,18 @@
 
           obraId:
             obraId,
+
+          tipoContratacao:
+            tipo,
+
+          valorUnitario:
+            valor,
+
+          quantidade:
+            quantidade,
+
+          valorTotal:
+            totalCalculado,
 
           dataInicio:
             dataInicio,
@@ -4000,7 +4113,21 @@
 
 
         texto +=
-          `📅 *Data:* ${dataInicio.split('-').reverse().join('/')}\n`;
+          `📋 *Contrato:* ${tipo}\n`;
+
+        if (tipo === 'Diária') {
+          texto += `💰 *Valor Diária:* R$ ${valor.toFixed(2)}\n`;
+        } else if (tipo === 'Empreita Global') {
+          texto += `💰 *Valor Empreita:* R$ ${valor.toFixed(2)}\n`;
+        } else if (tipo === 'Metro Quadrado') {
+          texto += `📏 *Metragem:* ${quantidade} m² (R$ ${valor.toFixed(2)}/m²) -> *Total: R$ ${totalCalculado.toFixed(2)}*\n`;
+        } else if (tipo === 'Por Hora') {
+          texto += `⏱️ *Horas:* ${quantidade}h (R$ ${valor.toFixed(2)}/h) -> *Total: R$ ${totalCalculado.toFixed(2)}*\n`;
+        }
+
+
+        texto +=
+          `📅 *Data de Início:* ${dataInicio.split('-').reverse().join('/')}\n`;
 
 
         if (instrucao) {
@@ -4040,6 +4167,14 @@
 
         document.getElementById(
           'designar-instrucao'
+        ).value = '';
+
+        document.getElementById(
+          'designar-valor'
+        ).value = '';
+
+        document.getElementById(
+          'designar-quantidade'
         ).value = '';
 
       }
@@ -4105,6 +4240,15 @@
                   d.obraId
               );
 
+            let detalhesValor = `Diária: R$ ${Number(d.valorUnitario || 0).toFixed(2)}`;
+            if (d.tipoContratacao === 'Empreita Global') {
+              detalhesValor = `Empreita: R$ ${Number(d.valorTotal || d.valorUnitario || 0).toFixed(2)}`;
+            } else if (d.tipoContratacao === 'Metro Quadrado') {
+              detalhesValor = `${d.quantidade || 0} m² x R$ ${Number(d.valorUnitario || 0).toFixed(2)} = R$ ${Number(d.valorTotal || 0).toFixed(2)}`;
+            } else if (d.tipoContratacao === 'Por Hora') {
+              detalhesValor = `${d.quantidade || 0}h x R$ ${Number(d.valorUnitario || 0).toFixed(2)} = R$ ${Number(d.valorTotal || 0).toFixed(2)}`;
+            }
+
 
             return `
 
@@ -4118,8 +4262,12 @@
                     ${obra ? obra.nome : 'Obra Removida'}
                   </p>
 
+                  <p class="text-xs text-emerald-800 font-semibold">
+                    [${d.tipoContratacao || 'Diária'}] ${detalhesValor}
+                  </p>
+
                   <p class="text-xs text-gray-500">
-                    Data de Início:
+                    Início:
                     ${d.dataInicio}
                     |
                     Registrado em:
@@ -4129,7 +4277,7 @@
                   ${
                     d.instrucao
                       ? `
-                        <p class="text-xs text-emerald-700 italic">
+                        <p class="text-xs text-gray-600 italic">
                           "${d.instrucao}"
                         </p>
                       `
@@ -4346,114 +4494,95 @@
 
           const func =
             equipe.find(
-              f =>
-                f.id ===
-                v.funcionarioId
+              f => f.id === v.funcionarioId
             );
 
 
           const obra =
             obras.find(
-              o =>
-                o.id ===
-                v.obraId
+              o => o.id === v.obraId
             );
 
 
-          const isRessarcimento =
-            v.tipo ===
-            'Ressarcimento';
+          const corBadge =
+            v.tipo === 'Ressarcimento'
+              ? 'bg-emerald-100 text-emerald-800'
+              : 'bg-orange-100 text-orange-800';
 
 
-          const valor =
-            Number(v.valor) || 0;
+          const comprovanteHtml =
+            v.comprovante
+
+              ? `
+                <div class="mt-2">
+                  <a
+                    href="${v.comprovante}"
+                    target="_blank"
+                    class="block"
+                  >
+                    <img
+                      src="${v.comprovante}"
+                      class="w-full h-32 object-cover rounded-xl border hover:opacity-90 transition"
+                      alt="Comprovante"
+                    >
+                  </a>
+                </div>
+              `
+
+              : '<p class="text-[10px] text-gray-400 italic mt-1">Sem imagem anexada</p>';
 
 
           return `
 
-            <div class="card-acustico-blur p-4 rounded-xl border-l-4 ${isRessarcimento ? 'border-blue-600' : 'border-red-500'} shadow-sm space-y-2">
+            <div class="bg-gray-50 p-4 rounded-2xl border shadow-sm flex flex-col justify-between space-y-2">
 
-              <div class="flex justify-between items-start">
+              <div>
 
-                <div>
+                <div class="flex justify-between items-center mb-1">
 
-                  <span class="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full ${isRessarcimento ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
-                    ${v.tipo || 'Vale'}
+                  <span class="text-xs font-bold px-2 py-0.5 rounded-full ${corBadge}">
+                    ${v.tipo}
                   </span>
 
-                  <h4 class="font-bold text-blue-950 text-base mt-1">
-                    ${func ? func.nome : 'Ex-colaborador'}
-                  </h4>
-
-                  <p class="text-xs text-gray-500">
-                    Obra:
-                    ${obra ? obra.nome : 'Obra Desconhecida'}
-                  </p>
-
-                </div>
-
-                <div class="text-right">
-
-                  <p class="font-extrabold text-lg ${isRessarcimento ? 'text-blue-700' : 'text-red-600'}">
-                    R$ ${valor.toFixed(2)}
-                  </p>
-
-                  <p class="text-[10px] text-gray-400">
+                  <span class="text-xs text-gray-500">
                     ${v.data}
-                  </p>
+                  </span>
 
                 </div>
+
+                <p class="font-bold text-blue-950 text-sm">
+                  ${func ? func.nome : 'Ex-colaborador'}
+                </p>
+
+                <p class="text-xs text-gray-600">
+                  Obra: ${obra ? obra.nome : 'Desconhecida'}
+                </p>
+
+                <p class="text-xs font-bold text-gray-800 mt-1">
+                  Valor: R$ ${Number(v.valor).toFixed(2)}
+                </p>
+
+                ${
+                  v.descricao
+                    ? `
+                      <p class="text-xs text-gray-600 italic mt-1">
+                        "${v.descricao}"
+                      </p>
+                    `
+                    : ''
+                }
+
+                ${comprovanteHtml}
 
               </div>
 
-
-              ${
-                v.descricao
-                  ? `
-                    <p class="text-xs text-gray-700 bg-gray-50 p-2 rounded-lg border">
-                      <strong>Motivo:</strong>
-                      ${v.descricao}
-                    </p>
-                  `
-                  : ''
-              }
-
-
-              ${
-                v.comprovante
-                  ? `
-                    <div class="pt-2 flex items-center gap-2">
-
-                      <a
-                        href="${v.comprovante}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-3 py-1.5 rounded-lg border inline-flex items-center gap-1"
-                      >
-                        🖼️ Ver Comprovante / Foto
-                      </a>
-
-                      <a
-                        href="${v.comprovante}"
-                        download="comprovante-${v.id}.jpg"
-                        class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1.5 rounded-lg border inline-flex items-center gap-1"
-                      >
-                        💾 Salvar Comprovante
-                      </a>
-
-                    </div>
-                  `
-                  : ''
-              }
-
-
-              <div class="pt-2 text-right">
+              <div class="pt-2 border-t flex justify-end">
 
                 <button
                   onclick="excluirVale('${v.id}')"
                   class="text-xs text-red-600 font-bold hover:underline"
                 >
-                  Remover Lançamento
+                  Excluir Lançamento
                 </button>
 
               </div>
@@ -4467,56 +4596,11 @@
     }
 
 
-    async function exportarComprovantesZip() {
-      const valesComComprovante = vales.filter(v => v.comprovante);
-
-      if (valesComComprovante.length === 0) {
-        alert("Não há comprovantes com imagem para exportar.");
-        return;
-      }
-
-      if (typeof JSZip === 'undefined') {
-        alert("Biblioteca JSZip não carregada.");
-        return;
-      }
-
-      const zip = new JSZip();
-      const pastaComprovantes = zip.folder("comprovantes_vales");
-
-      valesComComprovante.forEach((v, index) => {
-        const func = equipe.find(f => f.id === v.funcionarioId);
-        const nomeFunc = func ? func.nome.replace(/\s+/g, '_') : 'colaborador';
-        if (v.comprovante && v.comprovante.includes(',')) {
-          const arr = v.comprovante.split(',');
-          const mime = arr[0].match(/:(.*?);/)[1];
-          const bstr = atob(arr[1]);
-          let n = bstr.length;
-          const u8arr = new Uint8Array(n);
-          while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-          }
-          const nomeArquivo = `${index + 1}_${nomeFunc}_${v.tipo}_${v.data}.jpg`;
-          pastaComprovantes.file(nomeArquivo, u8arr);
-        }
-      });
-
-      try {
-        const content = await zip.generateAsync({ type: "blob" });
-        saveAs(content, "Comprovantes_Vales_T_R_E.zip");
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao gerar arquivo ZIP de comprovantes.");
-      }
-    }
-
-
-    function excluirVale(
-      id
-    ) {
+    function excluirVale(id) {
 
       if (
         confirm(
-          "Deseja remover este registro financeiro?"
+          "Deseja excluir este lançamento?"
         )
       ) {
 
@@ -4535,282 +4619,242 @@
     }
 
 
-    /* =========================================================
-       FECHAMENTO
-       ========================================================= */
-
-    function calcularFechamentoMensal() {
-
-      const mes =
-        parseInt(
-          document.getElementById(
-            'fechamento-mes'
-          ).value
-        );
-
-
-      const ano =
-        parseInt(
-          document.getElementById(
-            'fechamento-ano'
-          ).value
-        );
-
-
-      const tabela =
-        document.getElementById(
-          'tabela-fechamento'
-        );
-
-
-      if (!tabela) return;
-
-
-      tabela.innerHTML = '';
-
-
-      equipe.forEach(func => {
-
-        const pontosMes =
-          pontos.filter(p => {
-
-            if (
-              p.funcionarioId !==
-              func.id
-            ) {
-              return false;
-            }
-
-
-            const partes =
-              p.data.split('-')
-                .map(Number);
-
-
-            if (
-              partes.length !== 3
-            ) {
-              return false;
-            }
-
-
-            const pAno =
-              partes[0];
-
-
-            const pMes =
-              partes[1];
-
-
-            return (
-              pAno === ano &&
-              pMes - 1 === mes
-            );
-
-          });
-
-
-        const diasTrabalhados =
-          new Set(
-            pontosMes.map(
-              p => p.data
-            )
-          ).size;
-
-
-        const diaria =
-          Number(func.diaria) || 0;
-
-
-        const totalBruto =
-          diasTrabalhados *
-          diaria;
-
-
-        const lancamentosMes =
-          vales.filter(v => {
-
-            if (
-              v.funcionarioId !==
-              func.id
-            ) {
-              return false;
-            }
-
-
-            const partes =
-              v.data.split('-')
-                .map(Number);
-
-
-            if (
-              partes.length !== 3
-            ) {
-              return false;
-            }
-
-
-            const vAno =
-              partes[0];
-
-
-            const vMes =
-              partes[1];
-
-
-            return (
-              vAno === ano &&
-              vMes - 1 === mes
-            );
-
-          });
-
-
-        const totalVales =
-          lancamentosMes
-
-            .filter(
-              v =>
-                v.tipo !==
-                'Ressarcimento'
-            )
-
-            .reduce(
-              (acc, v) =>
-                acc +
-                (Number(v.valor) || 0),
-              0
-            );
-
-
-        const totalRessarcimentos =
-          lancamentosMes
-
-            .filter(
-              v =>
-                v.tipo ===
-                'Ressarcimento'
-            )
-
-            .reduce(
-              (acc, v) =>
-                acc +
-                (Number(v.valor) || 0),
-              0
-            );
-
-
-        const saldoAPagar =
-          totalBruto +
-          totalRessarcimentos -
-          totalVales;
-
-
-        if (
-          diasTrabalhados > 0 ||
-          totalVales > 0 ||
-          totalRessarcimentos > 0
-        ) {
-
-          const row =
-            document.createElement(
-              'tr'
-            );
-
-
-          row.className =
-            "hover:bg-gray-50 border-b";
-
-
-          row.innerHTML = `
-
-            <td class="p-3 font-bold text-blue-950">
-              ${func.nome}
-            </td>
-
-            <td class="p-3 text-center text-xs">
-              R$ ${diaria.toFixed(2)}
-            </td>
-
-            <td class="p-3 text-center font-bold text-gray-700">
-              ${diasTrabalhados}
-            </td>
-
-            <td class="p-3 text-right font-semibold">
-              R$ ${totalBruto.toFixed(2)}
-            </td>
-
-            <td class="p-3 text-right font-semibold text-blue-700">
-              + R$ ${totalRessarcimentos.toFixed(2)}
-            </td>
-
-            <td class="p-3 text-right font-semibold text-red-600">
-              - R$ ${totalVales.toFixed(2)}
-            </td>
-
-            <td class="p-3 text-right font-extrabold text-emerald-700 text-base">
-              R$ ${saldoAPagar.toFixed(2)}
-            </td>
-
-          `;
-
-
-          tabela.appendChild(
-            row
-          );
-
+    async function exportarComprovantesZip() {
+
+      if (vales.length === 0) {
+        alert("Não há comprovantes para exportar.");
+        return;
+      }
+
+      if (typeof JSZip === 'undefined') {
+        alert("Biblioteca JSZip não carregada.");
+        return;
+      }
+
+      const zip = new JSZip();
+      const pasta = zip.folder("comprovantes_e_vales");
+
+      vales.forEach((v, index) => {
+        if (v.comprovante && v.comprovante.includes(',')) {
+          const arr = v.comprovante.split(',');
+          const mime = arr[0].match(/:(.*?);/)[1];
+          const bstr = atob(arr[1]);
+          let n = bstr.length;
+          const u8arr = new Uint8Array(n);
+          while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+          }
+          const nomeArquivo = `comprovante_${index + 1}_${v.tipo}_R$${v.valor}.jpg`;
+          pasta.file(nomeArquivo, u8arr);
         }
-
       });
 
-
-      if (
-        tabela.children.length ===
-        0
-      ) {
-
-        tabela.innerHTML =
-          '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum registro encontrado para este mês/ano.</td></tr>';
-
+      try {
+        const content = await zip.generateAsync({ type: "blob" });
+        saveAs(content, "Comprovantes_Vales_T_R_E.zip");
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao gerar arquivo ZIP.");
       }
 
     }
 
 
     /* =========================================================
-       EXCEL
+       FECHAMENTO MENSAL
        ========================================================= */
 
-    function exportarExcelFechamento() {
+    function calcularFechamentoMensal() {
 
-      if (
-        typeof XLSX ===
-        'undefined'
-      ) {
-
-        alert(
-          "A biblioteca do Excel não foi carregada."
+      const mesSelect =
+        document.getElementById(
+          'fechamento-mes'
         );
+
+      const anoSelect =
+        document.getElementById(
+          'fechamento-ano'
+        );
+
+      const tabela =
+        document.getElementById(
+          'tabela-fechamento'
+        );
+
+      if (!mesSelect || !anoSelect || !tabela) return;
+
+
+      const mes =
+        parseInt(mesSelect.value);
+
+      const ano =
+        parseInt(anoSelect.value);
+
+
+      const funcionariosAtivos =
+        equipe.filter(
+          e => e.ativo !== false
+        );
+
+
+      if (funcionariosAtivos.length === 0) {
+
+        tabela.innerHTML =
+          '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum funcionário ativo.</td></tr>';
 
         return;
 
       }
 
 
-      const table =
+      tabela.innerHTML =
+        funcionariosAtivos.map(func => {
+
+          // Verificar designações ou diárias do funcionário no mês/ano
+          const desigDoFunc = designacoes.filter(d => {
+            if (d.funcionarioId !== func.id) return false;
+            const partes = d.dataInicio.split('-');
+            if (partes.length === 3) {
+              const anoD = parseInt(partes[0]);
+              const mesD = parseInt(partes[1]) - 1;
+              return anoD === ano && mesD === mes;
+            }
+            return false;
+          });
+
+          // Se tem designação de empreita/m²/hora no mês
+          let totalBruto = 0;
+          let descTipo = `R$ ${Number(func.diaria || 0).toFixed(2)} /dia`;
+          let qtdDiasOuProd = 0;
+
+          if (desigDoFunc.length > 0) {
+            // Soma o valor total das designações do mês ou calcula diárias
+            desigDoFunc.forEach(d => {
+              if (d.tipoContratacao === 'Diária') {
+                // Conta dias trabalhados por ponto ou assume 1 se designada
+                qtdDiasOuProd += 1;
+                totalBruto += Number(d.valorUnitario || func.diaria || 0);
+              } else {
+                totalBruto += Number(d.valorTotal || d.valorUnitario || 0);
+                qtdDiasOuProd += (d.quantidade || 1);
+              }
+            });
+            descTipo = desigDoFunc.map(d => d.tipoContratacao).join(', ');
+          } else {
+            // Contagem padrão por pontos diários
+            const pontosFuncMes =
+              pontos.filter(p => {
+                if (p.funcionarioId !== func.id) return false;
+                const partes = p.data.split('-');
+                if (partes.length === 3) {
+                  const anoP = parseInt(partes[0]);
+                  const mesP = parseInt(partes[1]) - 1;
+                  return anoP === ano && mesP === mes;
+                }
+                return false;
+              });
+
+            qtdDiasOuProd = pontosFuncMes.length;
+            totalBruto = qtdDiasOuProd * Number(func.diaria || 0);
+          }
+
+
+          // Vales e ressarcimentos do mês
+          const valesFuncMes =
+            vales.filter(v => {
+              if (v.funcionarioId !== func.id) return false;
+              const partes = v.data.split('-');
+              if (partes.length === 3) {
+                const anoV = parseInt(partes[0]);
+                const mesV = parseInt(partes[1]) - 1;
+                return anoV === ano && mesV === mes;
+              }
+              return false;
+            });
+
+
+          let totalVales = 0;
+
+          let totalRessarcimentos = 0;
+
+
+          valesFuncMes.forEach(v => {
+
+            if (v.tipo === 'Ressarcimento') {
+              totalRessarcimentos += Number(v.valor);
+            } else {
+              totalVales += Number(v.valor);
+            }
+
+          });
+
+
+          // Saldo a pagar = Total Bruto + Ressarcimentos - Vales
+          const saldoFinal =
+            totalBruto + totalRessarcimentos - totalVales;
+
+
+          return `
+
+            <tr class="hover:bg-gray-50">
+
+              <td class="p-3 border-b text-xs font-bold text-blue-950">
+                ${func.nome}
+              </td>
+
+              <td class="p-3 border-b text-xs text-center text-gray-700">
+                ${descTipo}
+              </td>
+
+              <td class="p-3 border-b text-xs text-center font-semibold">
+                ${qtdDiasOuProd}
+              </td>
+
+              <td class="p-3 border-b text-xs text-right font-bold text-gray-800">
+                R$ ${totalBruto.toFixed(2)}
+              </td>
+
+              <td class="p-3 border-b text-xs text-right font-semibold text-blue-700">
+                + R$ ${totalRessarcimentos.toFixed(2)}
+              </td>
+
+              <td class="p-3 border-b text-xs text-right font-semibold text-red-600">
+                - R$ ${totalVales.toFixed(2)}
+              </td>
+
+              <td class="p-3 border-b text-xs text-right font-extrabold text-emerald-700">
+                R$ ${saldoFinal.toFixed(2)}
+              </td>
+
+            </tr>
+
+          `;
+
+        }).join('');
+
+    }
+
+
+    /* =========================================================
+       EXPORTAR EXCEL / PDF
+       ========================================================= */
+
+    function exportarExcelFechamento() {
+
+      const tabela =
         document.getElementById(
-          "tabela-fechamento-export"
+          'tabela-fechamento-export'
         );
 
+      if (!tabela) return;
 
       const wb =
         XLSX.utils.table_to_book(
-          table,
+          tabela,
           {
-            sheet: "Fechamento Mensal"
+            sheet: "Fechamento"
           }
         );
-
 
       XLSX.writeFile(
         wb,
@@ -4820,189 +4864,31 @@
     }
 
 
-    /* =========================================================
-       PDF FECHAMENTO
-       ========================================================= */
-
     function exportarPdfFechamento() {
 
-      if (
-        typeof html2pdf ===
-        'undefined'
-      ) {
-
-        alert(
-          "A biblioteca de PDF não foi carregada."
-        );
-
-        return;
-
-      }
-
-
-      const element =
+      const elemento =
         document.getElementById(
           'area-impressao-fechamento'
         );
 
+      if (!elemento) return;
 
       const opt = {
-
         margin:       10,
-
         filename:     'Fechamento_TRE_Montagens.pdf',
-
         image:        { type: 'jpeg', quality: 0.98 },
-
         html2canvas:  { scale: 2, useCORS: true },
-
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-
       };
 
-
       html2pdf()
-        .from(element)
+        .from(elemento)
         .set(opt)
         .save();
 
     }
 
   </script>
+
 </body>
-<!-- =========================================================
-     MÓDULO DE SONS REAIS DE OBRA E UPLOAD DE FOTOS NA ABA DO PATRÃO
-     ========================================================= -->
-<script>
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  let audioCtx = null;
-
-  function iniciarAudioContext() {
-    if (!audioCtx) audioCtx = new AudioContext();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  }
-
-  // 1. Som de Ferramenta / Catraca (Navegação / Abrir Página)
-  function somAbrirPagina() {
-    try {
-      iniciarAudioContext();
-      const agora = audioCtx.currentTime;
-      [400, 600, 800].forEach((freq, i) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, agora + (i * 0.04));
-        gain.gain.setValueAtTime(0.08, agora + (i * 0.04));
-        gain.gain.exponentialRampToValueAtTime(0.001, agora + (i * 0.04) + 0.05);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(agora + (i * 0.04));
-        osc.stop(agora + (i * 0.04) + 0.05);
-      });
-    } catch (e) {}
-  }
-
-  // 2. Som de Parafusadeira Elétrica (Salvar / Bater Ponto / Enviar)
-  function somParafusadeira() {
-    try {
-      iniciarAudioContext();
-      const agora = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(140, agora);
-      osc.frequency.linearRampToValueAtTime(320, agora + 0.12);
-      osc.frequency.setValueAtTime(290, agora + 0.15);
-      osc.frequency.linearRampToValueAtTime(180, agora + 0.3);
-
-      gain.gain.setValueAtTime(0.1, agora);
-      gain.gain.exponentialRampToValueAtTime(0.01, agora + 0.3);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(agora);
-      osc.stop(agora + 0.3);
-    } catch (e) {}
-  }
-
-  // 3. Som de Martelada Seca (Excluir / Deletar)
-  function somMartelada() {
-    try {
-      iniciarAudioContext();
-      const agora = audioCtx.currentTime;
-      
-      // Impacto grave (batida do martelo)
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(180, agora);
-      osc.frequency.exponentialRampToValueAtTime(40, agora + 0.1);
-
-      gain.gain.setValueAtTime(0.15, agora);
-      gain.gain.exponentialRampToValueAtTime(0.001, agora + 0.1);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(agora);
-      osc.stop(agora + 0.1);
-    } catch (e) {}
-  }
-
-  // Mapeamento inteligente dos cliques baseado na ação do botão
-  document.addEventListener('DOMContentLoaded', () => {
-    document.addEventListener('click', (e) => {
-      const target = e.target.closest('button');
-      if (!target) return;
-      const texto = target.innerText.toLowerCase();
-
-      // Deletar ou Excluir (Martelada pesada)
-      if (texto.includes('excluir') || texto.includes('deletar') || texto.includes('remover') || texto.includes('apagar')) {
-        somMartelada();
-      } 
-      // Salvar, Enviar, Cadastrar, Ponto (Parafusadeira elétrica)
-      else if (texto.includes('salvar') || texto.includes('ponto') || texto.includes('enviar') || texto.includes('cadastrar') || texto.includes('designar')) {
-        somParafusadeira();
-      } 
-      // Abrir novas abas / páginas / menus (Giro de ferramenta)
-      else {
-        somAbrirPagina();
-      }
-    });
-
-    // Injeção automática do upload de fotos na aba do patrão
-    setTimeout(() => {
-      const abaPatrao = document.querySelector('#patrao, .patrao, [id*="patrao"], [class*="patrao"]');
-      if (abaPatrao && !document.getElementById('blocoFotoObraAuto')) {
-        const containerDiv = document.createElement('div');
-        containerDiv.id = 'blocoFotoObraAuto';
-        containerDiv.style.cssText = 'margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; border: 1px dashed #ccc;';
-        
-        containerDiv.innerHTML = `
-          <label style="display:block; margin-bottom: 8px; font-weight: bold; font-size: 14px;">📸 Enviar Foto da Obra (Galeria):</label>
-          <input type="file" id="inputFotoObraGaleria" accept="image/*" style="width: 100%; margin-bottom: 8px;">
-          <button type="button" id="btnSalvarFotoObra" style="padding: 8px 12px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Salvar Foto da Obra</button>
-        `;
-        
-        abaPatrao.appendChild(containerDiv);
-
-        document.getElementById('btnSalvarFotoObra').addEventListener('click', () => {
-          const fileInput = document.getElementById('inputFotoObraGaleria');
-          if (fileInput.files && fileInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-              localStorage.setItem('fotoUltimaObraPatrao', evt.target.result);
-              somParafusadeira();
-              alert('Foto da galeria salva com sucesso no sistema!');
-            };
-            reader.readAsDataURL(fileInput.files[0]);
-          } else {
-            alert('Escolha uma foto da galeria primeiro.');
-          }
-        });
-      }
-    }, 1000);
-  });
-</script>
-
 </html>
