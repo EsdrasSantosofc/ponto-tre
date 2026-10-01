@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+l<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -1233,9 +1233,9 @@
 
     /* =========================================================
        CONFIGURAÇÃO DO SUPABASE
-       ========================================================= */
-    const SUPABASE_URL = 'SUA_SUPABASE_URL_AQUI'; // Cole sua URL do Supabase aqui
-    const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY_AQUI'; // Cole sua Anon Key aqui
+       ========================================================= -->
+    const SUPABASE_URL = 'https://vjlppbetuqxxfgusqmxf.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_1fJ58_NZXTgATaISERowTQ_vH7ueeex';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 
@@ -2012,16 +2012,96 @@
       carregarDadosDoSupabase();
     }
 
+    async function excluirObra(id) {
+      if (!confirm("Deseja realmente excluir esta obra?")) return;
+      await supabaseClient.from('obras').delete().eq('id', id);
+      carregarDadosDoSupabase();
+    }
+
 
     /* =========================================================
-       EXCLUIR OBRA
+       MODAL GALERIA
        ========================================================= */
 
-    async function excluirObra(id) {
-      if (confirm("Deseja excluir esta obra?")) {
-        await supabaseClient.from('obras').delete().eq('id', id);
-        carregarDadosDoSupabase();
+    let obraGaleriaAtualId = null;
+
+    function abrirGaleriaObra(obraId) {
+      obraGaleriaAtualId = obraId;
+      const obra = obras.find(o => o.id === obraId);
+      if (!obra) return;
+
+      document.getElementById('modal-obra-titulo').textContent = `Galeria: ${obra.nome}`;
+      const conteudo = document.getElementById('modal-galeria-conteudo');
+      const fotosFiltradas = fotosObra.filter(f => f.obra_id === obraId);
+
+      if (fotosFiltradas.length === 0) {
+        conteudo.innerHTML = '<p class="text-sm text-gray-500 col-span-2 text-center py-6 italic">Nenhuma foto ou vídeo enviado para esta obra.</p>';
+      } else {
+        conteudo.innerHTML = fotosFiltradas.map(f => {
+          const func = equipe.find(e => e.id === f.funcionario_id);
+          const nomeFunc = func ? func.nome : 'Desconhecido';
+          let tipoBadge = 'bg-blue-100 text-blue-800';
+          if (f.tipo === 'Finalização') tipoBadge = 'bg-emerald-100 text-emerald-800';
+          if (f.tipo === 'Observação') tipoBadge = 'bg-amber-100 text-amber-800';
+
+          let midiaTag = `<img src="${f.imagem}" class="w-full h-48 object-cover rounded-xl shadow border">`;
+          if (f.is_video) {
+            midiaTag = `<video src="${f.imagem}" controls class="w-full h-48 object-cover rounded-xl shadow border"></video>`;
+          }
+
+          return `
+            <div class="bg-gray-50 p-3 rounded-2xl border shadow-sm space-y-2 relative">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${tipoBadge}">${f.tipo || 'Andamento'}</span>
+                <span class="text-[10px] text-gray-500">${f.data || ''}</span>
+              </div>
+              ${midiaTag}
+              <p class="text-xs font-bold text-blue-950">👷 ${nomeFunc}</p>
+              <p class="text-xs text-gray-600">${f.observacao || 'Sem observações.'}</p>
+              <button onclick="excluirFotoObra('${f.id}')" class="absolute top-3 right-3 bg-red-500 text-white w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shadow hover:bg-red-600">✕</button>
+            </div>
+          `;
+        }).join('');
       }
+
+      document.getElementById('modal-galeria-obra').classList.remove('hidden');
+    }
+
+    function fecharModalGaleria() {
+      document.getElementById('modal-galeria-obra').classList.add('hidden');
+      obraGaleriaAtualId = null;
+    }
+
+    async function excluirFotoObra(id) {
+      if (!confirm("Deseja excluir esta mídia?")) return;
+      await supabaseClient.from('fotos_obra').delete().eq('id', id);
+      await carregarDadosDoSupabase();
+      if (obraGaleriaAtualId) abrirGaleriaObra(obraGaleriaAtualId);
+    }
+
+    async function exportarGaleriaZip() {
+      if (!obraGaleriaAtualId) return;
+      const obra = obras.find(o => o.id === obraGaleriaAtualId);
+      const fotosFiltradas = fotosObra.filter(f => f.obra_id === obraGaleriaAtualId);
+
+      if (fotosFiltradas.length === 0) {
+        alert("Não há mídias para exportar.");
+        return;
+      }
+
+      const zip = new JSZip();
+      const pasta = zip.folder(`Midias_${obra ? obra.nome.replace(/\s+/g, '_') : 'Obra'}`);
+
+      fotosFiltradas.forEach((f, index) => {
+        if (f.imagem && f.imagem.includes(',')) {
+          const base64Data = f.imagem.split(',')[1];
+          const ext = f.is_video ? 'mp4' : 'jpg';
+          pasta.file(`registro_${index + 1}_${f.tipo || 'foto'}.${ext}`, base64Data, { base64: true });
+        }
+      });
+
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, `Galeria_${obra ? obra.nome : 'Obra'}.zip`);
     }
 
 
@@ -2034,193 +2114,92 @@
       if (!obra) return;
 
       document.getElementById('modal-pdf-obra-id').value = obraId;
-      document.getElementById('modal-pdf-obra-nome').textContent = `Obra: ${obra.nome}`;
+      document.getElementById('modal-pdf-obra-nome').textContent = `Obra: ${obra.nome} (${obra.local})`;
       document.getElementById('pdf-titulo-input').value = '';
       document.getElementById('pdf-file-input').value = '';
+      renderizarPdfsModal(obraId);
 
-      renderizarListaPdfsModal(obraId);
       document.getElementById('modal-anexar-pdf').classList.remove('hidden');
-    }
-
-    function renderizarListaPdfsModal(obraId) {
-      const container = document.getElementById('lista-pdfs-existentes');
-      const pdfs = pdfsObra.filter(p => p.obra_id === obraId);
-
-      if (pdfs.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 italic py-2">Nenhum PDF cadastrado.</p>';
-        return;
-      }
-
-      container.innerHTML = pdfs.map(p => `
-        <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl border text-xs">
-          <div>
-            <p class="font-bold text-gray-800">${p.titulo || 'Projeto PDF'}</p>
-            <p class="text-[10px] text-gray-500">${p.data}</p>
-          </div>
-          <div class="flex items-center gap-1">
-            <a href="${p.url}" target="_blank" class="bg-purple-100 text-purple-800 font-bold px-2 py-1 rounded hover:bg-purple-200">Ver</a>
-            <button onclick="excluirPdf('${p.id}', '${obraId}')" class="bg-red-100 text-red-700 font-bold px-2 py-1 rounded hover:bg-red-200">✕</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    async function salvarPdfObra() {
-      const btn = document.getElementById('btn-pdf-salvar');
-      const obraId = document.getElementById('modal-pdf-obra-id').value;
-      const tituloBase = document.getElementById('pdf-titulo-input').value.trim() || 'Projeto PDF';
-      const fileInput = document.getElementById('pdf-file-input');
-
-      if (!fileInput.files || fileInput.files.length === 0) {
-        alert("Selecione pelo menos um arquivo PDF!");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = "⏳ ANEXANDO...";
-
-      const files = Array.from(fileInput.files);
-      for (let index = 0; index < files.length; index++) {
-        const file = files[index];
-        if (file.type !== 'application/pdf') continue;
-
-        await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = async function(e) {
-            const nomeTitulo = files.length > 1 ? `${tituloBase} (${file.name})` : tituloBase;
-            const novoPdf = {
-              id: (Date.now() + index).toString(),
-              obra_id: obraId,
-              titulo: nomeTitulo,
-              url: e.target.result,
-              data: new Date().toLocaleDateString('pt-BR')
-            };
-            await supabaseClient.from('pdfs_obra').insert([novoPdf]);
-            resolve();
-          };
-          reader.readAsDataURL(file);
-        });
-      }
-
-      alert("📄 PDF(s) anexado(s) com sucesso!");
-      document.getElementById('pdf-titulo-input').value = '';
-      fileInput.value = '';
-      btn.disabled = false;
-      btn.innerText = "📎 Adicionar PDF(s) à Obra";
-      carregarDadosDoSupabase();
-      renderizarListaPdfsModal(obraId);
-    }
-
-    async function excluirPdf(pdfId, obraId) {
-      if (confirm("Deseja remover este PDF?")) {
-        await supabaseClient.from('pdfs_obra').delete().eq('id', pdfId);
-        carregarDadosDoSupabase();
-        renderizarListaPdfsModal(obraId);
-      }
     }
 
     function fecharModalPdf() {
       document.getElementById('modal-anexar-pdf').classList.add('hidden');
     }
 
+    function renderizarPdfsModal(obraId) {
+      const container = document.getElementById('lista-pdfs-existentes');
+      const pdfs = pdfsObra.filter(p => p.obra_id === obraId);
 
-    /* =========================================================
-       GALERIA
-       ========================================================= */
-
-    let obraGaleriaAtualId = null;
-
-    function abrirGaleriaObra(obraId) {
-      obraGaleriaAtualId = obraId;
-      const obra = obras.find(o => o.id === obraId);
-      if (!obra) return;
-
-      document.getElementById('modal-obra-titulo').textContent = `Galeria - ${obra.nome}`;
-      const container = document.getElementById('modal-galeria-conteudo');
-      const fotos = fotosObra.filter(f => f.obra_id === obraId);
-
-      if (fotos.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-8 text-center">Nenhuma mídia enviada ainda.</p>';
-      } else {
-        container.innerHTML = fotos.map(f => {
-          const func = equipe.find(eq => eq.id === f.funcionario_id);
-          const midiaElemento = f.is_video
-            ? `<video src="${f.imagem}" controls class="w-full h-48 object-cover bg-black rounded-t-2xl"></video>`
-            : `<img src="${f.imagem}" class="w-full h-48 object-cover bg-black" alt="Mídia">`;
-
-          return `
-            <div class="border rounded-2xl overflow-hidden bg-gray-50 shadow-sm flex flex-col justify-between">
-              ${midiaElemento}
-              <div class="p-3 text-xs space-y-1">
-                <div class="flex justify-between items-center">
-                  <span class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</span>
-                  <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full font-semibold">${f.data}</span>
-                </div>
-                <p class="font-semibold text-emerald-700">Tipo: ${f.tipo}</p>
-                <p class="text-gray-600 italic">"${f.observacao || 'Sem observações'}"</p>
-                <div class="pt-2 flex justify-between items-center">
-                  <a href="${f.imagem}" download="obra-foto-${f.id}.${f.is_video ? 'mp4' : 'jpg'}" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded hover:bg-emerald-200 transition">💾 Salvar Foto</a>
-                  <button onclick="excluirFotoObra('${f.id}', '${obraId}')" class="text-xs text-red-600 font-bold hover:underline">Excluir</button>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-
-      document.getElementById('modal-galeria-obra').classList.remove('hidden');
-    }
-
-    async function exportarGaleriaZip() {
-      if (!obraGaleriaAtualId) return;
-      const obra = obras.find(o => o.id === obraGaleriaAtualId);
-      const fotos = fotosObra.filter(f => f.obra_id === obraGaleriaAtualId);
-
-      if (fotos.length === 0) {
-        alert("Não há fotos para exportar.");
+      if (pdfs.length === 0) {
+        container.innerHTML = '<p class="text-xs text-gray-500 italic">Nenhum PDF cadastrado.</p>';
         return;
       }
 
-      const zip = new JSZip();
-      const pastaFotos = zip.folder("fotos_obra");
+      container.innerHTML = pdfs.map(p => `
+        <div class="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border text-xs">
+          <div>
+            <p class="font-bold text-purple-950">📄 ${p.titulo}</p>
+            <a href="${p.url}" target="_blank" class="text-purple-600 underline">Visualizar PDF ↗</a>
+          </div>
+          <button onclick="excluirPdfObra('${p.id}', '${obraId}')" class="bg-red-500 text-white px-2 py-1 rounded font-bold hover:bg-red-600">Excluir</button>
+        </div>
+      `).join('');
+    }
 
-      fotos.forEach((f, index) => {
-        if (f.imagem && f.imagem.includes(',')) {
-          const arr = f.imagem.split(',');
-          const mime = arr[0].match(/:(.*?);/)[1];
-          const bstr = atob(arr[1]);
-          let n = bstr.length;
-          const u8arr = new Uint8Array(n);
-          while (n--) { u8arr[n] = bstr.charCodeAt(n); }
-          const ext = mime.includes('video') ? 'mp4' : 'jpg';
-          pastaFotos.file(`foto_${index + 1}_${f.tipo}.${ext}`, u8arr);
-        }
-      });
+    async function salvarPdfObra() {
+      const obraId = document.getElementById('modal-pdf-obra-id').value;
+      const titulo = document.getElementById('pdf-titulo-input').value.trim() || 'Projeto Acústico';
+      const fileInput = document.getElementById('pdf-file-input');
+      const btn = document.getElementById('btn-pdf-salvar');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Selecione ao menos um arquivo PDF!");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "⏳ SALVANDO PDF(S)...";
 
       try {
-        const content = await zip.generateAsync({ type: "blob" });
-        saveAs(content, `Galeria_Obra_${obra ? obra.nome.replace(/\s+/g, '_') : 'Export'}.zip`);
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao gerar ZIP.");
-      }
-    }
+        for (let i = 0; i < fileInput.files.length; i++) {
+          const file = fileInput.files[i];
+          const base64Data = await comprimirImagem(file); // Mantém conversão em base64 segura para armazenamento sem buckets complexos
 
-    async function excluirFotoObra(fotoId, obraId) {
-      if (confirm("Deseja excluir este arquivo?")) {
-        await supabaseClient.from('fotos_obra').delete().eq('id', fotoId);
+          const novoPdf = {
+            id: (Date.now() + i).toString(),
+            obra_id: obraId,
+            titulo: `${titulo} (${i + 1})`,
+            url: base64Data,
+            data: new Date().toLocaleDateString('pt-BR')
+          };
+
+          await supabaseClient.from('pdfs_obra').insert([novoPdf]);
+        }
+
+        alert("✅ PDF(s) adicionado(s) com sucesso!");
+        document.getElementById('pdf-titulo-input').value = '';
+        document.getElementById('pdf-file-input').value = '';
         await carregarDadosDoSupabase();
-        abrirGaleriaObra(obraId);
+        renderizarPdfsModal(obraId);
+      } catch (e) {
+        console.error(e);
+        alert("Erro ao salvar PDF.");
       }
+
+      btn.disabled = false;
+      btn.innerText = "📎 Adicionar PDF(s) à Obra";
     }
 
-    function fecharModalGaleria() {
-      document.getElementById('modal-galeria-obra').classList.add('hidden');
+    async function excluirPdfObra(pdfId, obraId) {
+      if (!confirm("Deseja excluir este PDF?")) return;
+      await supabaseClient.from('pdfs_obra').delete().eq('id', pdfId);
+      await carregarDadosDoSupabase();
+      renderizarPdfsModal(obraId);
     }
 
 
     /* =========================================================
-       WHATSAPP
+       MODAL WHATSAPP
        ========================================================= */
 
     function abrirModalWhatsapp(obraId) {
@@ -2228,9 +2207,10 @@
       if (!obra) return;
 
       document.getElementById('modal-whatsapp-obra-id').value = obraId;
-      document.getElementById('modal-whatsapp-obra-nome').textContent = `Obra: ${obra.nome}`;
+      document.getElementById('modal-whatsapp-obra-nome').textContent = `Obra: ${obra.nome} (${obra.local})`;
       document.getElementById('modal-whatsapp-obra-local').value = obra.local;
       document.getElementById('modal-whatsapp-mensagem').value = '';
+
       document.getElementById('modal-whatsapp-obra').classList.remove('hidden');
     }
 
@@ -2239,38 +2219,34 @@
     }
 
     function enviarMensagemWhatsapp() {
-      const obraId = document.getElementById('modal-whatsapp-obra-id').value;
       const funcId = document.getElementById('modal-whatsapp-funcionario').value;
-      const local = document.getElementById('modal-whatsapp-obra-local').value;
-      const instrucao = document.getElementById('modal-whatsapp-mensagem').value;
+      const obraNome = document.getElementById('modal-whatsapp-obra-nome').textContent;
+      const localObra = document.getElementById('modal-whatsapp-obra-local').value;
+      const msgExtra = document.getElementById('modal-whatsapp-mensagem').value.trim();
 
-      const obra = obras.find(o => o.id === obraId);
-      const func = equipe.find(f => f.id === funcId);
-
-      if (!func || !obra) {
-        alert("Selecione o funcionário e a obra!");
+      const func = equipe.find(e => e.id === funcId);
+      if (!func || !func.whatsapp) {
+        alert("Selecione um funcionário válido que possua número de WhatsApp cadastrado!");
         return;
       }
 
-      let texto = `Olá *${func.nome}*, tudo bem?\n\n`;
-      texto += `*Aviso de Convocação de Obra - T.R.E. Montagens*\n\n`;
-      texto += `🏗️ *Obra:* ${obra.nome}\n`;
-      texto += `📍 *Local:* ${local}\n`;
-      if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
-      texto += `\nPor favor, confirme e bata o ponto na chegada!`;
+      let numero = func.whatsapp.replace(/\D/g, '');
+      if (!numero.startsWith('55')) numero = '55' + numero;
 
-      const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
-      const link = numLimpo
-        ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
-        : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+      let texto = `Olá *${func.nome}*! Convocaçãou/Aviso da *T.R.E. Montagens*.\n\n`;
+      texto += `🏗️ *${obraNome}*\n`;
+      texto += `📍 Local: ${localObra}\n`;
+      if (msgExtra) texto += `💬 *Instrução:* ${msgExtra}\n`;
+      texto += `\nConfirme o recebimento por gentileza! Bom trabalho!`;
 
-      window.open(link, '_blank');
+      const url = `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(texto)}`;
+      window.open(url, '_blank');
       fecharModalWhatsapp();
     }
 
 
     /* =========================================================
-       CADASTRAR / EDITAR FUNCIONÁRIO
+       GESTÃO DE EQUIPE
        ========================================================= */
 
     async function cadastrarFuncionario() {
@@ -2280,57 +2256,84 @@
       const diaria = parseFloat(document.getElementById('func-diaria').value);
       const pin = document.getElementById('func-pin').value.trim();
 
-      if (!nome || !Number.isFinite(diaria) || diaria <= 0 || !pin) {
-        alert("Preencha o nome, diária válida e o PIN!");
+      if (!nome || !pin || !Number.isFinite(diaria)) {
+        alert("Preencha o Nome, a Diária Base e o PIN de 4 dígitos!");
         return;
       }
 
       if (editId) {
         const { error } = await supabaseClient
           .from('equipe')
-          .update({ nome, whatsapp, diaria, pin })
+          .update({ nome, whatsapp, diaria_base: diaria, pin })
           .eq('id', editId);
 
         if (error) {
-          alert("Erro ao atualizar: " + error.message);
+          alert("Erro ao atualizar funcionário: " + error.message);
           return;
         }
-        alert("✅ Funcionário atualizado com sucesso!");
+        alert("✅ Colaborador atualizado com sucesso!");
+        cancelarEdicaoFuncionario();
       } else {
         const novoFunc = {
           id: Date.now().toString(),
-          nome: nome,
-          whatsapp: whatsapp,
-          diaria: diaria,
-          pin: pin,
+          nome,
+          whatsapp,
+          diaria_base: diaria,
+          pin,
           ativo: true
         };
+
         const { error } = await supabaseClient.from('equipe').insert([novoFunc]);
         if (error) {
-          alert("Erro ao cadastrar: " + error.message);
+          alert("Erro ao cadastrar funcionário: " + error.message);
           return;
         }
-        alert("✅ Funcionário cadastrado com sucesso!");
+        alert("✅ Colaborador cadastrado com sucesso!");
       }
 
-      cancelarEdicaoFuncionario();
+      document.getElementById('func-nome').value = '';
+      document.getElementById('func-whatsapp').value = '';
+      document.getElementById('func-diaria').value = '';
+      document.getElementById('func-pin').value = '';
       carregarDadosDoSupabase();
     }
 
+    function renderizarEquipe() {
+      const lista = document.getElementById('lista-equipe');
+      if (!lista) return;
+
+      if (equipe.length === 0) {
+        lista.innerHTML = '<li class="py-4 text-sm text-gray-500 text-center italic">Nenhum funcionário cadastrado.</li>';
+        return;
+      }
+
+      lista.innerHTML = equipe.map(f => `
+        <li class="py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+          <div>
+            <p class="font-bold text-blue-950">${f.nome} ${f.ativo === false ? '<span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Inativo</span>' : ''}</p>
+            <p class="text-xs text-gray-500">📱 WhatsApp: ${f.whatsapp || 'Não informado'} | Diária Base: R$ ${Number(f.diaria_base || 0).toFixed(2)} | PIN: <span class="font-mono bg-gray-100 px-1 rounded">${f.pin}</span></p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="prepararEdicaoFuncionario('${f.id}')" class="bg-blue-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-950 transition">✏️ Editar</button>
+            <button onclick="alternarAtivoFuncionario('${f.id}', ${f.ativo !== false})" class="${f.ativo !== false ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'} text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">${f.ativo !== false ? 'Desativar' : 'Ativar'}</button>
+          </div>
+        </li>
+      `).join('');
+    }
+
     function prepararEdicaoFuncionario(id) {
-      const f = equipe.find(item => item.id === id);
+      const f = equipe.find(e => e.id === id);
       if (!f) return;
 
       document.getElementById('edit-func-id').value = f.id;
       document.getElementById('func-nome').value = f.nome;
       document.getElementById('func-whatsapp').value = f.whatsapp || '';
-      document.getElementById('func-diaria').value = f.diaria;
+      document.getElementById('func-diaria').value = f.diaria_base || '';
       document.getElementById('func-pin').value = f.pin || '';
 
       document.getElementById('titulo-form-func').textContent = `Editar Colaborador: ${f.nome}`;
       document.getElementById('btn-salvar-func').textContent = 'Salvar Alterações';
       document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
-      
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -2346,45 +2349,15 @@
       document.getElementById('btn-cancelar-edicao').classList.add('hidden');
     }
 
-
-    /* =========================================================
-       EQUIPE
-       ========================================================= */
-
-    function renderizarEquipe() {
-      const lista = document.getElementById('lista-equipe');
-      if (!lista) return;
-      const ativos = equipe.filter(f => f.ativo !== false);
-
-      if (ativos.length === 0) {
-        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenhum colaborador ativo.</li>';
-        return;
-      }
-
-      lista.innerHTML = ativos.map(f => `
-        <li class="py-3 flex justify-between items-center gap-2">
-          <div>
-            <p class="font-bold text-blue-950">${f.nome}</p>
-            <p class="text-xs text-gray-500">📱 ${f.whatsapp || 'Sem Whats'} | Diária: R$ ${Number(f.diaria).toFixed(2)} | PIN: ****</p>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <button onclick="prepararEdicaoFuncionario('${f.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">✏️ Editar</button>
-            <button onclick="desativarFuncionario('${f.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Remover</button>
-          </div>
-        </li>
-      `).join('');
-    }
-
-    async function desativarFuncionario(id) {
-      if (confirm("Remover este colaborador da equipe ativa?")) {
-        await supabaseClient.from('equipe').update({ ativo: false }).eq('id', id);
-        carregarDadosDoSupabase();
-      }
+    async function alternarAtivoFuncionario(id, statusAtual) {
+      const novoStatus = !statusAtual;
+      await supabaseClient.from('equipe').update({ ativo: novoStatus }).eq('id', id);
+      carregarDadosDoSupabase();
     }
 
 
     /* =========================================================
-       ALTERNAR CAMPOS DE DESIGNAÇÃO
+       DESIGNAR OBRA (DIÁRIA OU EMPREITA)
        ========================================================= */
 
     function alternarCamposDesignacao() {
@@ -2392,102 +2365,83 @@
       const blocoMetragem = document.getElementById('bloco-metragem');
       const labelValor = document.getElementById('label-valor-variavel');
 
-      if (tipo === 'Diária') {
-        labelValor.textContent = 'Valor da Diária (R$):';
-        blocoMetragem.classList.add('hidden');
-      } else if (tipo === 'Empreita Global') {
-        labelValor.textContent = 'Valor Total da Empreita (R$):';
-        blocoMetragem.classList.add('hidden');
-      } else if (tipo === 'Metro Quadrado') {
-        labelValor.textContent = 'Valor por m² (R$):';
+      if (tipo === 'Metro Quadrado') {
         blocoMetragem.classList.remove('hidden');
+        labelValor.textContent = "Valor por m² (R$):";
       } else if (tipo === 'Por Hora') {
-        labelValor.textContent = 'Valor por Hora (R$):';
         blocoMetragem.classList.remove('hidden');
+        labelValor.textContent = "Valor por Hora (R$):";
+      } else if (tipo === 'Empreita Global') {
+        blocoMetragem.classList.add('hidden');
+        labelValor.textContent = "Valor Fechado Total da Empreita (R$):";
+      } else {
+        blocoMetragem.classList.add('hidden');
+        labelValor.textContent = "Valor Diária Acertada (R$):";
       }
     }
 
-
-    /* =========================================================
-       DESIGNAR OBRA
-       ========================================================= */
-
     async function confirmarEEnviarDesignacao() {
-      const btn = document.getElementById('btn-designar');
       const funcId = document.getElementById('designar-funcionario').value;
       const obraId = document.getElementById('designar-obra').value;
       const tipo = document.getElementById('designar-tipo').value;
       const valor = parseFloat(document.getElementById('designar-valor').value);
       const quantidade = parseFloat(document.getElementById('designar-quantidade').value) || 1;
-      const dataInicio = document.getElementById('designar-data').value;
+      const data = document.getElementById('designar-data').value;
       const instrucao = document.getElementById('designar-instrucao').value.trim();
 
-      if (!funcId || !obraId || !dataInicio || !Number.isFinite(valor) || valor <= 0) {
-        alert("Preencha todos os campos obrigatórios e informe um valor válido!");
+      if (!funcId || !obraId || !data || !Number.isFinite(valor) || valor <= 0) {
+        alert("Preencha todos os campos obrigatórios corretamente!");
         return;
       }
 
-      const func = equipe.find(f => f.id === funcId);
+      const func = equipe.find(e => e.id === funcId);
       const obra = obras.find(o => o.id === obraId);
 
-      if (!func || !obra) {
-        alert("Funcionário ou obra não encontrado.");
+      let valorTotalCalculado = valor;
+      if (tipo === 'Metro Quadrado' || tipo === 'Por Hora') {
+        valorTotalCalculado = valor * quantidade;
+      }
+
+      const novaDesig = {
+        id: Date.now().toString(),
+        funcionario_id: funcId,
+        obra_id: obraId,
+        tipo_contrato: tipo,
+        valor_unitario: valor,
+        quantidade: quantidade,
+        valor_total: valorTotalCalculado,
+        data: data,
+        instrucao: instrucao
+      };
+
+      const { error } = await supabaseClient.from('designacoes').insert([novaDesig]);
+      if (error) {
+        alert("Erro ao designar: " + error.message);
         return;
       }
 
-      btn.disabled = true;
+      if (func && func.whatsapp) {
+        let numero = func.whatsapp.replace(/\D/g, '');
+        if (!numero.startsWith('55')) numero = '55' + numero;
 
-      try {
-        let totalCalculado = valor;
-        if (tipo === 'Metro Quadrado' || tipo === 'Por Hora') {
-          totalCalculado = valor * quantidade;
-        }
+        let texto = `📱 *CONVOCAÇÃO / EMPREITA - T.R.E. MONTAGENS*\n\n`;
+        texto += `Olá *${func.nome}*, você foi escalado(a) para:\n`;
+        texto += `🏗️ Obra: *${obra ? obra.nome : 'Geral'}*\n`;
+        texto += `📍 Local: ${obra ? obra.local : ''}\n`;
+        texto += `📅 Data de Início: ${data}\n`;
+        texto += `💼 Acordo: *${tipo}* (Total: R$ ${valorTotalCalculado.toFixed(2)})\n`;
+        if (instrucao) texto += `💬 Detalhes: ${instrucao}\n`;
+        texto += `\nConfirme sua presença!`;
 
-        const novaDesignacao = {
-          id: Date.now().toString(),
-          funcionario_id: funcId,
-          obra_id: obraId,
-          tipo_contratacao: tipo,
-          valor_unitario: valor,
-          quantidade: quantidade,
-          valor_total: totalCalculado,
-          data_inicio: dataInicio,
-          instrucao: instrucao,
-          data_registro: new Date().toLocaleDateString('pt-BR')
-        };
-
-        const { error } = await supabaseClient.from('designacoes').insert([novaDesignacao]);
-        if (error) throw error;
-
-        let texto = `Olá *${func.nome}*, você foi escalado para uma obra pela *T.R.E. Montagens*!\n\n`;
-        texto += `🏗️ *Obra:* ${obra.nome}\n`;
-        texto += `📍 *Localização:* ${obra.local}\n`;
-        texto += `💼 *Tipo:* ${tipo}\n`;
-        if (tipo === 'Metro Quadrado') texto += `📐 *Metragem:* ${quantidade} m²\n`;
-        if (tipo === 'Por Hora') texto += `⏱️ *Horas:* ${quantidade} h\n`;
-        texto += `💰 *Valor Acordado:* R$ ${totalCalculado.toFixed(2)}\n`;
-        texto += `📅 *Início:* ${dataInicio}\n`;
-        if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
-        texto += `\nPor favor, confirme a recepção!`;
-
-        const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
-        const link = numLimpo
-          ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
-          : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
-
-        window.open(link, '_blank');
-        alert("✅ Convocação registrada e WhatsApp aberto com sucesso!");
-
-        document.getElementById('designar-valor').value = '';
-        document.getElementById('designar-quantidade').value = '';
-        document.getElementById('designar-instrucao').value = '';
-        carregarDadosDoSupabase();
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao designar funcionário.");
+        const url = `https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(texto)}`;
+        window.open(url, '_blank');
       }
 
-      btn.disabled = false;
+      alert("✅ Designação salva e convocação enviada com sucesso!");
+      document.getElementById('designar-valor').value = '';
+      document.getElementById('designar-quantidade').value = '';
+      document.getElementById('designar-instrucao').value = '';
+      carregarDadosDoSupabase();
     }
 
     function renderizarDesignacoes() {
@@ -2495,35 +2449,35 @@
       if (!container) return;
 
       if (designacoes.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-500 py-2">Nenhuma designação registrada.</p>';
+        container.innerHTML = '<p class="text-xs text-gray-500 py-2 italic">Nenhuma designação cadastrada.</p>';
         return;
       }
 
       container.innerHTML = designacoes.map(d => {
-        const func = equipe.find(f => f.id === d.funcionario_id);
+        const func = equipe.find(e => e.id === d.funcionario_id);
         const obra = obras.find(o => o.id === d.obra_id);
         return `
-          <div class="py-2.5 flex justify-between items-center">
+          <div class="py-3 flex justify-between items-center">
             <div>
-              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} $\rightarrow$ ${obra ? obra.nome : 'Obra'}</p>
-              <p class="text-xs text-gray-500">${d.tipo_contratacao} | Total: R$ ${Number(d.valor_total).toFixed(2)} | Início: ${d.data_inicio}</p>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} → ${obra ? obra.nome : 'Obra'}</p>
+              <p class="text-xs text-gray-600">Tipo: <span class="font-semibold text-emerald-700">${d.tipo_contrato}</span> | Total: R$ ${Number(d.valor_total || 0).toFixed(2)} | Data: ${d.data}</p>
+              ${d.instrucao ? `<p class="text-[11px] text-gray-500 italic">${d.instrucao}</p>` : ''}
             </div>
-            <button onclick="excluirDesignacao('${d.id}')" class="text-xs text-red-600 font-bold hover:underline">Excluir</button>
+            <button onclick="excluirDesignacao('${d.id}')" class="bg-red-500 text-white font-bold text-xs px-2.5 py-1 rounded hover:bg-red-600">Excluir</button>
           </div>
         `;
       }).join('');
     }
 
     async function excluirDesignacao(id) {
-      if (confirm("Excluir esta designação?")) {
-        await supabaseClient.from('designacoes').delete().eq('id', id);
-        carregarDadosDoSupabase();
-      }
+      if (!confirm("Deseja excluir esta designação?")) return;
+      await supabaseClient.from('designacoes').delete().eq('id', id);
+      carregarDadosDoSupabase();
     }
 
 
     /* =========================================================
-       PRESENÇAS (ADMIN)
+       PRESENÇAS
        ========================================================= */
 
     function carregarPresencas() {
@@ -2536,22 +2490,22 @@
       }
 
       tbody.innerHTML = pontos.map(p => {
-        const func = equipe.find(f => f.id === p.funcionario_id);
+        const func = equipe.find(e => e.id === p.funcionario_id);
         const obra = obras.find(o => o.id === p.obra_id);
-        let gpsTxt = '<span class="text-gray-400">Sem GPS</span>';
+        let gpsHtml = '<span class="text-xs text-gray-400">Sem GPS</span>';
         if (p.gps && p.gps.lat) {
-          const mapsLink = `https://www.google.com/maps?q=${p.gps.lat},${p.gps.lng}`;
-          gpsTxt = `<a href="${mapsLink}" target="_blank" class="text-blue-600 font-bold hover:underline">📍 Ver no Mapa</a>`;
+          const mapsUrl = `https://www.google.com/maps?q=${p.gps.lat},${p.gps.lng}`;
+          gpsHtml = `<a href="${mapsUrl}" target="_blank" class="text-xs text-blue-700 underline font-semibold">Ver no Mapa ↗</a>`;
         }
 
         return `
           <tr class="hover:bg-gray-50">
-            <td class="p-3 border-b font-semibold">${p.data} às ${p.hora}</td>
-            <td class="p-3 border-b">${func ? func.nome : 'Ex-colaborador'}</td>
-            <td class="p-3 border-b">${obra ? obra.nome : 'Desconhecida'}</td>
-            <td class="p-3 border-b">${gpsTxt}</td>
+            <td class="p-3 border-b">${p.data} às ${p.hora || ''}</td>
+            <td class="p-3 border-b font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
+            <td class="p-3 border-b">${obra ? obra.nome : 'Obra'}</td>
+            <td class="p-3 border-b">${gpsHtml}</td>
             <td class="p-3 border-b text-right">
-              <button onclick="excluirPonto('${p.id}')" class="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded hover:bg-red-200">Excluir</button>
+              <button onclick="excluirPonto('${p.id}')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">Excluir</button>
             </td>
           </tr>
         `;
@@ -2559,16 +2513,15 @@
     }
 
     async function excluirPonto(id) {
-      if (confirm("Deseja excluir este registro de ponto?")) {
-        await supabaseClient.from('pontos').delete().eq('id', id);
-        carregarDadosDoSupabase();
-        setTimeout(carregarPresencas, 300);
-      }
+      if (!confirm("Deseja excluir este registro de ponto?")) return;
+      await supabaseClient.from('pontos').delete().eq('id', id);
+      carregarDadosDoSupabase();
+      carregarPresencas();
     }
 
 
     /* =========================================================
-       VALES (ADMIN)
+       COMPROVANTES E VALES ADMIN
        ========================================================= */
 
     function carregarValesAdmin() {
@@ -2576,163 +2529,143 @@
       if (!container) return;
 
       if (vales.length === 0) {
-        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-4 text-center">Nenhum vale ou ressarcimento registrado.</p>';
+        container.innerHTML = '<p class="text-sm text-gray-500 col-span-2 text-center py-6 italic">Nenhum vale ou comprovante registrado.</p>';
         return;
       }
 
       container.innerHTML = vales.map(v => {
-        const func = equipe.find(f => f.id === v.funcionario_id);
+        const func = equipe.find(e => e.id === v.funcionario_id);
         const obra = obras.find(o => o.id === v.obra_id);
-        const corTipo = v.tipo === 'Vale' ? 'bg-red-50 border-red-200 text-red-900' : 'bg-blue-50 border-blue-200 text-blue-900';
+        const tipoBadge = v.tipo === 'Ressarcimento' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-red-100 text-red-800 border-red-300';
+
+        let comprovanteHtml = '<div class="h-32 bg-gray-100 rounded-xl flex items-center justify-center text-xs text-gray-400 italic">Sem comprovante anexado</div>';
+        if (v.comprovante) {
+          comprovanteHtml = `<a href="${v.comprovante}" target="_blank"><img src="${v.comprovante}" class="w-full h-32 object-cover rounded-xl shadow border hover:opacity-95 transition" title="Clique para ampliar"></a>`;
+        }
 
         return `
-          <div class="border rounded-2xl p-4 ${corTipo} space-y-2 shadow-sm">
+          <div class="card-acustico-blur p-4 rounded-2xl border shadow space-y-3 relative">
             <div class="flex justify-between items-center">
-              <span class="font-bold text-sm uppercase">${v.tipo}</span>
-              <span class="text-xs font-semibold px-2 py-0.5 bg-white/80 rounded-full">${v.data}</span>
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border ${tipoBadge}">${v.tipo || 'Vale'}</span>
+              <span class="text-xs font-bold text-gray-500">${v.data}</span>
             </div>
-            <p class="font-extrabold text-base">${func ? func.nome : 'Colaborador'}</p>
-            <p class="text-xs">Obra: ${obra ? obra.nome : 'Geral'}</p>
-            <p class="text-sm font-bold">Valor: R$ ${Number(v.valor).toFixed(2)}</p>
-            <p class="text-xs italic">Obs: "${v.descricao || 'Sem descrição'}"</p>
-            ${v.comprovante ? `<a href="${v.comprovante}" target="_blank" class="inline-block mt-1 text-xs bg-white text-gray-800 font-bold px-3 py-1 rounded border shadow-sm">📎 Ver Comprovante</a>` : ''}
-            <div class="pt-2 text-right">
-              <button onclick="excluirVale('${v.id}')" class="text-xs bg-red-600 text-white font-bold px-2.5 py-1 rounded hover:bg-red-700">Excluir Lançamento</button>
+            <div>
+              <p class="font-bold text-blue-950 text-base">${func ? func.nome : 'Ex-colaborador'}</p>
+              <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Desconhecida'}</p>
+              <p class="text-sm font-extrabold text-gray-800 mt-1">Valor: R$ ${Number(v.valor || 0).toFixed(2)}</p>
+              <p class="text-xs text-gray-600 mt-0.5">💬 <i>${v.descricao || 'Sem descrição'}</i></p>
             </div>
+            ${comprovanteHtml}
+            <button onclick="excluirVale('${v.id}')" class="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">Excluir</button>
           </div>
         `;
       }).join('');
     }
 
     async function excluirVale(id) {
-      if (confirm("Deseja excluir este lançamento?")) {
-        await supabaseClient.from('vales').delete().eq('id', id);
-        carregarDadosDoSupabase();
-        setTimeout(carregarValesAdmin, 300);
-      }
+      if (!confirm("Deseja excluir este lançamento?")) return;
+      await supabaseClient.from('vales').delete().eq('id', id);
+      carregarDadosDoSupabase();
+      carregarValesAdmin();
     }
 
     async function exportarComprovantesZip() {
-      const valesComComprovante = vales.filter(v => v.comprovante);
-      if (valesComComprovante.length === 0) {
-        alert("Não há comprovantes com imagem para exportar.");
+      if (vales.length === 0) {
+        alert("Nenhum comprovante para exportar.");
         return;
       }
 
       const zip = new JSZip();
-      const pasta = zip.folder("comprovantes");
+      const pasta = zip.folder("Comprovantes_TRE");
 
-      valesComComprovante.forEach((v, index) => {
+      vales.forEach((v, index) => {
         if (v.comprovante && v.comprovante.includes(',')) {
-          const arr = v.comprovante.split(',');
-          const bstr = atob(arr[1]);
-          let n = bstr.length;
-          const u8arr = new Uint8Array(n);
-          while (n--) { u8arr[n] = bstr.charCodeAt(n); }
-          pasta.file(`comprovante_${index + 1}_${v.tipo}.jpg`, u8arr);
+          const base64Data = v.comprovante.split(',')[1];
+          const func = equipe.find(e => e.id === v.funcionario_id);
+          const nomeFunc = func ? func.nome.replace(/\s+/g, '_') : 'Func';
+          pasta.file(`vale_${index + 1}_${nomeFunc}_R$${v.valor}.${'jpg'}`, base64Data, { base64: true });
         }
       });
 
-      try {
-        const content = await zip.generateAsync({ type: "blob" });
-        saveAs(content, "Comprovantes_TRE.zip");
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao gerar ZIP de comprovantes.");
-      }
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, "Comprovantes_Vales_Ressarcimentos.zip");
     }
 
 
     /* =========================================================
-       FECHAMENTO MENSAL
+       FECHAMENTO MENSAL E BALANÇO
        ========================================================= */
 
     function calcularFechamentoMensal() {
-      const mes = parseInt(document.getElementById('fechamento-mes').value);
-      const ano = parseInt(document.getElementById('fechamento-ano').value);
+      const mesSelecionado = parseInt(document.getElementById('fechamento-mes').value);
+      const anoSelecionado = parseInt(document.getElementById('fechamento-ano').value);
       const tbody = document.getElementById('tabela-fechamento');
       if (!tbody) return;
 
-      const ativos = equipe.filter(f => f.ativo !== false);
-      if (ativos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Nenhum colaborador cadastrado.</td></tr>';
+      if (equipe.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Nenhum funcionário cadastrado.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = ativos.map(f => {
-        const desigsFunc = designacoes.filter(d => {
+      tbody.innerHTML = equipe.map(f => {
+        // Pontos do mês/ano
+        const diasTrabalhados = pontos.filter(p => {
+          if (p.funcionario_id !== f.id) return false;
+          const partes = p.data.split('-'); // YYYY-MM-DD
+          if (partes.length !== 3) return false;
+          const anoP = parseInt(partes[0]);
+          const mesP = parseInt(partes[1]) - 1;
+          return anoP === anoSelecionado && mesP === mesSelecionado;
+        }).length;
+
+        const diariaBase = Number(f.diaria_base || 0);
+        let totalBrutoDiarias = diasTrabalhados * diariaBase;
+
+        // Empreitas / Designações finalizadas ou do período
+        const desigFunc = designacoes.filter(d => {
           if (d.funcionario_id !== f.id) return false;
-          const partes = d.data_inicio.split('/');
-          if (partes.length === 3) {
-            return parseInt(partes[1]) - 1 === mes && parseInt(partes[2]) === ano;
+          const partes = d.data.split('-');
+          if (partes.length !== 3) return false;
+          const anoD = parseInt(partes[0]);
+          const mesD = parseInt(partes[1]) - 1;
+          if (anoD !== anoSelecionado || mesD !== mesSelecionado) return false;
+
+          // Se for empreita, só soma se a obra estiver 100% Finalizada
+          if (d.tipo_contrato === 'Empreita Global' || d.tipo_contrato === 'Metro Quadrado') {
+            const obraObj = obras.find(o => o.id === d.obra_id);
+            return obraObj && obraObj.status === 'Finalizada';
           }
-          return false;
+          return true;
         });
 
-        let totalBruto = 0;
-        let tipoDescricao = 'Diária (R$ ' + Number(f.diaria).toFixed(2) + ')';
-        let diasOuProducao = 0;
+        let totalBrutoEmpreitas = desigFunc.reduce((acc, cur) => acc + Number(cur.valor_total || 0), 0);
+        let totalBruto = totalBrutoDiarias + totalBrutoEmpreitas;
 
-        const desigEmpreita = desigsFunc.find(d => d.tipo_contratacao === 'Empreita Global' || d.tipo_contratacao === 'Metro Quadrado' || d.tipo_contratacao === 'Por Hora');
-
-        if (desigEmpreita) {
-          const obraObj = obras.find(o => o.id === desigEmpreita.obra_id);
-          const statusObra = obraObj ? obraObj.status : 'Em Andamento';
-          
-          tipoDescricao = desigEmpreita.tipo_contratacao;
-          diasOuProducao = desigEmpreita.quantidade || 1;
-
-          if (statusObra === 'Finalizada') {
-            totalBruto = Number(desigEmpreita.valor_total) || 0;
-          } else {
-            tipoDescricao += ' (Aguardando Obra 100% Finalizada)';
-            totalBruto = 0;
-          }
-        } else {
-          const pontosFuncMes = pontos.filter(p => {
-            if (p.funcionario_id !== f.id) return false;
-            const partes = p.data.split('-');
-            if (partes.length === 3) {
-              return parseInt(partes[1]) - 1 === mes && parseInt(partes[0]) === ano;
-            }
-            return false;
-          });
-          diasOuProducao = pontosFuncMes.length;
-          totalBruto = diasOuProducao * (Number(f.diaria) || 0);
-        }
-
-        const valesFuncMes = vales.filter(v => {
+        // Vales e Ressarcimentos do mês/ano
+        const valesFunc = vales.filter(v => {
           if (v.funcionario_id !== f.id) return false;
           const partes = v.data.split('-');
-          if (partes.length === 3) {
-            return parseInt(partes[1]) - 1 === mes && parseInt(partes[0]) === ano;
-          }
-          return false;
+          if (partes.length !== 3) return false;
+          const anoV = parseInt(partes[0]);
+          const mesV = parseInt(partes[1]) - 1;
+          return anoV === anoSelecionado && mesV === mesV;
         });
 
-        let totalVales = 0;
-        let totalRessarcimentos = 0;
+        let totalVales = valesFunc.filter(v => v.tipo !== 'Ressarcimento').reduce((acc, cur) => acc + Number(cur.valor || 0), 0);
+        let totalRessarcimentos = valesFunc.filter(v => v.tipo === 'Ressarcimento').reduce((acc, cur) => acc + Number(cur.valor || 0), 0);
 
-        valesFuncMes.forEach(v => {
-          const val = Number(v.valor) || 0;
-          if (v.tipo === 'Ressarcimento') {
-            totalRessarcimentos += val;
-          } else {
-            totalVales += val;
-          }
-        });
-
-        const saldoAPagar = totalBruto + totalRessarcimentos - totalVales;
+        let saldoAPagar = totalBruto + totalRessarcimentos - totalVales;
+        let resumoProd = diasTrabalhados > 0 ? `${diasTrabalhados} diária(s)` : `${desigFunc.length} acordo(s)`;
 
         return `
           <tr class="hover:bg-gray-50">
             <td class="p-3 border-b font-bold text-blue-950">${f.nome}</td>
-            <td class="p-3 border-b text-center text-xs">${tipoDescricao}</td>
-            <td class="p-3 border-b text-center font-semibold">${diasOuProducao}</td>
+            <td class="p-3 border-b text-center">R$ ${diariaBase.toFixed(2)}</td>
+            <td class="p-3 border-b text-center font-semibold">${resumoProd}</td>
             <td class="p-3 border-b text-right font-bold text-gray-800">R$ ${totalBruto.toFixed(2)}</td>
             <td class="p-3 border-b text-right font-semibold text-blue-700">+ R$ ${totalRessarcimentos.toFixed(2)}</td>
             <td class="p-3 border-b text-right font-semibold text-red-600">- R$ ${totalVales.toFixed(2)}</td>
-            <td class="p-3 border-b text-right font-extrabold text-emerald-700 text-base">R$ ${saldoAPagar.toFixed(2)}</td>
+            <td class="p-3 border-b text-right font-extrabold text-emerald-700">R$ ${saldoAPagar.toFixed(2)}</td>
           </tr>
         `;
       }).join('');
@@ -2741,16 +2674,16 @@
     function exportarExcelFechamento() {
       const tabela = document.getElementById('tabela-fechamento-export');
       const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento Mensal" });
-      XLSX.writeFile(wb, "Fechamento_TRE_Montagens.xlsx");
+      XLSX.writeFile(wb, `Fechamento_TRE_Montagens_${document.getElementById('fechamento-mes').value}_${document.getElementById('fechamento-ano').value}.xlsx`);
     }
 
     function exportarPdfFechamento() {
       const elemento = document.getElementById('area-impressao-fechamento');
       const opt = {
         margin:       10,
-        filename:     'Fechamento_TRE_Montagens.pdf',
+        filename:     `Fechamento_Mensal_TRE_${document.getElementById('fechamento-ano').value}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
+        html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
       html2pdf().from(elemento).set(opt).save();
