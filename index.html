@@ -199,6 +199,72 @@
     </div>
 
 
+    <!-- CARD 1.5: STATUS DA OBRA (ATUALIZADO PELO FUNCIONÁRIO) -->
+    <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-amber-600">
+
+      <h3 class="text-lg font-bold text-blue-950 border-b pb-2 flex items-center justify-between">
+        <span>🏗️ Atualizar Status da Obra</span>
+        <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
+          Controle de Campo
+        </span>
+      </h3>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">
+          Selecione a Obra:
+        </label>
+        <select
+          id="func-status-obra"
+          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-amber-600 focus:outline-none"
+        ></select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">
+          Como está a situação da obra?
+        </label>
+        <select
+          id="func-status-situacao"
+          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-amber-600 focus:outline-none"
+        >
+          <option value="Em Andamento">🔨 Em Andamento (Falta coisa para fazer)</option>
+          <option value="Pronta">✨ Obra Pronta (Ajustes finais concluídos)</option>
+          <option value="Finalizada">🏁 100% Finalizada (Entregue ao cliente)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">
+          Seu Nome (para registro):
+        </label>
+        <select
+          id="func-status-responsavel"
+          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-amber-600 focus:outline-none"
+        ></select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-gray-700">
+          PIN / Senha do Colaborador:
+        </label>
+        <input
+          type="password"
+          id="func-status-pin"
+          placeholder="Digite seu PIN individual"
+          class="w-full p-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-amber-600 focus:outline-none"
+        >
+      </div>
+
+      <button
+        onclick="atualizarStatusObraPeloFuncionario()"
+        class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 rounded-xl shadow-lg text-base transition border-b-4 border-blue-950 cursor-pointer"
+      >
+        💾 SALVAR STATUS DA OBRA
+      </button>
+
+    </div>
+
+
     <!-- CARD 2: PDFs -->
     <div class="card-acustico-blur p-6 rounded-2xl shadow-xl space-y-4 mt-6 border-t-4 border-purple-600">
 
@@ -570,7 +636,7 @@
         onclick="mudarAbaAdmin('obras')"
         class="px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5"
       >
-        <span>🏗️</span> Obras, PDFs & Galeria
+        <span>🏗️</span> Obras, Status & Galeria
       </button>
 
       <button
@@ -620,7 +686,7 @@
 
 
       <!-- =====================================================
-           ABA OBRAS
+           ABA OBRAS (COM HISTÓRICO, SEPARADAS POR STATUS)
            ===================================================== -->
       <div id="aba-obras" class="aba-content space-y-6">
 
@@ -658,15 +724,30 @@
         </div>
 
 
-        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900">
+        <!-- SEÇÃO DE FILTRO / VISUALIZAÇÃO DE OBRAS POR STATUS -->
+        <div class="card-acustico-blur p-6 rounded-2xl shadow-xl border-t-4 border-blue-900 space-y-6">
 
-          <h3 class="text-lg font-bold text-blue-950 mb-4">
-            Obras Cadastradas, PDFs de Projeto & Galerias
-          </h3>
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-3">
+            <div>
+              <h3 class="text-lg font-bold text-blue-950">
+                🏗️ Histórico e Gestão de Obras
+              </h3>
+              <p class="text-xs text-gray-500">
+                Acompanhe o que está em andamento, pronto ou finalizado (definido pela equipe ou patrão)
+              </p>
+            </div>
+            
+            <div class="flex gap-2">
+              <button onclick="filtrarObrasPatrao('todas')" id="filtro-todas" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-950 text-white transition">Todas</button>
+              <button onclick="filtrarObrasPatrao('Em Andamento')" id="filtro-andamento" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 text-gray-700 transition">Em Andamento</button>
+              <button onclick="filtrarObrasPatrao('Pronta')" id="filtro-pronta" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 text-gray-700 transition">Prontas</button>
+              <button onclick="filtrarObrasPatrao('Finalizada')" id="filtro-finalizada" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 text-gray-700 transition">Finalizadas</button>
+            </div>
+          </div>
 
           <ul
             id="lista-obras"
-            class="divide-y text-gray-700"
+            class="divide-y text-gray-700 space-y-3"
           ></ul>
 
         </div>
@@ -1387,7 +1468,6 @@
         const agora = audioCtx.currentTime;
 
         if (tipo === 'sair' || tipo === 'voltar') {
-          // Som de porta fechando / estalo grave
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'sawtooth';
@@ -1399,9 +1479,7 @@
           gain.connect(audioCtx.destination);
           osc.start(agora);
           osc.stop(agora + 0.15);
-
         } else if (tipo === 'confirmar' || tipo === 'entrar') {
-          // Som de impacto metálico duplo (confirmação / martelada industrial leve)
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'triangle';
@@ -1413,9 +1491,7 @@
           gain.connect(audioCtx.destination);
           osc.start(agora);
           osc.stop(agora + 0.12);
-
         } else {
-          // Clique padrão (estalo seco de ferramenta / engrenagem)
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'sine';
@@ -1429,17 +1505,15 @@
           osc.stop(agora + 0.05);
         }
       } catch (e) {
-        console.log("Áudio bloqueado ou não suportado pelo navegador ainda.", e);
+        console.log("Áudio bloqueado.", e);
       }
     }
 
-    // Interceptar cliques em todos os botões da página automaticamente
     document.addEventListener('click', function(event) {
       const botao = event.target.closest('button');
       if (!botao) return;
 
       const texto = (botao.innerText || "").toLowerCase();
-      const idOuClasse = (botao.id || '') + ' ' + (botao.className || '');
 
       if (texto.includes('sair') || texto.includes('fechar') || texto.includes('✕') || texto.includes('remover') || texto.includes('excluir')) {
         tocarSomConstrucao('sair');
@@ -1452,22 +1526,25 @@
 
 
     /* =========================================================
-       CONFIGURAÇÃO
+       CONFIGURAÇÃO E DADOS
        ========================================================= */
 
     const DEFAULT_OBRAS = [
       {
         id: '1',
         nome: 'Avanço RJ',
-        local: 'Rio de Janeiro / RJ'
+        local: 'Rio de Janeiro / RJ',
+        status: 'Em Andamento',
+        atualizadoPor: 'Sistema'
       },
       {
         id: '2',
         nome: 'Sede T.R.E. Acústica',
-        local: 'São Paulo / SP'
+        local: 'São Paulo / SP',
+        status: 'Pronta',
+        atualizadoPor: 'Sistema'
       }
     ];
-
 
     const DEFAULT_EQUIPE = [
       {
@@ -1488,34 +1565,14 @@
       }
     ];
 
-
-    let obras =
-      JSON.parse(localStorage.getItem('tre_obras')) ||
-      DEFAULT_OBRAS;
-
-    let equipe =
-      JSON.parse(localStorage.getItem('tre_equipe')) ||
-      DEFAULT_EQUIPE;
-
-    let pontos =
-      JSON.parse(localStorage.getItem('tre_pontos')) ||
-      [];
-
-    let vales =
-      JSON.parse(localStorage.getItem('tre_vales')) ||
-      [];
-
-    let fotosObra =
-      JSON.parse(localStorage.getItem('tre_fotos_obra')) ||
-      [];
-
-    let pdfsObra =
-      JSON.parse(localStorage.getItem('tre_pdfs_obra')) ||
-      [];
-
-    let designacoes =
-      JSON.parse(localStorage.getItem('tre_designacoes')) ||
-      [];
+    let obras = JSON.parse(localStorage.getItem('tre_obras')) || DEFAULT_OBRAS;
+    let equipe = JSON.parse(localStorage.getItem('tre_equipe')) || DEFAULT_EQUIPE;
+    let pontos = JSON.parse(localStorage.getItem('tre_pontos')) || [];
+    let vales = JSON.parse(localStorage.getItem('tre_vales')) || [];
+    let fotosObra = JSON.parse(localStorage.getItem('tre_fotos_obra')) || [];
+    let pdfsObra = JSON.parse(localStorage.getItem('tre_pdfs_obra')) || [];
+    let designacoes = JSON.parse(localStorage.getItem('tre_designacoes')) || [];
+    let filtroStatusAtual = 'todas';
 
 
     /* =========================================================
@@ -1523,55 +1580,18 @@
        ========================================================= */
 
     function salvarTudo() {
-
       try {
-
-        localStorage.setItem(
-          'tre_obras',
-          JSON.stringify(obras)
-        );
-
-        localStorage.setItem(
-          'tre_equipe',
-          JSON.stringify(equipe)
-        );
-
-        localStorage.setItem(
-          'tre_pontos',
-          JSON.stringify(pontos)
-        );
-
-        localStorage.setItem(
-          'tre_vales',
-          JSON.stringify(vales)
-        );
-
-        localStorage.setItem(
-          'tre_fotos_obra',
-          JSON.stringify(fotosObra)
-        );
-
-        localStorage.setItem(
-          'tre_pdfs_obra',
-          JSON.stringify(pdfsObra)
-        );
-
-        localStorage.setItem(
-          'tre_designacoes',
-          JSON.stringify(designacoes)
-        );
-
+        localStorage.setItem('tre_obras', JSON.stringify(obras));
+        localStorage.setItem('tre_equipe', JSON.stringify(equipe));
+        localStorage.setItem('tre_pontos', JSON.stringify(pontos));
+        localStorage.setItem('tre_vales', JSON.stringify(vales));
+        localStorage.setItem('tre_fotos_obra', JSON.stringify(fotosObra));
+        localStorage.setItem('tre_pdfs_obra', JSON.stringify(pdfsObra));
+        localStorage.setItem('tre_designacoes', JSON.stringify(designacoes));
       } catch (e) {
-
         console.error(e);
-
-        alert(
-          "⚠️ O armazenamento local está cheio! " +
-          "Apague alguns arquivos antigos na galeria do administrador."
-        );
-
+        alert("⚠️ O armazenamento local está cheio!");
       }
-
     }
 
 
@@ -1579,152 +1599,47 @@
        COMPRESSÃO DE IMAGENS
        ========================================================= */
 
-    function comprimirImagem(
-      file,
-      maxLargura = 1000,
-      qualidade = 0.7
-    ) {
-
+    function comprimirImagem(file, maxLargura = 1000, qualidade = 0.7) {
       return new Promise((resolve, reject) => {
-
-        if (!file) {
-          resolve(null);
-          return;
-        }
-
-
-        /* VÍDEOS */
-
+        if (!file) { resolve(null); return; }
         if (file.type.startsWith('video/')) {
-
           const reader = new FileReader();
-
-          reader.onload = (e) => {
-            resolve(e.target.result);
-          };
-
-          reader.onerror = () => {
-            reject(
-              new Error('Erro ao ler o vídeo.')
-            );
-          };
-
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = () => reject(new Error('Erro ao ler vídeo.'));
           reader.readAsDataURL(file);
-
           return;
         }
-
-
-        /* OUTROS ARQUIVOS */
-
         if (!file.type.startsWith('image/')) {
-
           const reader = new FileReader();
-
-          reader.onload = (e) => {
-            resolve(e.target.result);
-          };
-
-          reader.onerror = () => {
-            reject(
-              new Error('Erro ao ler o arquivo.')
-            );
-          };
-
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = () => reject(new Error('Erro ao ler arquivo.'));
           reader.readAsDataURL(file);
-
           return;
         }
-
-
-        /* IMAGEM */
-
         const reader = new FileReader();
-
         reader.onload = (e) => {
-
           const img = new Image();
-
           img.onload = () => {
-
             let largura = img.width;
             let altura = img.height;
-
-
             if (largura > maxLargura) {
-
-              altura =
-                Math.round(
-                  (altura * maxLargura) /
-                  largura
-                );
-
+              altura = Math.round((altura * maxLargura) / largura);
               largura = maxLargura;
-
             }
-
-
-            const canvas =
-              document.createElement('canvas');
-
+            const canvas = document.createElement('canvas');
             canvas.width = largura;
             canvas.height = altura;
-
-
-            const ctx =
-              canvas.getContext('2d');
-
-
-            if (!ctx) {
-
-              resolve(e.target.result);
-              return;
-
-            }
-
-
-            ctx.drawImage(
-              img,
-              0,
-              0,
-              largura,
-              altura
-            );
-
-
-            resolve(
-              canvas.toDataURL(
-                'image/jpeg',
-                qualidade
-              )
-            );
-
+            const ctx = canvas.getContext('2d');
+            if (!ctx) { resolve(e.target.result); return; }
+            ctx.drawImage(img, 0, 0, largura, altura);
+            resolve(canvas.toDataURL('image/jpeg', qualidade));
           };
-
-
-          img.onerror = () => {
-            resolve(e.target.result);
-          };
-
-
+          img.onerror = () => resolve(e.target.result);
           img.src = e.target.result;
-
         };
-
-
-        reader.onerror = () => {
-
-          reject(
-            new Error('Erro ao ler a imagem.')
-          );
-
-        };
-
-
+        reader.onerror = () => reject(new Error('Erro ao ler imagem.'));
         reader.readAsDataURL(file);
-
       });
-
     }
 
 
@@ -1733,46 +1648,14 @@
        ========================================================= */
 
     function obterCoordenadasGPS() {
-
       return new Promise((resolve) => {
-
-        if (!navigator.geolocation) {
-
-          resolve(null);
-          return;
-
-        }
-
-
+        if (!navigator.geolocation) { resolve(null); return; }
         navigator.geolocation.getCurrentPosition(
-
-          (pos) => {
-
-            resolve({
-
-              lat: pos.coords.latitude,
-
-              lng: pos.coords.longitude
-
-            });
-
-          },
-
-          () => {
-
-            resolve(null);
-
-          },
-
-          {
-            timeout: 8000,
-            enableHighAccuracy: true
-          }
-
+          (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => resolve(null),
+          { timeout: 8000, enableHighAccuracy: true }
         );
-
       });
-
     }
 
 
@@ -1780,98 +1663,30 @@
        INICIALIZAÇÃO
        ========================================================= */
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      () => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const hoje = new Date().toISOString().split('T')[0];
+      if (document.getElementById('ponto-data')) document.getElementById('ponto-data').value = hoje;
+      if (document.getElementById('vale-data')) document.getElementById('vale-data').value = hoje;
+      if (document.getElementById('designar-data')) document.getElementById('designar-data').value = hoje;
 
-        const hoje =
-          new Date()
-            .toISOString()
-            .split('T')[0];
-
-
-        const pontoData =
-          document.getElementById(
-            'ponto-data'
-          );
-
-        const valeData =
-          document.getElementById(
-            'vale-data'
-          );
-
-        const designarData =
-          document.getElementById(
-            'designar-data'
-          );
-
-
-        if (pontoData)
-          pontoData.value = hoje;
-
-        if (valeData)
-          valeData.value = hoje;
-
-        if (designarData)
-          designarData.value = hoje;
-
-
-        const anoSelect =
-          document.getElementById(
-            'fechamento-ano'
-          );
-
-
-        const anoAtual =
-          new Date().getFullYear();
-
-
-        if (anoSelect) {
-
-          for (
-            let ano = anoAtual - 2;
-            ano <= anoAtual + 3;
-            ano++
-          ) {
-
-            const option =
-              document.createElement(
-                'option'
-              );
-
-            option.value = ano;
-            option.textContent = ano;
-
-            if (ano === anoAtual) {
-              option.selected = true;
-            }
-
-            anoSelect.appendChild(option);
-
-          }
-
+      const anoSelect = document.getElementById('fechamento-ano');
+      const anoAtual = new Date().getFullYear();
+      if (anoSelect) {
+        for (let ano = anoAtual - 2; ano <= anoAtual + 3; ano++) {
+          const option = document.createElement('option');
+          option.value = ano;
+          option.textContent = ano;
+          if (ano === anoAtual) option.selected = true;
+          anoSelect.appendChild(option);
         }
-
-
-        const mesSelect =
-          document.getElementById(
-            'fechamento-mes'
-          );
-
-
-        if (mesSelect) {
-
-          mesSelect.value =
-            new Date().getMonth();
-
-        }
-
-
-        populardropdowns();
-        alternarCamposDesignacao();
-
       }
-    );
+
+      const mesSelect = document.getElementById('fechamento-mes');
+      if (mesSelect) mesSelect.value = new Date().getMonth();
+
+      populardropdowns();
+      alternarCamposDesignacao();
+    });
 
 
     /* =========================================================
@@ -1879,90 +1694,83 @@
        ========================================================= */
 
     function populardropdowns() {
-
       const funcSelects = [
-
         'ponto-funcionario',
         'vale-funcionario',
         'foto-funcionario',
         'modal-whatsapp-funcionario',
-        'designar-funcionario'
-
+        'designar-funcionario',
+        'func-status-responsavel'
       ];
 
-
-      const funcionariosAtivos =
-        equipe.filter(
-          e => e.ativo !== false
-        );
-
+      const funcionariosAtivos = equipe.filter(e => e.ativo !== false);
 
       funcSelects.forEach(id => {
-
-        const el =
-          document.getElementById(id);
-
+        const el = document.getElementById(id);
         if (!el) return;
-
-
-        el.innerHTML =
-          '<option value="">Selecione o Funcionário...</option>';
-
-
+        el.innerHTML = '<option value="">Selecione o Funcionário...</option>';
         funcionariosAtivos.forEach(f => {
-
-          const zapInfo =
-            f.whatsapp
-              ? ` (${f.whatsapp})`
-              : '';
-
-
-          el.innerHTML += `
-            <option value="${f.id}">
-              ${f.nome}${zapInfo}
-            </option>
-          `;
-
+          const zapInfo = f.whatsapp ? ` (${f.whatsapp})` : '';
+          el.innerHTML += `<option value="${f.id}">${f.nome}${zapInfo}</option>`;
         });
-
       });
 
-
       const obraSelects = [
-
         'ponto-obra',
         'consulta-pdf-obra',
         'vale-obra',
         'foto-obra',
-        'designar-obra'
-
+        'designar-obra',
+        'func-status-obra'
       ];
 
-
       obraSelects.forEach(id => {
-
-        const el =
-          document.getElementById(id);
-
+        const el = document.getElementById(id);
         if (!el) return;
-
-
-        el.innerHTML =
-          '<option value="">Selecione a Obra...</option>';
-
-
+        el.innerHTML = '<option value="">Selecione a Obra...</option>';
         obras.forEach(o => {
-
-          el.innerHTML += `
-            <option value="${o.id}">
-              ${o.nome} (${o.local})
-            </option>
-          `;
-
+          const statusTxt = o.status ? ` [${o.status}]` : '';
+          el.innerHTML += `<option value="${o.id}">${o.nome} (${o.local})${statusTxt}</option>`;
         });
-
       });
+    }
 
+
+    /* =========================================================
+       ATUALIZAR STATUS DA OBRA (PELO FUNCIONÁRIO)
+       ========================================================= */
+
+    function atualizarStatusObraPeloFuncionario() {
+      const obraId = document.getElementById('func-status-obra').value;
+      const situacao = document.getElementById('func-status-situacao').value;
+      const funcId = document.getElementById('func-status-responsavel').value;
+      const pin = document.getElementById('func-status-pin').value;
+
+      if (!obraId || !situacao || !funcId || !pin) {
+        alert("Preencha todos os campos e informe seu PIN!");
+        return;
+      }
+
+      if (!validarPin(funcId, pin)) {
+        alert("PIN incorreto!");
+        return;
+      }
+
+      const obraIndex = obras.findIndex(o => o.id === obraId);
+      const func = equipe.find(f => f.id === funcId);
+
+      if (obraIndex === -1 || !func) {
+        alert("Obra ou colaborador não encontrado.");
+        return;
+      }
+
+      obras[obraIndex].status = situacao;
+      obras[obraIndex].atualizadoPor = func.nome;
+      salvarTudo();
+      populardropdowns();
+
+      alert(`✅ Status da obra atualizado com sucesso para: "${situacao}" por ${func.nome}!`);
+      document.getElementById('func-status-pin').value = '';
     }
 
 
@@ -1971,35 +1779,14 @@
        ========================================================= */
 
     function mostrarVisao(visao) {
-
-      document
-        .getElementById('pantalla-login')
-        .classList.add('hidden');
-
-
+      document.getElementById('pantalla-login').classList.add('hidden');
       if (visao === 'funcionario') {
-
-        document
-          .getElementById('visao-funcionario')
-          .classList.remove('hidden');
-
-
+        document.getElementById('visao-funcionario').classList.remove('hidden');
         carregarHistoricoPontosFuncionario();
-
-      }
-
-
-      else if (visao === 'admin') {
-
-        document
-          .getElementById('visao-admin')
-          .classList.remove('hidden');
-
-
+      } else if (visao === 'admin') {
+        document.getElementById('visao-admin').classList.remove('hidden');
         mudarAbaAdmin('obras');
-
       }
-
     }
 
 
@@ -2008,28 +1795,12 @@
        ========================================================= */
 
     function solicitarSenhaAdmin() {
-
-      const senha =
-        prompt(
-          "Digite a senha do Administrador / Patrão:"
-        );
-
-
-      if (
-        senha === "1234" ||
-        senha === "admin"
-      ) {
-
+      const senha = prompt("Digite a senha do Administrador / Patrão:");
+      if (senha === "1234" || senha === "admin") {
         mostrarVisao('admin');
-
-      }
-
-      else if (senha !== null) {
-
+      } else if (senha !== null) {
         alert("Senha incorreta!");
-
       }
-
     }
 
 
@@ -2038,21 +1809,9 @@
        ========================================================= */
 
     function sair() {
-
-      document
-        .getElementById('visao-funcionario')
-        .classList.add('hidden');
-
-
-      document
-        .getElementById('visao-admin')
-        .classList.add('hidden');
-
-
-      document
-        .getElementById('pantalla-login')
-        .classList.remove('hidden');
-
+      document.getElementById('visao-funcionario').classList.add('hidden');
+      document.getElementById('visao-admin').classList.add('hidden');
+      document.getElementById('pantalla-login').classList.remove('hidden');
     }
 
 
@@ -2061,76 +1820,25 @@
        ========================================================= */
 
     function mudarAbaAdmin(aba) {
+      document.querySelectorAll('.aba-content').forEach(el => el.classList.add('hidden'));
+      const abaElement = document.getElementById(`aba-${aba}`);
+      if (abaElement) abaElement.classList.remove('hidden');
 
-      document
-        .querySelectorAll('.aba-content')
-        .forEach(el =>
-          el.classList.add('hidden')
-        );
-
-
-      const abaElement =
-        document.getElementById(
-          `aba-${aba}`
-        );
-
-
-      if (abaElement) {
-        abaElement.classList.remove('hidden');
-      }
-
-
-      const abas = [
-
-        'obras',
-        'equipe',
-        'designar',
-        'presencas',
-        'comprovantes',
-        'fechamento'
-
-      ];
-
-
+      const abas = ['obras', 'equipe', 'designar', 'presencas', 'comprovantes', 'fechamento'];
       abas.forEach(a => {
-
-        const btn =
-          document.getElementById(
-            `tab-btn-${a}`
-          );
-
-
+        const btn = document.getElementById(`tab-btn-${a}`);
         if (!btn) return;
-
-
-        btn.className =
-          (a === aba)
-
-            ? "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5"
-
-            : "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
-
+        btn.className = (a === aba)
+          ? "px-5 py-3 hover:bg-blue-800 border-b-2 border-orange-500 text-orange-400 font-bold transition flex items-center gap-1.5"
+          : "px-5 py-3 hover:bg-blue-800 border-b-2 border-transparent hover:border-orange-500 transition flex items-center gap-1.5";
       });
 
-
-      if (aba === 'obras')
-        renderizarObras();
-
-      if (aba === 'equipe')
-        renderizarEquipe();
-
-      if (aba === 'designar')
-        renderizarDesignacoes();
-
-      if (aba === 'presencas')
-        carregarPresencas();
-
-      if (aba === 'comprovantes')
-        carregarValesAdmin();
-
-      if (aba === 'fechamento')
-        calcularFechamentoMensal();
-
+      if (aba === 'obras') renderizarObras();
+      if (aba === 'equipe') renderizarEquipe();
+      if (aba === 'designar') renderizarDesignacoes();
+      if (aba === 'presencas') carregarPresencas();
+      if (aba === 'comprovantes') carregarValesAdmin();
+      if (aba === 'fechamento') calcularFechamentoMensal();
     }
 
 
@@ -2138,23 +1846,9 @@
        PIN
        ========================================================= */
 
-    function validarPin(
-      funcId,
-      pinDigitado
-    ) {
-
-      const func =
-        equipe.find(
-          f => f.id === funcId
-        );
-
-
-      return !!(
-        func &&
-        String(func.pin) ===
-        String(pinDigitado)
-      );
-
+    function validarPin(funcId, pinDigitado) {
+      const func = equipe.find(f => f.id === funcId);
+      return !!(func && String(func.pin) === String(pinDigitado));
     }
 
 
@@ -2163,132 +1857,48 @@
        ========================================================= */
 
     async function registrarPonto() {
+      const btn = document.getElementById('btn-ponto');
+      const funcId = document.getElementById('ponto-funcionario').value;
+      const obraId = document.getElementById('ponto-obra').value;
+      const data = document.getElementById('ponto-data').value;
+      const pin = document.getElementById('ponto-pin').value;
 
-      const btn =
-        document.getElementById(
-          'btn-ponto'
-        );
-
-
-      const funcId =
-        document.getElementById(
-          'ponto-funcionario'
-        ).value;
-
-
-      const obraId =
-        document.getElementById(
-          'ponto-obra'
-        ).value;
-
-
-      const data =
-        document.getElementById(
-          'ponto-data'
-        ).value;
-
-
-      const pin =
-        document.getElementById(
-          'ponto-pin'
-        ).value;
-
-
-      if (
-        !funcId ||
-        !obraId ||
-        !data ||
-        !pin
-      ) {
-
-        alert(
-          "Preencha todos os campos do ponto!"
-        );
-
+      if (!funcId || !obraId || !data || !pin) {
+        alert("Preencha todos os campos do ponto!");
         return;
-
       }
-
 
       if (!validarPin(funcId, pin)) {
-
         alert("PIN incorreto!");
         return;
-
       }
-
 
       btn.disabled = true;
-
-      btn.innerText =
-        "🌐 OBTENDO GPS E REGISTRANDO...";
-
+      btn.innerText = "🌐 OBTENDO GPS E REGISTRANDO...";
 
       try {
-
-        const coords =
-          await obterCoordenadasGPS();
-
-
+        const coords = await obterCoordenadasGPS();
         const novoPonto = {
-
           id: Date.now().toString(),
-
           funcionarioId: funcId,
-
           obraId: obraId,
-
           data: data,
-
-          hora:
-            new Date().toLocaleTimeString(
-              'pt-BR',
-              {
-                hour: '2-digit',
-                minute: '2-digit'
-              }
-            ),
-
+          hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           gps: coords
-
         };
 
-
         pontos.unshift(novoPonto);
-
         salvarTudo();
-
-
-        alert(
-          "📍 Ponto e geolocalização registrados com sucesso!"
-        );
-
-
-        document
-          .getElementById('ponto-pin')
-          .value = '';
-
-
+        alert("📍 Ponto e geolocalização registrados com sucesso!");
+        document.getElementById('ponto-pin').value = '';
         carregarHistoricoPontosFuncionario();
-
-      }
-
-      catch (erro) {
-
+      } catch (erro) {
         console.error(erro);
-
-        alert(
-          "Não foi possível registrar o ponto."
-        );
-
+        alert("Não foi possível registrar o ponto.");
       }
-
 
       btn.disabled = false;
-
-      btn.innerText =
-        "📍 BATER PONTO HOJE";
-
+      btn.innerText = "📍 BATER PONTO HOJE";
     }
 
 
@@ -2297,77 +1907,30 @@
        ========================================================= */
 
     function carregarHistoricoPontosFuncionario() {
-
-      const container =
-        document.getElementById(
-          'lista-ponto-recentes'
-        );
-
-
+      const container = document.getElementById('lista-ponto-recentes');
       if (!container) return;
-
-
-      const ultimosPontos =
-        pontos.slice(0, 5);
-
+      const ultimosPontos = pontos.slice(0, 5);
 
       if (ultimosPontos.length === 0) {
-
-        container.innerHTML =
-          '<p class="text-xs text-gray-500 py-2">Nenhum ponto registrado ainda.</p>';
-
+        container.innerHTML = '<p class="text-xs text-gray-500 py-2">Nenhum ponto registrado ainda.</p>';
         return;
-
       }
 
-
-      container.innerHTML =
-        ultimosPontos
-          .map(p => {
-
-            const func =
-              equipe.find(
-                f => f.id === p.funcionarioId
-              );
-
-
-            const obra =
-              obras.find(
-                o => o.id === p.obraId
-              );
-
-
-            return `
-
-              <div class="py-2 flex justify-between items-center">
-
-                <div>
-
-                  <p class="font-bold text-blue-950">
-                    ${func ? func.nome : 'Ex-colaborador'}
-                  </p>
-
-                  <p class="text-xs text-gray-500">
-                    Obra: ${obra ? obra.nome : 'Obra Desconhecida'}
-                  </p>
-
-                </div>
-
-                <div class="text-right">
-
-                  <span class="text-xs font-semibold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full">
-                    ${p.data}
-                  </span>
-
-                </div>
-
-              </div>
-
-            `;
-
-          })
-          .join('');
-
+      container.innerHTML = ultimosPontos.map(p => {
+        const func = equipe.find(f => f.id === p.funcionarioId);
+        const obra = obras.find(o => o.id === p.obraId);
+        return `
+          <div class="py-2 flex justify-between items-center">
+            <div>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</p>
+              <p class="text-xs text-gray-500">Obra: ${obra ? obra.nome : 'Desconhecida'}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-semibold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full">${p.data}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
 
@@ -2376,182 +1939,60 @@
        ========================================================= */
 
     async function registrarVale() {
+      const btn = document.getElementById('btn-vale');
+      const tipoLancamento = document.getElementById('vale-tipo-lacamento').value;
+      const funcId = document.getElementById('vale-funcionario').value;
+      const obraId = document.getElementById('vale-obra').value;
+      const valor = parseFloat(document.getElementById('vale-valor').value);
+      const data = document.getElementById('vale-data').value;
+      const descricao = document.getElementById('vale-descricao').value;
+      const pin = document.getElementById('vale-pin').value;
+      const fileInput = document.getElementById('vale-comprovante-file');
 
-      const btn =
-        document.getElementById(
-          'btn-vale'
-        );
-
-
-      const tipoLancamento =
-        document.getElementById(
-          'vale-tipo-lacamento'
-        ).value;
-
-
-      const funcId =
-        document.getElementById(
-          'vale-funcionario'
-        ).value;
-
-
-      const obraId =
-        document.getElementById(
-          'vale-obra'
-        ).value;
-
-
-      const valor =
-        parseFloat(
-          document.getElementById(
-            'vale-valor'
-          ).value
-        );
-
-
-      const data =
-        document.getElementById(
-          'vale-data'
-        ).value;
-
-
-      const descricao =
-        document.getElementById(
-          'vale-descricao'
-        ).value;
-
-
-      const pin =
-        document.getElementById(
-          'vale-pin'
-        ).value;
-
-
-      const fileInput =
-        document.getElementById(
-          'vale-comprovante-file'
-        );
-
-
-      if (
-        !funcId ||
-        !obraId ||
-        !data ||
-        !pin ||
-        !Number.isFinite(valor) ||
-        valor <= 0
-      ) {
-
-        alert(
-          "Preencha todos os campos obrigatórios e informe um valor válido!"
-        );
-
+      if (!funcId || !obraId || !data || !pin || !Number.isFinite(valor) || valor <= 0) {
+        alert("Preencha todos os campos obrigatórios e informe um valor válido!");
         return;
-
       }
-
 
       if (!validarPin(funcId, pin)) {
-
         alert("PIN incorreto!");
         return;
-
       }
-
 
       btn.disabled = true;
-
-      btn.innerText =
-        "⏳ ENVIANDO...";
-
+      btn.innerText = "⏳ ENVIANDO...";
 
       try {
-
         let fotoDataUrl = null;
-
-
-        if (
-          fileInput.files &&
-          fileInput.files[0]
-        ) {
-
-          fotoDataUrl =
-            await comprimirImagem(
-              fileInput.files[0]
-            );
-
+        if (fileInput.files && fileInput.files[0]) {
+          fotoDataUrl = await comprimirImagem(fileInput.files[0]);
         }
 
-
         const novoVale = {
-
           id: Date.now().toString(),
-
-          tipo:
-            tipoLancamento || 'Vale',
-
+          tipo: tipoLancamento || 'Vale',
           funcionarioId: funcId,
-
           obraId: obraId,
-
           valor: valor,
-
           data: data,
-
           descricao: descricao,
-
           comprovante: fotoDataUrl
-
         };
 
-
         vales.unshift(novoVale);
-
         salvarTudo();
-
-
-        alert(
-          `💸 ${tipoLancamento}/Comprovante enviado com sucesso!`
-        );
-
-
-        document.getElementById(
-          'vale-valor'
-        ).value = '';
-
-
-        document.getElementById(
-          'vale-descricao'
-        ).value = '';
-
-
-        document.getElementById(
-          'vale-pin'
-        ).value = '';
-
-
-        document.getElementById(
-          'vale-comprovante-file'
-        ).value = '';
-
-      }
-
-      catch (erro) {
-
+        alert(`💸 ${tipoLancamento}/Comprovante enviado com sucesso!`);
+        document.getElementById('vale-valor').value = '';
+        document.getElementById('vale-descricao').value = '';
+        document.getElementById('vale-pin').value = '';
+        document.getElementById('vale-comprovante-file').value = '';
+      } catch (erro) {
         console.error(erro);
-
-        alert(
-          "Não foi possível enviar o lançamento."
-        );
-
+        alert("Não foi possível enviar o lançamento.");
       }
-
 
       btn.disabled = false;
-
-      btn.innerText =
-        "💸 ENVIAR VALE / RESSARCIMENTO";
-
+      btn.innerText = "💸 ENVIAR VALE / RESSARCIMENTO";
     }
 
 
@@ -2560,189 +2001,61 @@
        ========================================================= */
 
     async function enviarFotoObra() {
+      const btn = document.getElementById('btn-foto');
+      const funcId = document.getElementById('foto-funcionario').value;
+      const obraId = document.getElementById('foto-obra').value;
+      const tipo = document.getElementById('foto-tipo').value;
+      const observacao = document.getElementById('foto-observacao').value;
+      const pin = document.getElementById('foto-pin').value;
+      const fileInput = document.getElementById('foto-file');
 
-      const btn =
-        document.getElementById(
-          'btn-foto'
-        );
-
-
-      const funcId =
-        document.getElementById(
-          'foto-funcionario'
-        ).value;
-
-
-      const obraId =
-        document.getElementById(
-          'foto-obra'
-        ).value;
-
-
-      const tipo =
-        document.getElementById(
-          'foto-tipo'
-        ).value;
-
-
-      const observacao =
-        document.getElementById(
-          'foto-observacao'
-        ).value;
-
-
-      const pin =
-        document.getElementById(
-          'foto-pin'
-        ).value;
-
-
-      const fileInput =
-        document.getElementById(
-          'foto-file'
-        );
-
-
-      if (
-        !funcId ||
-        !obraId ||
-        !pin ||
-        !fileInput.files ||
-        fileInput.files.length === 0
-      ) {
-
-        alert(
-          "Selecione o funcionário, a obra, informe o PIN e escolha os arquivos!"
-        );
-
+      if (!funcId || !obraId || !pin || !fileInput.files || fileInput.files.length === 0) {
+        alert("Selecione o funcionário, a obra, informe o PIN e escolha os arquivos!");
         return;
-
       }
-
 
       if (!validarPin(funcId, pin)) {
-
         alert("PIN incorreto!");
         return;
-
       }
-
 
       btn.disabled = true;
-
-      btn.innerText =
-        "⏳ PROCESSANDO E ENVIANDO...";
-
+      btn.innerText = "⏳ PROCESSANDO E ENVIANDO...";
 
       try {
-
-        const files =
-          Array.from(
-            fileInput.files
-          );
-
-
-        for (
-          let i = 0;
-          i < files.length;
-          i++
-        ) {
-
+        const files = Array.from(fileInput.files);
+        for (let i = 0; i < files.length; i++) {
           const file = files[i];
-
-          const isVideo =
-            file.type.startsWith(
-              'video/'
-            );
-
-
-          const arquivoProcessado =
-            await comprimirImagem(file);
-
+          const isVideo = file.type.startsWith('video/');
+          const arquivoProcessado = await comprimirImagem(file);
 
           const novaFoto = {
-
-            id:
-              (
-                Date.now() + i
-              ).toString(),
-
-            funcionarioId:
-              funcId,
-
-            obraId:
-              obraId,
-
-            tipo:
-              tipo,
-
-            observacao:
-              observacao,
-
-            imagem:
-              arquivoProcessado,
-
-            isVideo:
-              isVideo,
-
-            data:
-              new Date()
-                .toLocaleDateString(
-                  'pt-BR'
-                ),
-
+            id: (Date.now() + i).toString(),
+            funcionarioId: funcId,
+            obraId: obraId,
+            tipo: tipo,
+            observacao: observacao,
+            imagem: arquivoProcessado,
+            isVideo: isVideo,
+            data: new Date().toLocaleDateString('pt-BR'),
             fileName: file.name
-
           };
 
-
-          fotosObra.unshift(
-            novaFoto
-          );
-
+          fotosObra.unshift(novaFoto);
         }
 
-
         salvarTudo();
-
-
-        alert(
-          `📸 ${files.length} arquivo(s) enviado(s) com sucesso!`
-        );
-
-
-        document.getElementById(
-          'foto-observacao'
-        ).value = '';
-
-
-        document.getElementById(
-          'foto-pin'
-        ).value = '';
-
-
-        document.getElementById(
-          'foto-file'
-        ).value = '';
-
-      }
-
-      catch (erro) {
-
+        alert(`📸 ${files.length} arquivo(s) enviado(s) com sucesso!`);
+        document.getElementById('foto-observacao').value = '';
+        document.getElementById('foto-pin').value = '';
+        document.getElementById('foto-file').value = '';
+      } catch (erro) {
         console.error(erro);
-
-        alert(
-          "Não foi possível processar os arquivos."
-        );
-
+        alert("Não foi possível processar os arquivos.");
       }
-
 
       btn.disabled = false;
-
-      btn.innerText =
-        "📤 ENVIAR PARA A GALERIA DA OBRA";
-
+      btn.innerText = "📤 ENVIAR PARA A GALERIA DA OBRA";
     }
 
 
@@ -2751,74 +2064,30 @@
        ========================================================= */
 
     function buscarPdfsObra() {
-
-      const obraId =
-        document.getElementById(
-          'consulta-pdf-obra'
-        ).value;
-
-
-      const container =
-        document.getElementById(
-          'container-pdf-obra'
-        );
-
+      const obraId = document.getElementById('consulta-pdf-obra').value;
+      const container = document.getElementById('container-pdf-obra');
 
       if (!obraId) {
-
-        container.innerHTML =
-          '<p class="text-xs text-gray-500 italic">Selecione uma obra acima.</p>';
-
+        container.innerHTML = '<p class="text-xs text-gray-500 italic">Selecione uma obra acima.</p>';
         return;
-
       }
 
-
-      const pdfs =
-        pdfsObra.filter(
-          p => p.obraId === obraId
-        );
-
+      const pdfs = pdfsObra.filter(p => p.obraId === obraId);
 
       if (pdfs.length === 0) {
-
-        container.innerHTML =
-          '<p class="text-xs text-orange-600 bg-orange-50 p-3 rounded-xl border border-orange-200">Nenhum PDF anexado a esta obra.</p>';
-
+        container.innerHTML = '<p class="text-xs text-orange-600 bg-orange-50 p-3 rounded-xl border border-orange-200">Nenhum PDF anexado a esta obra.</p>';
         return;
-
       }
 
-
-      container.innerHTML =
-        pdfs.map(pdf => `
-
-          <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 flex items-center justify-between">
-
-            <div>
-
-              <p class="font-bold text-sm text-purple-950">
-                📄 ${pdf.titulo || 'Projeto da Obra'}
-              </p>
-
-              <p class="text-xs text-purple-700">
-                Adicionado em: ${pdf.data}
-              </p>
-
-            </div>
-
-            <a
-              href="${pdf.url}"
-              target="_blank"
-              class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition"
-            >
-              Abrir PDF ↗
-            </a>
-
+      container.innerHTML = pdfs.map(pdf => `
+        <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 flex items-center justify-between">
+          <div>
+            <p class="font-bold text-sm text-purple-950">📄 ${pdf.titulo || 'Projeto da Obra'}</p>
+            <p class="text-xs text-purple-700">Adicionado em: ${pdf.data}</p>
           </div>
-
-        `).join('');
-
+          <a href="${pdf.url}" target="_blank" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Abrir PDF ↗</a>
+        </div>
+      `).join('');
     }
 
 
@@ -2827,169 +2096,115 @@
        ========================================================= */
 
     function cadastrarObra() {
-
-      const nome =
-        document.getElementById(
-          'obra-nome'
-        ).value.trim();
-
-
-      const local =
-        document.getElementById(
-          'obra-local'
-        ).value.trim();
-
+      const nome = document.getElementById('obra-nome').value.trim();
+      const local = document.getElementById('obra-local').value.trim();
 
       if (!nome || !local) {
-
-        alert(
-          "Preencha o nome e o local da obra!"
-        );
-
+        alert("Preencha o nome e o local da obra!");
         return;
-
       }
 
-
       const novaObra = {
-
-        id:
-          Date.now().toString(),
-
-        nome:
-          nome,
-
-        local:
-          local
-
+        id: Date.now().toString(),
+        nome: nome,
+        local: local,
+        status: 'Em Andamento',
+        atualizadoPor: 'Patrão'
       };
 
-
       obras.push(novaObra);
-
       salvarTudo();
-
       populardropdowns();
-
       renderizarObras();
 
-
-      document.getElementById(
-        'obra-nome'
-      ).value = '';
-
-
-      document.getElementById(
-        'obra-local'
-      ).value = '';
-
+      document.getElementById('obra-nome').value = '';
+      document.getElementById('obra-local').value = '';
     }
 
 
     /* =========================================================
-       RENDER OBRAS
+       RENDER OBRAS & FILTROS POR STATUS
        ========================================================= */
 
+    function filtrarObrasPatrao(status) {
+      filtroStatusAtual = status;
+      ['todas', 'andamento', 'pronta', 'finalizada'].forEach(s => {
+        const btn = document.getElementById(`filtro-${s}`);
+        if (!btn) return;
+        if ((s === 'todas' && status === 'todas') || s.toLowerCase() === status.toLowerCase()) {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-950 text-white transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-200 text-gray-700 transition";
+        }
+      });
+      renderizarObras();
+    }
+
     function renderizarObras() {
+      const lista = document.getElementById('lista-obras');
+      if (!lista) return;
 
-      const lista =
-        document.getElementById(
-          'lista-obras'
-        );
-
-
-      if (obras.length === 0) {
-
-        lista.innerHTML =
-          '<li class="py-3 text-sm text-gray-500">Nenhuma obra cadastrada.</li>';
-
-        return;
-
+      let obrasFiltradas = obras;
+      if (filtroStatusAtual !== 'todas') {
+        obrasFiltradas = obras.filter(o => (o.status || 'Em Andamento') === filtroStatusAtual);
       }
 
+      if (obrasFiltradas.length === 0) {
+        lista.innerHTML = '<li class="py-4 text-sm text-gray-500 text-center italic">Nenhuma obra encontrada com este status.</li>';
+        return;
+      }
 
-      lista.innerHTML =
-        obras.map(o => {
+      lista.innerHTML = obrasFiltradas.map(o => {
+        const qtdPdfs = pdfsObra.filter(p => p.obraId === o.id).length;
+        const qtdFotos = fotosObra.filter(f => f.obraId === o.id).length;
+        const statusObra = o.status || 'Em Andamento';
 
-          const qtdPdfs =
-            pdfsObra.filter(
-              p => p.obraId === o.id
-            ).length;
+        let badgeCor = "bg-amber-100 text-amber-800 border-amber-300";
+        if (statusObra === 'Pronta') badgeCor = "bg-blue-100 text-blue-800 border-blue-300";
+        if (statusObra === 'Finalizada') badgeCor = "bg-emerald-100 text-emerald-800 border-emerald-300";
 
-
-          const qtdFotos =
-            fotosObra.filter(
-              f => f.obraId === o.id
-            ).length;
-
-
-          return `
-
-            <li class="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-
-              <div>
-
-                <p class="font-bold text-blue-950 text-base">
-                  ${o.nome}
-                </p>
-
-                <p class="text-xs text-gray-500">
-                  📍 ${o.local}
-                </p>
-
-                <div class="flex gap-2 mt-1">
-
-                  <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full">
-                    ${qtdPdfs} PDF(s)
-                  </span>
-
-                  <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                    ${qtdFotos} Mídia(s)
-                  </span>
-
-                </div>
-
+        return `
+          <li class="py-4 px-3 bg-white/60 rounded-xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <p class="font-bold text-blue-950 text-base">${o.nome}</p>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeCor}">
+                  ${statusObra}
+                </span>
               </div>
-
-
-              <div class="flex flex-wrap gap-2">
-
-                <button
-                  onclick="abrirModalPdf('${o.id}')"
-                  class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition"
-                >
-                  📄 Projetos PDFs
-                </button>
-
-                <button
-                  onclick="abrirGaleriaObra('${o.id}')"
-                  class="bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition"
-                >
-                  📸 Ver Galeria
-                </button>
-
-                <button
-                  onclick="abrirModalWhatsapp('${o.id}')"
-                  class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition"
-                >
-                  💬 Aviso Whats
-                </button>
-
-                <button
-                  onclick="excluirObra('${o.id}')"
-                  class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition"
-                >
-                  🗑
-                </button>
-
+              <p class="text-xs text-gray-500 mt-0.5">📍 ${o.local} | Atualizado por: ${o.atualizadoPor || 'Geral'}</p>
+              <div class="flex gap-2 mt-1.5">
+                <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full">${qtdPdfs} PDF(s)</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">${qtdFotos} Mídia(s)</span>
               </div>
+            </div>
 
-            </li>
+            <div class="flex flex-wrap items-center gap-2">
+              <select onchange="mudarStatusObraPatrao('${o.id}', this.value)" class="text-xs p-1.5 border rounded-lg bg-gray-50 font-semibold focus:ring-1 focus:ring-orange-500">
+                <option value="Em Andamento" ${statusObra === 'Em Andamento' ? 'selected' : ''}>🔨 Em Andamento</option>
+                <option value="Pronta" ${statusObra === 'Pronta' ? 'selected' : ''}>✨ Obra Pronta</option>
+                <option value="Finalizada" ${statusObra === 'Finalizada' ? 'selected' : ''}>🏁 100% Finalizada</option>
+              </select>
 
-          `;
+              <button onclick="abrirModalPdf('${o.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">📄 PDFs</button>
+              <button onclick="abrirGaleriaObra('${o.id}')" class="bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">📸 Galeria</button>
+              <button onclick="abrirModalWhatsapp('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">💬 Whats</button>
+              <button onclick="excluirObra('${o.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition">🗑</button>
+            </div>
+          </li>
+        `;
+      }).join('');
+    }
 
-        }).join('');
-
+    function mudarStatusObraPatrao(id, novoStatus) {
+      const index = obras.findIndex(o => o.id === id);
+      if (index !== -1) {
+        obras[index].status = novoStatus;
+        obras[index].atualizadoPor = 'Patrão';
+        salvarTudo();
+        populardropdowns();
+        renderizarObras();
+      }
     }
 
 
@@ -2998,27 +2213,12 @@
        ========================================================= */
 
     function excluirObra(id) {
-
-      if (
-        confirm(
-          "Deseja excluir esta obra?"
-        )
-      ) {
-
-        obras =
-          obras.filter(
-            o => o.id !== id
-          );
-
-
+      if (confirm("Deseja excluir esta obra?")) {
+        obras = obras.filter(o => o.id !== id);
         salvarTudo();
-
         populardropdowns();
-
         renderizarObras();
-
       }
-
     }
 
 
@@ -3027,360 +2227,113 @@
        ========================================================= */
 
     function abrirModalPdf(obraId) {
-
-      const obra =
-        obras.find(
-          o => o.id === obraId
-        );
-
-
+      const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
 
+      document.getElementById('modal-pdf-obra-id').value = obraId;
+      document.getElementById('modal-pdf-obra-nome').textContent = `Obra: ${obra.nome}`;
+      document.getElementById('pdf-titulo-input').value = '';
+      document.getElementById('pdf-file-input').value = '';
 
-      document.getElementById(
-        'modal-pdf-obra-id'
-      ).value = obraId;
-
-
-      document.getElementById(
-        'modal-pdf-obra-nome'
-      ).textContent =
-        `Obra: ${obra.nome}`;
-
-
-      document.getElementById(
-        'pdf-titulo-input'
-      ).value = '';
-
-
-      document.getElementById(
-        'pdf-file-input'
-      ).value = '';
-
-
-      renderizarListaPdfsModal(
-        obraId
-      );
-
-
-      document
-        .getElementById(
-          'modal-anexar-pdf'
-        )
-        .classList.remove(
-          'hidden'
-        );
-
+      renderizarListaPdfsModal(obraId);
+      document.getElementById('modal-anexar-pdf').classList.remove('hidden');
     }
 
-
-    function renderizarListaPdfsModal(
-      obraId
-    ) {
-
-      const container =
-        document.getElementById(
-          'lista-pdfs-existentes'
-        );
-
-
-      const pdfs =
-        pdfsObra.filter(
-          p => p.obraId === obraId
-        );
-
+    function renderizarListaPdfsModal(obraId) {
+      const container = document.getElementById('lista-pdfs-existentes');
+      const pdfs = pdfsObra.filter(p => p.obraId === obraId);
 
       if (pdfs.length === 0) {
-
-        container.innerHTML =
-          '<p class="text-xs text-gray-500 italic py-2">Nenhum PDF cadastrado.</p>';
-
+        container.innerHTML = '<p class="text-xs text-gray-500 italic py-2">Nenhum PDF cadastrado.</p>';
         return;
-
       }
 
-
-      container.innerHTML =
-        pdfs.map(p => `
-
-          <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl border text-xs">
-
-            <div>
-
-              <p class="font-bold text-gray-800">
-                ${p.titulo || 'Projeto PDF'}
-              </p>
-
-              <p class="text-[10px] text-gray-500">
-                ${p.data}
-              </p>
-
-            </div>
-
-            <div class="flex items-center gap-1">
-
-              <a
-                href="${p.url}"
-                target="_blank"
-                class="bg-purple-100 text-purple-800 font-bold px-2 py-1 rounded hover:bg-purple-200"
-              >
-                Ver
-              </a>
-
-              <button
-                onclick="excluirPdf('${p.id}', '${obraId}')"
-                class="bg-red-100 text-red-700 font-bold px-2 py-1 rounded hover:bg-red-200"
-              >
-                ✕
-              </button>
-
-            </div>
-
+      container.innerHTML = pdfs.map(p => `
+        <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl border text-xs">
+          <div>
+            <p class="font-bold text-gray-800">${p.titulo || 'Projeto PDF'}</p>
+            <p class="text-[10px] text-gray-500">${p.data}</p>
           </div>
-
-        `).join('');
-
+          <div class="flex items-center gap-1">
+            <a href="${p.url}" target="_blank" class="bg-purple-100 text-purple-800 font-bold px-2 py-1 rounded hover:bg-purple-200">Ver</a>
+            <button onclick="excluirPdf('${p.id}', '${obraId}')" class="bg-red-100 text-red-700 font-bold px-2 py-1 rounded hover:bg-red-200">✕</button>
+          </div>
+        </div>
+      `).join('');
     }
-
-
-    /* =========================================================
-       SALVAR PDF
-       ========================================================= */
 
     function salvarPdfObra() {
+      const btn = document.getElementById('btn-pdf-salvar');
+      const obraId = document.getElementById('modal-pdf-obra-id').value;
+      const tituloBase = document.getElementById('pdf-titulo-input').value.trim() || 'Projeto PDF';
+      const fileInput = document.getElementById('pdf-file-input');
 
-      const btn =
-        document.getElementById(
-          'btn-pdf-salvar'
-        );
-
-
-      const obraId =
-        document.getElementById(
-          'modal-pdf-obra-id'
-        ).value;
-
-
-      const tituloBase =
-        document.getElementById(
-          'pdf-titulo-input'
-        ).value.trim() ||
-        'Projeto PDF';
-
-
-      const fileInput =
-        document.getElementById(
-          'pdf-file-input'
-        );
-
-
-      if (
-        !fileInput.files ||
-        fileInput.files.length === 0
-      ) {
-
-        alert(
-          "Selecione pelo menos um arquivo PDF!"
-        );
-
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Selecione pelo menos um arquivo PDF!");
         return;
-
       }
-
 
       btn.disabled = true;
+      btn.innerText = "⏳ ANEXANDO...";
 
-      btn.innerText =
-        "⏳ ANEXANDO...";
-
-
-      const files =
-        Array.from(
-          fileInput.files
-        );
-
-
+      const files = Array.from(fileInput.files);
       let processados = 0;
 
-
-      files.forEach(
-        (file, index) => {
-
-          if (
-            file.type !==
-            'application/pdf'
-          ) {
-
-            processados++;
-
-            return;
-
-          }
-
-
-          const reader =
-            new FileReader();
-
-
-          reader.onload =
-            function(e) {
-
-              const nomeTitulo =
-                files.length > 1
-                  ? `${tituloBase} (${file.name})`
-                  : tituloBase;
-
-
-              const novoPdf = {
-
-                id:
-                  (
-                    Date.now() +
-                    index
-                  ).toString(),
-
-                obraId:
-                  obraId,
-
-                titulo:
-                  nomeTitulo,
-
-                url:
-                  e.target.result,
-
-                data:
-                  new Date()
-                    .toLocaleDateString(
-                      'pt-BR'
-                    )
-
-              };
-
-
-              pdfsObra.push(
-                novoPdf
-              );
-
-
-              processados++;
-
-
-              if (
-                processados ===
-                files.length
-              ) {
-
-                salvarTudo();
-
-                alert(
-                  `📄 ${files.length} PDF(s) anexado(s) com sucesso!`
-                );
-
-
-                document.getElementById(
-                  'pdf-titulo-input'
-                ).value = '';
-
-
-                fileInput.value = '';
-
-
-                renderizarListaPdfsModal(
-                  obraId
-                );
-
-
-                renderizarObras();
-
-
-                btn.disabled =
-                  false;
-
-
-                btn.innerText =
-                  "📎 Adicionar PDF(s) à Obra";
-
-              }
-
-            };
-
-
-          reader.onerror =
-            function() {
-
-              processados++;
-
-
-              if (
-                processados ===
-                files.length
-              ) {
-
-                btn.disabled =
-                  false;
-
-                btn.innerText =
-                  "📎 Adicionar PDF(s) à Obra";
-
-              }
-
-            };
-
-
-          reader.readAsDataURL(
-            file
-          );
-
+      files.forEach((file, index) => {
+        if (file.type !== 'application/pdf') {
+          processados++;
+          return;
         }
-      );
 
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const nomeTitulo = files.length > 1 ? `${tituloBase} (${file.name})` : tituloBase;
+          const novoPdf = {
+            id: (Date.now() + index).toString(),
+            obraId: obraId,
+            titulo: nomeTitulo,
+            url: e.target.result,
+            data: new Date().toLocaleDateString('pt-BR')
+          };
+
+          pdfsObra.push(novoPdf);
+          processados++;
+
+          if (processados === files.length) {
+            salvarTudo();
+            alert(`📄 ${files.length} PDF(s) anexado(s) com sucesso!`);
+            document.getElementById('pdf-titulo-input').value = '';
+            fileInput.value = '';
+            renderizarListaPdfsModal(obraId);
+            renderizarObras();
+            btn.disabled = false;
+            btn.innerText = "📎 Adicionar PDF(s) à Obra";
+          }
+        };
+
+        reader.onerror = function() {
+          processados++;
+          if (processados === files.length) {
+            btn.disabled = false;
+            btn.innerText = "📎 Adicionar PDF(s) à Obra";
+          }
+        };
+
+        reader.readAsDataURL(file);
+      });
     }
 
-
-    /* =========================================================
-       EXCLUIR PDF
-       ========================================================= */
-
-    function excluirPdf(
-      pdfId,
-      obraId
-    ) {
-
-      if (
-        confirm(
-          "Deseja remover este PDF?"
-        )
-      ) {
-
-        pdfsObra =
-          pdfsObra.filter(
-            p => p.id !== pdfId
-          );
-
-
+    function excluirPdf(pdfId, obraId) {
+      if (confirm("Deseja remover este PDF?")) {
+        pdfsObra = pdfsObra.filter(p => p.id !== pdfId);
         salvarTudo();
-
-        renderizarListaPdfsModal(
-          obraId
-        );
-
+        renderizarListaPdfsModal(obraId);
         renderizarObras();
-
       }
-
     }
-
 
     function fecharModalPdf() {
-
-      document
-        .getElementById(
-          'modal-anexar-pdf'
-        )
-        .classList.add(
-          'hidden'
-        );
-
+      document.getElementById('modal-anexar-pdf').classList.add('hidden');
     }
 
 
@@ -3390,159 +2343,54 @@
 
     let obraGaleriaAtualId = null;
 
-    function abrirGaleriaObra(
-      obraId
-    ) {
-
+    function abrirGaleriaObra(obraId) {
       obraGaleriaAtualId = obraId;
-
-      const obra =
-        obras.find(
-          o => o.id === obraId
-        );
-
-
+      const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
 
-
-      document.getElementById(
-        'modal-obra-titulo'
-      ).textContent =
-        `Galeria - ${obra.nome}`;
-
-
-      const container =
-        document.getElementById(
-          'modal-galeria-conteudo'
-        );
-
-
-      const fotos =
-        fotosObra.filter(
-          f => f.obraId === obraId
-        );
-
+      document.getElementById('modal-obra-titulo').textContent = `Galeria - ${obra.nome}`;
+      const container = document.getElementById('modal-galeria-conteudo');
+      const fotos = fotosObra.filter(f => f.obraId === obraId);
 
       if (fotos.length === 0) {
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic py-8 text-center">Nenhuma mídia enviada ainda.</p>';
+      } else {
+        container.innerHTML = fotos.map(f => {
+          const func = equipe.find(eq => eq.id === f.funcionarioId);
+          const midiaElemento = f.isVideo
+            ? `<video src="${f.imagem}" controls class="w-full h-48 object-cover bg-black rounded-t-2xl"></video>`
+            : `<img src="${f.imagem}" class="w-full h-48 object-cover bg-black" alt="Mídia">`;
 
-        container.innerHTML =
-          '<p class="col-span-2 text-sm text-gray-500 italic py-8 text-center">Nenhuma mídia enviada ainda.</p>';
-
-      }
-
-      else {
-
-        container.innerHTML =
-          fotos.map(f => {
-
-            const func =
-              equipe.find(
-                eq =>
-                  eq.id ===
-                  f.funcionarioId
-              );
-
-
-            const midiaElemento =
-              f.isVideo
-
-                ? `
-                  <video
-                    src="${f.imagem}"
-                    controls
-                    class="w-full h-48 object-cover bg-black rounded-t-2xl"
-                  ></video>
-                `
-
-                : `
-                  <img
-                    src="${f.imagem}"
-                    class="w-full h-48 object-cover bg-black"
-                    alt="Mídia da Obra"
-                  >
-                `;
-
-
-            return `
-
-              <div class="border rounded-2xl overflow-hidden bg-gray-50 shadow-sm flex flex-col justify-between">
-
-                ${midiaElemento}
-
-                <div class="p-3 text-xs space-y-1">
-
-                  <div class="flex justify-between items-center">
-
-                    <span class="font-bold text-blue-950">
-                      ${func ? func.nome : 'Ex-colaborador'}
-                    </span>
-
-                    <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full font-semibold">
-                      ${f.data}
-                    </span>
-
-                  </div>
-
-                  <p class="font-semibold text-emerald-700">
-                    Tipo: ${f.tipo}
-                  </p>
-
-                  <p class="text-gray-600 italic">
-                    "${f.observacao || 'Sem observações'}"
-                  </p>
-
-                  <div class="pt-2 flex justify-between items-center">
-                    <a
-                      href="${f.imagem}"
-                      download="obra-foto-${f.id}.${f.isVideo ? 'mp4' : 'jpg'}"
-                      class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded hover:bg-emerald-200 transition"
-                    >
-                      💾 Salvar Foto
-                    </a>
-
-                    <button
-                      onclick="excluirFotoObra('${f.id}', '${obraId}')"
-                      class="text-xs text-red-600 font-bold hover:underline"
-                    >
-                      Excluir Arquivo
-                    </button>
-                  </div>
-
+          return `
+            <div class="border rounded-2xl overflow-hidden bg-gray-50 shadow-sm flex flex-col justify-between">
+              ${midiaElemento}
+              <div class="p-3 text-xs space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</span>
+                  <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full font-semibold">${f.data}</span>
                 </div>
-
+                <p class="font-semibold text-emerald-700">Tipo: ${f.tipo}</p>
+                <p class="text-gray-600 italic">"${f.observacao || 'Sem observações'}"</p>
+                <div class="pt-2 flex justify-between items-center">
+                  <a href="${f.imagem}" download="obra-foto-${f.id}.${f.isVideo ? 'mp4' : 'jpg'}" class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-1 rounded hover:bg-emerald-200 transition">💾 Salvar Foto</a>
+                  <button onclick="excluirFotoObra('${f.id}', '${obraId}')" class="text-xs text-red-600 font-bold hover:underline">Excluir</button>
+                </div>
               </div>
-
-            `;
-
-          }).join('');
-
+            </div>
+          `;
+        }).join('');
       }
 
-
-      document
-        .getElementById(
-          'modal-galeria-obra'
-        )
-        .classList.remove(
-          'hidden'
-        );
-
+      document.getElementById('modal-galeria-obra').classList.remove('hidden');
     }
-
 
     async function exportarGaleriaZip() {
       if (!obraGaleriaAtualId) return;
-
       const obra = obras.find(o => o.id === obraGaleriaAtualId);
       const fotos = fotosObra.filter(f => f.obraId === obraGaleriaAtualId);
 
       if (fotos.length === 0) {
-        alert("Não há fotos para exportar nesta obra.");
-        return;
-      }
-
-      if (typeof JSZip === 'undefined') {
-        alert("Biblioteca JSZip não carregada.");
+        alert("Não há fotos para exportar.");
         return;
       }
 
@@ -3556,12 +2404,9 @@
           const bstr = atob(arr[1]);
           let n = bstr.length;
           const u8arr = new Uint8Array(n);
-          while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-          }
+          while (n--) { u8arr[n] = bstr.charCodeAt(n); }
           const ext = mime.includes('video') ? 'mp4' : 'jpg';
-          const nomeArquivo = `foto_${index + 1}_${f.tipo}.${ext}`;
-          pastaFotos.file(nomeArquivo, u8arr);
+          pastaFotos.file(`foto_${index + 1}_${f.tipo}.${ext}`, u8arr);
         }
       });
 
@@ -3570,51 +2415,21 @@
         saveAs(content, `Galeria_Obra_${obra ? obra.nome.replace(/\s+/g, '_') : 'Export'}.zip`);
       } catch (err) {
         console.error(err);
-        alert("Erro ao gerar arquivo ZIP.");
+        alert("Erro ao gerar ZIP.");
       }
     }
 
-
-    function excluirFotoObra(
-      fotoId,
-      obraId
-    ) {
-
-      if (
-        confirm(
-          "Deseja excluir este arquivo da galeria?"
-        )
-      ) {
-
-        fotosObra =
-          fotosObra.filter(
-            f => f.id !== fotoId
-          );
-
-
+    function excluirFotoObra(fotoId, obraId) {
+      if (confirm("Deseja excluir este arquivo?")) {
+        fotosObra = fotosObra.filter(f => f.id !== fotoId);
         salvarTudo();
-
-        abrirGaleriaObra(
-          obraId
-        );
-
+        abrirGaleriaObra(obraId);
         renderizarObras();
-
       }
-
     }
-
 
     function fecharModalGaleria() {
-
-      document
-        .getElementById(
-          'modal-galeria-obra'
-        )
-        .classList.add(
-          'hidden'
-        );
-
+      document.getElementById('modal-galeria-obra').classList.add('hidden');
     }
 
 
@@ -3622,178 +2437,49 @@
        WHATSAPP
        ========================================================= */
 
-    function abrirModalWhatsapp(
-      obraId
-    ) {
-
-      const obra =
-        obras.find(
-          o => o.id === obraId
-        );
-
-
+    function abrirModalWhatsapp(obraId) {
+      const obra = obras.find(o => o.id === obraId);
       if (!obra) return;
 
-
-      document.getElementById(
-        'modal-whatsapp-obra-id'
-      ).value = obraId;
-
-
-      document.getElementById(
-        'modal-whatsapp-obra-nome'
-      ).textContent =
-        `Obra: ${obra.nome}`;
-
-
-      document.getElementById(
-        'modal-whatsapp-obra-local'
-      ).value =
-        obra.local;
-
-
-      document.getElementById(
-        'modal-whatsapp-mensagem'
-      ).value = '';
-
-
-      document
-        .getElementById(
-          'modal-whatsapp-obra'
-        )
-        .classList.remove(
-          'hidden'
-        );
-
+      document.getElementById('modal-whatsapp-obra-id').value = obraId;
+      document.getElementById('modal-whatsapp-obra-nome').textContent = `Obra: ${obra.nome}`;
+      document.getElementById('modal-whatsapp-obra-local').value = obra.local;
+      document.getElementById('modal-whatsapp-mensagem').value = '';
+      document.getElementById('modal-whatsapp-obra').classList.remove('hidden');
     }
-
 
     function fecharModalWhatsapp() {
-
-      document
-        .getElementById(
-          'modal-whatsapp-obra'
-        )
-        .classList.add(
-          'hidden'
-        );
-
+      document.getElementById('modal-whatsapp-obra').classList.add('hidden');
     }
 
-
     function enviarMensagemWhatsapp() {
+      const obraId = document.getElementById('modal-whatsapp-obra-id').value;
+      const funcId = document.getElementById('modal-whatsapp-funcionario').value;
+      const local = document.getElementById('modal-whatsapp-obra-local').value;
+      const instrucao = document.getElementById('modal-whatsapp-mensagem').value;
 
-      const obraId =
-        document.getElementById(
-          'modal-whatsapp-obra-id'
-        ).value;
+      const obra = obras.find(o => o.id === obraId);
+      const func = equipe.find(f => f.id === funcId);
 
-
-      const funcId =
-        document.getElementById(
-          'modal-whatsapp-funcionario'
-        ).value;
-
-
-      const local =
-        document.getElementById(
-          'modal-whatsapp-obra-local'
-        ).value;
-
-
-      const instrucao =
-        document.getElementById(
-          'modal-whatsapp-mensagem'
-        ).value;
-
-
-      const obra =
-        obras.find(
-          o => o.id === obraId
-        );
-
-
-      const func =
-        equipe.find(
-          f => f.id === funcId
-        );
-
-
-      if (!func) {
-
-        alert(
-          "Selecione o funcionário!"
-        );
-
+      if (!func || !obra) {
+        alert("Selecione o funcionário e a obra!");
         return;
-
       }
 
+      let texto = `Olá *${func.nome}*, tudo bem?\n\n`;
+      texto += `*Aviso de Convocação de Obra - T.R.E. Montagens*\n\n`;
+      texto += `🏗️ *Obra:* ${obra.nome}\n`;
+      texto += `📍 *Local:* ${local}\n`;
+      if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
+      texto += `\nPor favor, confirme e bata o ponto na chegada!`;
 
-      if (!obra) {
+      const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
+      const link = numLimpo
+        ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
 
-        alert(
-          "Obra não encontrada!"
-        );
-
-        return;
-
-      }
-
-
-      let texto =
-        `Olá ${func.nome}, tudo bem?\n\n`;
-
-
-      texto +=
-        `*Aviso de Convocação de Obra - T.R.E. Montagens*\n\n`;
-
-
-      texto +=
-        `🏗️ *Obra:* ${obra.nome}\n`;
-
-
-      texto +=
-        `📍 *Local:* ${local}\n`;
-
-
-      if (instrucao) {
-
-        texto +=
-          `📝 *Instruções:* ${instrucao}\n`;
-
-      }
-
-
-      texto +=
-        `\nPor favor, confirme o recebimento e não se esqueça de bater o ponto na chegada!`;
-
-
-      const numLimpo =
-        func.whatsapp
-          ? func.whatsapp.replace(
-              /\D/g,
-              ''
-            )
-          : '';
-
-
-      const link =
-        numLimpo
-
-          ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
-
-          : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
-
-
-      window.open(
-        link,
-        '_blank'
-      );
-
-
+      window.open(link, '_blank');
       fecharModalWhatsapp();
-
     }
 
 
@@ -3802,103 +2488,34 @@
        ========================================================= */
 
     function cadastrarFuncionario() {
+      const nome = document.getElementById('func-nome').value.trim();
+      const whatsapp = document.getElementById('func-whatsapp').value.trim();
+      const diaria = parseFloat(document.getElementById('func-diaria').value);
+      const pin = document.getElementById('func-pin').value.trim();
 
-      const nome =
-        document.getElementById(
-          'func-nome'
-        ).value.trim();
-
-
-      const whatsapp =
-        document.getElementById(
-          'func-whatsapp'
-        ).value.trim();
-
-
-      const diaria =
-        parseFloat(
-          document.getElementById(
-            'func-diaria'
-          ).value
-        );
-
-
-      const pin =
-        document.getElementById(
-          'func-pin'
-        ).value.trim();
-
-
-      if (
-        !nome ||
-        !Number.isFinite(diaria) ||
-        diaria <= 0 ||
-        !pin
-      ) {
-
-        alert(
-          "Preencha o nome, informe uma diária válida e o PIN!"
-        );
-
+      if (!nome || !Number.isFinite(diaria) || diaria <= 0 || !pin) {
+        alert("Preencha o nome, diária válida e o PIN!");
         return;
-
       }
 
-
       const novoFunc = {
-
-        id:
-          Date.now().toString(),
-
-        nome:
-          nome,
-
-        whatsapp:
-          whatsapp,
-
-        diaria:
-          diaria,
-
-        pin:
-          pin,
-
-        ativo:
-          true
-
+        id: Date.now().toString(),
+        nome: nome,
+        whatsapp: whatsapp,
+        diaria: diaria,
+        pin: pin,
+        ativo: true
       };
 
-
-      equipe.push(
-        novoFunc
-      );
-
-
+      equipe.push(novoFunc);
       salvarTudo();
-
       populardropdowns();
-
       renderizarEquipe();
 
-
-      document.getElementById(
-        'func-nome'
-      ).value = '';
-
-
-      document.getElementById(
-        'func-whatsapp'
-      ).value = '';
-
-
-      document.getElementById(
-        'func-diaria'
-      ).value = '';
-
-
-      document.getElementById(
-        'func-pin'
-      ).value = '';
-
+      document.getElementById('func-nome').value = '';
+      document.getElementById('func-whatsapp').value = '';
+      document.getElementById('func-diaria').value = '';
+      document.getElementById('func-pin').value = '';
     }
 
 
@@ -3907,101 +2524,40 @@
        ========================================================= */
 
     function renderizarEquipe() {
-
-      const lista =
-        document.getElementById(
-          'lista-equipe'
-        );
-
-
-      const ativos =
-        equipe.filter(
-          f => f.ativo !== false
-        );
-
+      const lista = document.getElementById('lista-equipe');
+      const ativos = equipe.filter(f => f.ativo !== false);
 
       if (ativos.length === 0) {
-
-        lista.innerHTML =
-          '<li class="py-3 text-sm text-gray-500">Nenhum colaborador ativo.</li>';
-
+        lista.innerHTML = '<li class="py-3 text-sm text-gray-500">Nenhum colaborador ativo.</li>';
         return;
-
       }
 
-
-      lista.innerHTML =
-        ativos.map(f => `
-
-          <li class="py-3 flex justify-between items-center">
-
-            <div>
-
-              <p class="font-bold text-blue-950">
-                ${f.nome}
-              </p>
-
-              <p class="text-xs text-gray-500">
-                📱 ${f.whatsapp || 'Sem Whats'}
-                |
-                Diária: R$ ${Number(f.diaria).toFixed(2)}
-                |
-                PIN: ****
-              </p>
-
-            </div>
-
-            <button
-              onclick="desativarFuncionario('${f.id}')"
-              class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition"
-            >
-              Remover
-            </button>
-
-          </li>
-
-        `).join('');
-
+      lista.innerHTML = ativos.map(f => `
+        <li class="py-3 flex justify-between items-center">
+          <div>
+            <p class="font-bold text-blue-950">${f.nome}</p>
+            <p class="text-xs text-gray-500">📱 ${f.whatsapp || 'Sem Whats'} | Diária: R$ ${Number(f.diaria).toFixed(2)} | PIN: ****</p>
+          </div>
+          <button onclick="desativarFuncionario('${f.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition">Remover</button>
+        </li>
+      `).join('');
     }
 
-
-    function desativarFuncionario(
-      id
-    ) {
-
-      if (
-        confirm(
-          "Remover este colaborador da equipe ativa?"
-        )
-      ) {
-
-        const index =
-          equipe.findIndex(
-            f => f.id === id
-          );
-
-
+    function desativarFuncionario(id) {
+      if (confirm("Remover este colaborador da equipe ativa?")) {
+        const index = equipe.findIndex(f => f.id === id);
         if (index !== -1) {
-
-          equipe[index].ativo =
-            false;
-
-
+          equipe[index].ativo = false;
           salvarTudo();
-
           populardropdowns();
-
           renderizarEquipe();
-
         }
-
       }
-
     }
 
 
     /* =========================================================
-       ALTERNAR CAMPOS DE DESIGNAÇÃO (DIÁRIA vs EMPREITA/M²/HORA)
+       ALTERNAR CAMPOS DE DESIGNAÇÃO
        ========================================================= */
 
     function alternarCamposDesignacao() {
@@ -4030,172 +2586,57 @@
        ========================================================= */
 
     function confirmarEEnviarDesignacao() {
+      const btn = document.getElementById('btn-designar');
+      const funcId = document.getElementById('designar-funcionario').value;
+      const obraId = document.getElementById('designar-obra').value;
+      const tipo = document.getElementById('designar-tipo').value;
+      const valor = parseFloat(document.getElementById('designar-valor').value);
+      const quantidade = parseFloat(document.getElementById('designar-quantidade').value) || 1;
+      const dataInicio = document.getElementById('designar-data').value;
+      const instrucao = document.getElementById('designar-instrucao').value.trim();
 
-      const btn =
-        document.getElementById(
-          'btn-designar'
-        );
-
-
-      const funcId =
-        document.getElementById(
-          'designar-funcionario'
-        ).value;
-
-
-      const obraId =
-        document.getElementById(
-          'designar-obra'
-        ).value;
-
-
-      const tipo =
-        document.getElementById(
-          'designar-tipo'
-        ).value;
-
-
-      const valor =
-        parseFloat(
-          document.getElementById(
-            'designar-valor'
-          ).value
-        );
-
-
-      const quantidade =
-        parseFloat(
-          document.getElementById(
-            'designar-quantidade'
-          ).value
-        ) || 1;
-
-
-      const dataInicio =
-        document.getElementById(
-          'designar-data'
-        ).value;
-
-
-      const instrucao =
-        document.getElementById(
-          'designar-instrucao'
-        ).value.trim();
-
-
-      if (
-        !funcId ||
-        !obraId ||
-        !dataInicio ||
-        !Number.isFinite(valor) ||
-        valor <= 0
-      ) {
-
-        alert(
-          "Preencha o colaborador, a obra, a data e informe um valor válido!"
-        );
-
+      if (!funcId || !obraId || !dataInicio || !Number.isFinite(valor) || valor <= 0) {
+        alert("Preencha todos os campos obrigatórios e informe um valor válido!");
         return;
-
       }
 
-
-      const func =
-        equipe.find(
-          f => f.id === funcId
-        );
-
-
-      const obra =
-        obras.find(
-          o => o.id === obraId
-        );
-
+      const func = equipe.find(f => f.id === funcId);
+      const obra = obras.find(o => o.id === obraId);
 
       if (!func || !obra) {
-
-        alert(
-          "Funcionário ou obra não encontrado."
-        );
-
+        alert("Funcionário ou obra não encontrado.");
         return;
-
       }
-
 
       btn.disabled = true;
 
-
       try {
-
         let totalCalculado = valor;
         if (tipo === 'Metro Quadrado' || tipo === 'Por Hora') {
           totalCalculado = valor * quantidade;
         }
 
         const novaDesignacao = {
-
-          id:
-            Date.now().toString(),
-
-          funcionarioId:
-            funcId,
-
-          obraId:
-            obraId,
-
-          tipoContratacao:
-            tipo,
-
-          valorUnitario:
-            valor,
-
-          quantidade:
-            quantidade,
-
-          valorTotal:
-            totalCalculado,
-
-          dataInicio:
-            dataInicio,
-
-          instrucao:
-            instrucao,
-
-          dataRegistro:
-            new Date()
-              .toLocaleDateString(
-                'pt-BR'
-              )
-
+          id: Date.now().toString(),
+          funcionarioId: funcId,
+          obraId: obraId,
+          tipoContratacao: tipo,
+          valorUnitario: valor,
+          quantidade: quantidade,
+          valorTotal: totalCalculado,
+          dataInicio: dataInicio,
+          instrucao: instrucao,
+          dataRegistro: new Date().toLocaleDateString('pt-BR')
         };
 
-
-        designacoes.unshift(
-          novaDesignacao
-        );
-
-
+        designacoes.unshift(novaDesignacao);
         salvarTudo();
-
         renderizarDesignacoes();
 
-
-        let texto =
-          `Olá *${func.nome}*, você foi escalado para uma obra pela *T.R.E. Montagens*!\n\n`;
-
-
-        texto +=
-          `🏗️ *Obra:* ${obra.nome}\n`;
-
-
-        texto +=
-          `📍 *Localização:* ${obra.local}\n`;
-
-
-        texto +=
-          `📋 *Contrato:* ${tipo}\n`;
-
+        let texto = `Olá *${func.nome}*, você foi escalado para uma obra pela *T.R.E. Montagens*!\n\n`;
+        texto += `🏗️ *Obra:* ${obra.nome}\n`;
+        texto += `📍 *Localização:* ${obra.local}\n`;
+        texto += `📋 *Contrato:* ${tipo}\n`;
         if (tipo === 'Diária') {
           texto += `💰 *Valor Diária:* R$ ${valor.toFixed(2)}\n`;
         } else if (tipo === 'Empreita Global') {
@@ -4203,76 +2644,28 @@
         } else if (tipo === 'Metro Quadrado') {
           texto += `📏 *Metragem:* ${quantidade} m² (R$ ${valor.toFixed(2)}/m²) -> *Total: R$ ${totalCalculado.toFixed(2)}*\n`;
         } else if (tipo === 'Por Hora') {
-          texto += `⏱️ *Horas:* ${quantidade}h (R$ ${valor.toFixed(2)}/h) -> *Total: R$ ${totalCalculado.toFixed(2)}*\n`;
+          texto += `⏱️️ *Horas:* ${quantidade}h (R$ ${valor.toFixed(2)}/h) -> *Total: R$ ${totalCalculado.toFixed(2)}*\n`;
         }
+        texto += `📅 *Data de Início:* ${dataInicio.split('-').reverse().join('/')}\n`;
+        if (instrucao) texto += `📝 *Instruções:* ${instrucao}\n`;
+        texto += `\nConfirme o recebimento e bata o ponto!`;
 
+        const numLimpo = func.whatsapp ? func.whatsapp.replace(/\D/g, '') : '';
+        const linkZap = numLimpo
+          ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
+          : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
 
-        texto +=
-          `📅 *Data de Início:* ${dataInicio.split('-').reverse().join('/')}\n`;
+        window.open(linkZap, '_blank');
 
-
-        if (instrucao) {
-
-          texto +=
-            `📝 *Instruções:* ${instrucao}\n`;
-
-        }
-
-
-        texto +=
-          `\nPor favor, confirme o recebimento e lembre-se de bater o ponto no app!`;
-
-
-        const numLimpo =
-          func.whatsapp
-            ? func.whatsapp.replace(
-                /\D/g,
-                ''
-              )
-            : '';
-
-
-        const linkZap =
-          numLimpo
-
-            ? `https://api.whatsapp.com/send?phone=${numLimpo}&text=${encodeURIComponent(texto)}`
-
-            : `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
-
-
-        window.open(
-          linkZap,
-          '_blank'
-        );
-
-
-        document.getElementById(
-          'designar-instrucao'
-        ).value = '';
-
-        document.getElementById(
-          'designar-valor'
-        ).value = '';
-
-        document.getElementById(
-          'designar-quantidade'
-        ).value = '';
-
-      }
-
-      catch (erro) {
-
+        document.getElementById('designar-instrucao').value = '';
+        document.getElementById('designar-valor').value = '';
+        document.getElementById('designar-quantidade').value = '';
+      } catch (erro) {
         console.error(erro);
-
-        alert(
-          "Erro ao registrar a designação."
-        );
-
+        alert("Erro ao registrar a designação.");
       }
-
 
       btn.disabled = false;
-
     }
 
 
@@ -4281,131 +2674,45 @@
        ========================================================= */
 
     function renderizarDesignacoes() {
-
-      const container =
-        document.getElementById(
-          'lista-designacoes'
-        );
-
-
+      const container = document.getElementById('lista-designacoes');
       if (!container) return;
 
-
       if (designacoes.length === 0) {
-
-        container.innerHTML =
-          '<p class="text-xs text-gray-500 py-3">Nenhuma designação realizada.</p>';
-
+        container.innerHTML = '<p class="text-xs text-gray-500 py-3">Nenhuma designação realizada.</p>';
         return;
-
       }
 
+      container.innerHTML = designacoes.slice(0, 10).map(d => {
+        const func = equipe.find(f => f.id === d.funcionarioId);
+        const obra = obras.find(o => o.id === d.obraId);
 
-      container.innerHTML =
-        designacoes
-          .slice(0, 10)
-          .map(d => {
+        let detalhesValor = `Diária: R$ ${Number(d.valorUnitario || 0).toFixed(2)}`;
+        if (d.tipoContratacao === 'Empreita Global') {
+          detalhesValor = `Empreita: R$ ${Number(d.valorTotal || d.valorUnitario || 0).toFixed(2)}`;
+        } else if (d.tipoContratacao === 'Metro Quadrado') {
+          detalhesValor = `${d.quantidade}m² a R$ ${Number(d.valorUnitario || 0).toFixed(2)}/m² (Tot: R$ ${Number(d.valorTotal || 0).toFixed(2)})`;
+        } else if (d.tipoContratacao === 'Por Hora') {
+          detalhesValor = `${d.quantidade}h a R$ ${Number(d.valorUnitario || 0).toFixed(2)}/h (Tot: R$ ${Number(d.valorTotal || 0).toFixed(2)})`;
+        }
 
-            const func =
-              equipe.find(
-                f =>
-                  f.id ===
-                  d.funcionarioId
-              );
-
-
-            const obra =
-              obras.find(
-                o =>
-                  o.id ===
-                  d.obraId
-              );
-
-            let detalhesValor = `Diária: R$ ${Number(d.valorUnitario || 0).toFixed(2)}`;
-            if (d.tipoContratacao === 'Empreita Global') {
-              detalhesValor = `Empreita: R$ ${Number(d.valorTotal || d.valorUnitario || 0).toFixed(2)}`;
-            } else if (d.tipoContratacao === 'Metro Quadrado') {
-              detalhesValor = `${d.quantidade || 0} m² x R$ ${Number(d.valorUnitario || 0).toFixed(2)} = R$ ${Number(d.valorTotal || 0).toFixed(2)}`;
-            } else if (d.tipoContratacao === 'Por Hora') {
-              detalhesValor = `${d.quantidade || 0}h x R$ ${Number(d.valorUnitario || 0).toFixed(2)} = R$ ${Number(d.valorTotal || 0).toFixed(2)}`;
-            }
-
-
-            return `
-
-              <div class="py-3 flex justify-between items-center">
-
-                <div>
-
-                  <p class="font-bold text-blue-950">
-                    ${func ? func.nome : 'Ex-colaborador'}
-                    ➔
-                    ${obra ? obra.nome : 'Obra Removida'}
-                  </p>
-
-                  <p class="text-xs text-emerald-800 font-semibold">
-                    [${d.tipoContratacao || 'Diária'}] ${detalhesValor}
-                  </p>
-
-                  <p class="text-xs text-gray-500">
-                    Início:
-                    ${d.dataInicio}
-                    |
-                    Registrado em:
-                    ${d.dataRegistro}
-                  </p>
-
-                  ${
-                    d.instrucao
-                      ? `
-                        <p class="text-xs text-gray-600 italic">
-                          "${d.instrucao}"
-                        </p>
-                      `
-                      : ''
-                  }
-
-                </div>
-
-                <button
-                  onclick="removerDesignacao('${d.id}')"
-                  class="text-xs text-red-600 font-bold hover:underline"
-                >
-                  Remover
-                </button>
-
-              </div>
-
-            `;
-
-          })
-          .join('');
-
+        return `
+          <div class="py-2.5 flex justify-between items-center text-xs">
+            <div>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'} -> <span class="text-orange-600">${obra ? obra.nome : 'Obra'}</span></p>
+              <p class="text-gray-500">${d.tipoContratacao} | ${detalhesValor} | Início: ${d.dataInicio ? d.dataInicio.split('-').reverse().join('/') : ''}</p>
+            </div>
+            <button onclick="excluirDesignacao('${d.id}')" class="text-red-600 font-bold px-2 py-1">Excluir</button>
+          </div>
+        `;
+      }).join('');
     }
 
-
-    function removerDesignacao(
-      id
-    ) {
-
-      if (
-        confirm(
-          "Remover este registro?"
-        )
-      ) {
-
-        designacoes =
-          designacoes.filter(
-            d => d.id !== id
-          );
-
-
+    function excluirDesignacao(id) {
+      if (confirm("Excluir esta designação?")) {
+        designacoes = designacoes.filter(d => d.id !== id);
         salvarTudo();
-
         renderizarDesignacoes();
-
       }
-
     }
 
 
@@ -4414,330 +2721,129 @@
        ========================================================= */
 
     function carregarPresencas() {
-
-      const tabela =
-        document.getElementById(
-          'tabela-presencas'
-        );
-
-
+      const tabela = document.getElementById('tabela-presencas');
       if (!tabela) return;
 
-
       if (pontos.length === 0) {
-
-        tabela.innerHTML =
-          '<tr><td colspan="5" class="p-4 text-center text-gray-500 text-xs">Nenhum ponto registrado.</td></tr>';
-
+        tabela.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">Nenhum ponto registrado.</td></tr>';
         return;
-
       }
 
+      tabela.innerHTML = pontos.map(p => {
+        const func = equipe.find(f => f.id === p.funcionarioId);
+        const obra = obras.find(o => o.id === p.obraId);
 
-      tabela.innerHTML =
-        pontos.map(p => {
+        let gpsHtml = '<span class="text-gray-400 text-xs">Sem GPS</span>';
+        if (p.gps && p.gps.lat) {
+          const mapsUrl = `https://www.google.com/maps?q=${p.gps.lat},${p.gps.lng}`;
+          gpsHtml = `<a href="${mapsUrl}" target="_blank" class="text-blue-600 font-bold underline text-xs">Ver no Mapa ↗</a>`;
+        }
 
-          const func =
-            equipe.find(
-              f =>
-                f.id ===
-                p.funcionarioId
-            );
-
-
-          const obra =
-            obras.find(
-              o =>
-                o.id ===
-                p.obraId
-            );
-
-
-          let gpsHtml =
-            '<span class="text-xs text-gray-400">Sem GPS</span>';
-
-
-          if (p.gps) {
-
-            const mapUrl =
-              `https://www.google.com/maps?q=${p.gps.lat},${p.gps.lng}`;
-
-
-            gpsHtml = `
-
-              <a
-                href="${mapUrl}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-xs text-blue-600 underline font-semibold flex items-center gap-1"
-              >
-                📍 Ver Localização
-              </a>
-
-            `;
-
-          }
-
-
-          return `
-
-            <tr class="hover:bg-gray-50">
-
-              <td class="p-3 border-b text-xs font-semibold text-gray-700">
-                ${p.data}
-                ${p.hora ? `(${p.hora})` : ''}
-              </td>
-
-              <td class="p-3 border-b text-xs font-bold text-blue-950">
-                ${func ? func.nome : 'Ex-colaborador'}
-              </td>
-
-              <td class="p-3 border-b text-xs text-gray-600">
-                ${obra ? obra.nome : 'Desconhecida'}
-              </td>
-
-              <td class="p-3 border-b">
-                ${gpsHtml}
-              </td>
-
-              <td class="p-3 border-b text-right">
-
-                <button
-                  onclick="excluirPonto('${p.id}')"
-                  class="text-xs text-red-600 font-bold hover:underline"
-                >
-                  Excluir
-                </button>
-
-              </td>
-
-            </tr>
-
-          `;
-
-        }).join('');
-
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 border-b font-medium">${p.data} <span class="text-xs text-gray-500">(${p.hora})</span></td>
+            <td class="p-3 border-b font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</td>
+            <td class="p-3 border-b">${obra ? obra.nome : 'Desconhecida'}</td>
+            <td class="p-3 border-b">${gpsHtml}</td>
+            <td class="p-3 border-b text-right">
+              <button onclick="excluirPonto('${p.id}')" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1 rounded text-xs">Excluir</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
-
-    function excluirPonto(
-      id
-    ) {
-
-      if (
-        confirm(
-          "Deseja excluir este registro de ponto?"
-        )
-      ) {
-
-        pontos =
-          pontos.filter(
-            p => p.id !== id
-          );
-
-
+    function excluirPonto(id) {
+      if (confirm("Deseja apagar este registro de ponto?")) {
+        pontos = pontos.filter(p => p.id !== id);
         salvarTudo();
-
         carregarPresencas();
-
       }
-
     }
 
 
     /* =========================================================
-       VALES ADMIN
+       COMPROVANTES
        ========================================================= */
 
     function carregarValesAdmin() {
-
-      const container =
-        document.getElementById(
-          'container-vales-admin'
-        );
-
-
+      const container = document.getElementById('container-vales-admin');
       if (!container) return;
 
-
       if (vales.length === 0) {
-
-        container.innerHTML =
-          '<p class="col-span-2 text-xs text-gray-500 py-4 text-center">Nenhum vale ou ressarcimento cadastrado.</p>';
-
+        container.innerHTML = '<p class="col-span-2 text-sm text-gray-500 italic text-center py-6">Nenhum vale ou ressarcimento enviado ainda.</p>';
         return;
-
       }
 
+      container.innerHTML = vales.map(v => {
+        const func = equipe.find(f => f.id === v.funcionarioId);
+        const obra = obras.find(o => o.id === v.obraId);
+        const corTipo = v.tipo === 'Ressarcimento' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800';
 
-      container.innerHTML =
-        vales.map(v => {
-
-          const func =
-            equipe.find(
-              f => f.id === v.funcionarioId
-            );
-
-
-          const obra =
-            obras.find(
-              o => o.id === v.obraId
-            );
-
-
-          const corBadge =
-            v.tipo === 'Ressarcimento'
-              ? 'bg-emerald-100 text-emerald-800'
-              : 'bg-orange-100 text-orange-800';
-
-
-          const comprovanteHtml =
-            v.comprovante
-
-              ? `
-                <div class="mt-2">
-                  <a
-                    href="${v.comprovante}"
-                    target="_blank"
-                    class="block"
-                  >
-                    <img
-                      src="${v.comprovante}"
-                      class="w-full h-32 object-cover rounded-xl border hover:opacity-90 transition"
-                      alt="Comprovante"
-                    >
-                  </a>
-                </div>
-              `
-
-              : '<p class="text-[10px] text-gray-400 italic mt-1">Sem imagem anexada</p>';
-
-
-          return `
-
-            <div class="bg-gray-50 p-4 rounded-2xl border shadow-sm flex flex-col justify-between space-y-2">
-
-              <div>
-
-                <div class="flex justify-between items-center mb-1">
-
-                  <span class="text-xs font-bold px-2 py-0.5 rounded-full ${corBadge}">
-                    ${v.tipo}
-                  </span>
-
-                  <span class="text-xs text-gray-500">
-                    ${v.data}
-                  </span>
-
-                </div>
-
-                <p class="font-bold text-blue-950 text-sm">
-                  ${func ? func.nome : 'Ex-colaborador'}
-                </p>
-
-                <p class="text-xs text-gray-600">
-                  Obra: ${obra ? obra.nome : 'Desconhecida'}
-                </p>
-
-                <p class="text-xs font-bold text-gray-800 mt-1">
-                  Valor: R$ ${Number(v.valor).toFixed(2)}
-                </p>
-
-                ${
-                  v.descricao
-                    ? `
-                      <p class="text-xs text-gray-600 italic mt-1">
-                        "${v.descricao}"
-                      </p>
-                    `
-                    : ''
-                }
-
-                ${comprovanteHtml}
-
-              </div>
-
-              <div class="pt-2 border-t flex justify-end">
-
-                <button
-                  onclick="excluirVale('${v.id}')"
-                  class="text-xs text-red-600 font-bold hover:underline"
-                >
-                  Excluir Lançamento
-                </button>
-
-              </div>
-
-            </div>
-
+        let compHtml = '<p class="text-xs text-gray-400 italic">Sem comprovante em imagem</p>';
+        if (v.comprovante) {
+          compHtml = `
+            <a href="${v.comprovante}" target="_blank">
+              <img src="${v.comprovante}" class="w-full h-32 object-cover rounded-lg border hover:opacity-90 transition" alt="Comprovante">
+            </a>
           `;
+        }
 
-        }).join('');
-
+        return `
+          <div class="card-acustico-blur p-4 rounded-2xl border space-y-3 shadow-sm">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${corTipo}">${v.tipo || 'Vale'}</span>
+              <span class="text-xs text-gray-500 font-semibold">${v.data}</span>
+            </div>
+            <div>
+              <p class="font-bold text-blue-950">${func ? func.nome : 'Ex-colaborador'}</p>
+              <p class="text-xs text-gray-600">Obra: ${obra ? obra.nome : 'Geral'}</p>
+              <p class="text-sm font-extrabold text-gray-900 mt-1">Valor: R$ ${Number(v.valor).toFixed(2)}</p>
+              <p class="text-xs text-gray-600 italic">"${v.descricao || 'Sem descrição'}"</p>
+            </div>
+            ${compHtml}
+            <div class="text-right pt-1">
+              <button onclick="excluirVale('${v.id}')" class="text-xs text-red-600 font-bold hover:underline">Excluir Lançamento</button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
-
-
-    function excluirVale(id) {
-
-      if (
-        confirm(
-          "Deseja excluir este lançamento?"
-        )
-      ) {
-
-        vales =
-          vales.filter(
-            v => v.id !== id
-          );
-
-
-        salvarTudo();
-
-        carregarValesAdmin();
-
-      }
-
-    }
-
 
     async function exportarComprovantesZip() {
-
       if (vales.length === 0) {
         alert("Não há comprovantes para exportar.");
         return;
       }
-
-      if (typeof JSZip === 'undefined') {
-        alert("Biblioteca JSZip não carregada.");
-        return;
-      }
-
       const zip = new JSZip();
-      const pasta = zip.folder("comprovantes_e_vales");
+      const pasta = zip.folder("comprovantes");
 
       vales.forEach((v, index) => {
         if (v.comprovante && v.comprovante.includes(',')) {
           const arr = v.comprovante.split(',');
-          const mime = arr[0].match(/:(.*?);/)[1];
           const bstr = atob(arr[1]);
           let n = bstr.length;
           const u8arr = new Uint8Array(n);
-          while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-          }
-          const nomeArquivo = `comprovante_${index + 1}_${v.tipo}_R$${v.valor}.jpg`;
-          pasta.file(nomeArquivo, u8arr);
+          while (n--) { u8arr[n] = bstr.charCodeAt(n); }
+          pasta.file(`comprovante_${index + 1}_${v.tipo}.jpg`, u8arr);
         }
       });
 
       try {
         const content = await zip.generateAsync({ type: "blob" });
-        saveAs(content, "Comprovantes_Vales_T_R_E.zip");
+        saveAs(content, `Comprovantes_TRE.zip`);
       } catch (err) {
         console.error(err);
-        alert("Erro ao gerar arquivo ZIP.");
+        alert("Erro ao exportar ZIP de comprovantes.");
       }
+    }
 
+    function excluirVale(id) {
+      if (confirm("Deseja excluir este lançamento?")) {
+        vales = vales.filter(v => v.id !== id);
+        salvarTudo();
+        carregarValesAdmin();
+      }
     }
 
 
@@ -4746,230 +2852,102 @@
        ========================================================= */
 
     function calcularFechamentoMensal() {
-
-      const mesSelect =
-        document.getElementById(
-          'fechamento-mes'
-        );
-
-      const anoSelect =
-        document.getElementById(
-          'fechamento-ano'
-        );
-
-      const tabela =
-        document.getElementById(
-          'tabela-fechamento'
-        );
-
-      if (!mesSelect || !anoSelect || !tabela) return;
-
-
-      const mes =
-        parseInt(mesSelect.value);
-
-      const ano =
-        parseInt(anoSelect.value);
-
-
-      const funcionariosAtivos =
-        equipe.filter(
-          e => e.ativo !== false
-        );
-
-
-      if (funcionariosAtivos.length === 0) {
-
-        tabela.innerHTML =
-          '<tr><td colspan="7" class="p-4 text-center text-gray-500 text-xs">Nenhum funcionário ativo.</td></tr>';
-
-        return;
-
-      }
-
-
-      tabela.innerHTML =
-        funcionariosAtivos.map(func => {
-
-          // Verificar designações ou diárias do funcionário no mês/ano
-          const desigDoFunc = designacoes.filter(d => {
-            if (d.funcionarioId !== func.id) return false;
-            const partes = d.dataInicio.split('-');
-            if (partes.length === 3) {
-              const anoD = parseInt(partes[0]);
-              const mesD = parseInt(partes[1]) - 1;
-              return anoD === ano && mesD === mes;
-            }
-            return false;
-          });
-
-          // Se tem designação de empreita/m²/hora no mês
-          let totalBruto = 0;
-          let descTipo = `R$ ${Number(func.diaria || 0).toFixed(2)} /dia`;
-          let qtdDiasOuProd = 0;
-
-          if (desigDoFunc.length > 0) {
-            // Soma o valor total das designações do mês ou calcula diárias
-            desigDoFunc.forEach(d => {
-              if (d.tipoContratacao === 'Diária') {
-                // Conta dias trabalhados por ponto ou assume 1 se designada
-                qtdDiasOuProd += 1;
-                totalBruto += Number(d.valorUnitario || func.diaria || 0);
-              } else {
-                totalBruto += Number(d.valorTotal || d.valorUnitario || 0);
-                qtdDiasOuProd += (d.quantidade || 1);
-              }
-            });
-            descTipo = desigDoFunc.map(d => d.tipoContratacao).join(', ');
-          } else {
-            // Contagem padrão por pontos diários
-            const pontosFuncMes =
-              pontos.filter(p => {
-                if (p.funcionarioId !== func.id) return false;
-                const partes = p.data.split('-');
-                if (partes.length === 3) {
-                  const anoP = parseInt(partes[0]);
-                  const mesP = parseInt(partes[1]) - 1;
-                  return anoP === ano && mesP === mes;
-                }
-                return false;
-              });
-
-            qtdDiasOuProd = pontosFuncMes.length;
-            totalBruto = qtdDiasOuProd * Number(func.diaria || 0);
-          }
-
-
-          // Vales e ressarcimentos do mês
-          const valesFuncMes =
-            vales.filter(v => {
-              if (v.funcionarioId !== func.id) return false;
-              const partes = v.data.split('-');
-              if (partes.length === 3) {
-                const anoV = parseInt(partes[0]);
-                const mesV = parseInt(partes[1]) - 1;
-                return anoV === ano && mesV === mes;
-              }
-              return false;
-            });
-
-
-          let totalVales = 0;
-
-          let totalRessarcimentos = 0;
-
-
-          valesFuncMes.forEach(v => {
-
-            if (v.tipo === 'Ressarcimento') {
-              totalRessarcimentos += Number(v.valor);
-            } else {
-              totalVales += Number(v.valor);
-            }
-
-          });
-
-
-          // Saldo a pagar = Total Bruto + Ressarcimentos - Vales
-          const saldoFinal =
-            totalBruto + totalRessarcimentos - totalVales;
-
-
-          return `
-
-            <tr class="hover:bg-gray-50">
-
-              <td class="p-3 border-b text-xs font-bold text-blue-950">
-                ${func.nome}
-              </td>
-
-              <td class="p-3 border-b text-xs text-center text-gray-700">
-                ${descTipo}
-              </td>
-
-              <td class="p-3 border-b text-xs text-center font-semibold">
-                ${qtdDiasOuProd}
-              </td>
-
-              <td class="p-3 border-b text-xs text-right font-bold text-gray-800">
-                R$ ${totalBruto.toFixed(2)}
-              </td>
-
-              <td class="p-3 border-b text-xs text-right font-semibold text-blue-700">
-                + R$ ${totalRessarcimentos.toFixed(2)}
-              </td>
-
-              <td class="p-3 border-b text-xs text-right font-semibold text-red-600">
-                - R$ ${totalVales.toFixed(2)}
-              </td>
-
-              <td class="p-3 border-b text-xs text-right font-extrabold text-emerald-700">
-                R$ ${saldoFinal.toFixed(2)}
-              </td>
-
-            </tr>
-
-          `;
-
-        }).join('');
-
-    }
-
-
-    /* =========================================================
-       EXPORTAR EXCEL / PDF
-       ========================================================= */
-
-    function exportarExcelFechamento() {
-
-      const tabela =
-        document.getElementById(
-          'tabela-fechamento-export'
-        );
-
+      const mes = parseInt(document.getElementById('fechamento-mes').value);
+      const ano = parseInt(document.getElementById('fechamento-ano').value);
+      const tabela = document.getElementById('tabela-fechamento');
       if (!tabela) return;
 
-      const wb =
-        XLSX.utils.table_to_book(
-          tabela,
-          {
-            sheet: "Fechamento"
+      const funcionariosAtivos = equipe.filter(f => f.ativo !== false);
+
+      if (funcionariosAtivos.length === 0) {
+        tabela.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-500 italic">Nenhum colaborador ativo.</td></tr>';
+        return;
+      }
+
+      tabela.innerHTML = funcionariosAtivos.map(func => {
+        const designacaoFunc = designacoes.find(d => d.funcionarioId === func.id);
+        const tipoContrato = designacaoFunc ? designacaoFunc.tipoContratacao : 'Diária';
+        
+        let diasOuQtd = 0;
+        let bruto = 0;
+
+        if (tipoContrato === 'Diária') {
+          const pontosFuncMes = pontos.filter(p => {
+            if (p.funcionarioId !== func.id) return false;
+            const partes = p.data.split('-');
+            const pAno = parseInt(partes[0]);
+            const pMes = parseInt(partes[1]) - 1;
+            return pAno === ano && pMes === mes;
+          });
+          diasOuQtd = pontosFuncMes.length;
+          const diariaBase = designacaoFunc ? designacaoFunc.valorUnitario : func.diaria;
+          bruto = diasOuQtd * diariaBase;
+        } else if (tipoContrato === 'Empreita Global') {
+          diasOuQtd = 'Empreita';
+          bruto = designacaoFunc ? designacaoFunc.valorTotal : 0;
+        } else if (tipoContrato === 'Metro Quadrado' || tipoContrato === 'Por Hora') {
+          diasOuQtd = designacaoFunc ? `${designacaoFunc.quantidade} ${tipoContrato === 'Metro Quadrado' ? 'm²' : 'h'}` : '0';
+          bruto = designacaoFunc ? designacaoFunc.valorTotal : 0;
+        }
+
+        const valesFuncMes = vales.filter(v => {
+          if (v.funcionarioId !== func.id) return false;
+          const partes = v.data.split('-');
+          const vAno = parseInt(partes[0]);
+          const vMes = parseInt(partes[1]) - 1;
+          return vAno === ano && vMes === mes;
+        });
+
+        let totalVales = 0;
+        let totalRessarcimentos = 0;
+
+        valesFuncMes.forEach(v => {
+          if (v.tipo === 'Ressarcimento') {
+            totalRessarcimentos += Number(v.valor || 0);
+          } else {
+            totalVales += Number(v.valor || 0);
           }
-        );
+        });
 
-      XLSX.writeFile(
-        wb,
-        "Fechamento_TRE_Montagens.xlsx"
-      );
+        const saldoAPagar = bruto - totalVales + totalRessarcimentos;
 
+        let txtAcordo = `Diária (R$ ${Number(designacaoFunc ? designacaoFunc.valorUnitario : func.diaria).toFixed(2)})`;
+        if (tipoContrato !== 'Diária') txtAcordo = `${tipoContrato}`;
+
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 border-b font-bold text-blue-950">${func.nome}</td>
+            <td class="p-3 border-b text-center text-xs font-semibold">${txtAcordo}</td>
+            <td class="p-3 border-b text-center">${diasOuQtd}</td>
+            <td class="p-3 border-b text-right font-bold">R$ ${bruto.toFixed(2)}</td>
+            <td class="p-3 border-b text-right text-blue-700 font-medium">+ R$ ${totalRessarcimentos.toFixed(2)}</td>
+            <td class="p-3 border-b text-right text-red-600 font-medium">- R$ ${totalVales.toFixed(2)}</td>
+            <td class="p-3 border-b text-right font-extrabold text-emerald-700">R$ ${saldoAPagar.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
+    function exportarExcelFechamento() {
+      const tabela = document.getElementById('tabela-fechamento-export');
+      if (!tabela) return;
+      const wb = XLSX.utils.table_to_book(tabela, { sheet: "Fechamento T.R.E." });
+      XLSX.writeFile(wb, "Fechamento_Mensal_TRE.xlsx");
+    }
 
     function exportarPdfFechamento() {
-
-      const elemento =
-        document.getElementById(
-          'area-impressao-fechamento'
-        );
-
+      const elemento = document.getElementById('area-impressao-fechamento');
       if (!elemento) return;
-
       const opt = {
-        margin:       10,
-        filename:     'Fechamento_TRE_Montagens.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        margin: 10,
+        filename: 'Fechamento_Mensal_TRE.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
       };
-
-      html2pdf()
-        .from(elemento)
-        .set(opt)
-        .save();
-
+      html2pdf().from(elemento).set(opt).save();
     }
 
   </script>
-
 </body>
 </html>
